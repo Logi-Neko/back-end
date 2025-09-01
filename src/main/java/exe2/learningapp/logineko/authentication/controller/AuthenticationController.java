@@ -1,19 +1,19 @@
 package exe2.learningapp.logineko.authentication.controller;
 
+import exe2.learningapp.logineko.authentication.dtos.AccountDTO;
+import exe2.learningapp.logineko.authentication.dtos.UserCreationParams;
 import exe2.learningapp.logineko.authentication.dtos.UserInfo;
 import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.service.AccountService;
 import exe2.learningapp.logineko.common.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -176,89 +176,18 @@ public class AuthenticationController {
         }
     }
 
-    // Handle callback from Keycloak - cải thiện error handling
-//    @GetMapping("/callback")
-//    public ResponseEntity<ApiResponse<?>> handleCallback(
-//            @RequestParam("code") String code,
-//            @RequestParam(value = "state", required = false) String state,
-//            @RequestParam(value = "error", required = false) String error,
-//            @RequestParam(value = "error_description", required = false) String errorDescription) {
-//
-//        try {
-//            log.info("Handling callback with code: {}, state: {}", code != null ? "present" : "null", state);
-//
-//            // Check for errors from Keycloak
-//            if (error != null) {
-//                log.error("Keycloak returned error: {} - {}", error, errorDescription);
-//                return ResponseEntity.badRequest()
-//                        .body(ApiResponse.error(400, "Authentication failed: " + error + " - " + errorDescription));
-//            }
-//
-//            if (code == null || code.trim().isEmpty()) {
-//                return ResponseEntity.badRequest()
-//                        .body(ApiResponse.error(400, "Authorization code is missing"));
-//            }
-//
-//            // Exchange authorization code for tokens
-//            TokenResponse tokens = keycloakService.exchangeCodeForTokens(code);
-//            log.info("Successfully exchanged code for tokens");
-//
-//            // Parse user info from token
-//            UserInfo userInfo = keycloakService.getUserInfo(tokens.getAccessToken());
-//            log.info("Retrieved user info for email: {}", userInfo.getEmail());
-//
-//            // Create or update user in database
-//            Account user = accountService.createOrUpdateAccount(userInfo);
-//
-//            return ResponseEntity.ok(ApiResponse.success(
-//                    TokenResponse.builder()
-//                            .accessToken(tokens.getAccessToken())
-//                            .refreshToken(tokens.getRefreshToken())
-//                            .user(userInfo)
-//                            .build(),
-//                    "Login successful"
-//            ));
-//
-//        } catch (Exception e) {
-//            log.error("Error handling callback", e);
-//            return ResponseEntity.badRequest()
-//                    .body(ApiResponse.error(400, "Login failed: " + e.getMessage()));
-//        }
-//    }
+    @PostMapping("/register")
+    @Operation(summary = "Tạo user mới")
+    public ResponseEntity<ApiResponse<?>> registerUser(@RequestBody AccountDTO.CreateAccountRequest request) {
+        try {
+            AccountDTO.AccountResponse newUser = accountService.register(request);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.created(newUser, "User registered successfully"));
+        } catch (Exception e) {
+            log.error("Error registering user", e);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(400, "User registration failed: " + e.getMessage()));
+        }
+    }
 
-//    // Endpoint để refresh token
-//    @PostMapping("/refresh")
-//    public ResponseEntity<ApiResponse<?>> refreshToken(@RequestBody Map<String, String> request) {
-//        try {
-//            String refreshToken = request.get("refreshToken");
-//            if (refreshToken == null || refreshToken.trim().isEmpty()) {
-//                return ResponseEntity.badRequest()
-//                        .body(ApiResponse.error(400, "Refresh token is required"));
-//            }
-//
-//            TokenResponse tokens = keycloakService.refreshToken(refreshToken);
-//            return ResponseEntity.ok(ApiResponse.success(tokens, "Token refreshed successfully"));
-//
-//        } catch (Exception e) {
-//            log.error("Error refreshing token", e);
-//            return ResponseEntity.badRequest()
-//                    .body(ApiResponse.error(400, "Token refresh failed: " + e.getMessage()));
-//        }
-//    }
-//
-//    // Endpoint để logout
-//    @PostMapping("/logout")
-//    public ResponseEntity<ApiResponse<?>> logout(@RequestBody Map<String, String> request) {
-//        try {
-//            String refreshToken = request.get("refreshToken");
-//            if (refreshToken != null && !refreshToken.trim().isEmpty()) {
-//                keycloakService.logout(refreshToken);
-//            }
-//            return ResponseEntity.ok(ApiResponse.success(null, "Logout successful"));
-//
-//        } catch (Exception e) {
-//            log.error("Error during logout", e);
-//            return ResponseEntity.ok(ApiResponse.success(null, "Logout completed"));
-//        }
-//    }
 }

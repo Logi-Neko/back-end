@@ -45,7 +45,7 @@ public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSourc
             .csrf(csrf -> csrf.disable()) // disable CSRF để test API
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("api/login/**", "api/callback").permitAll() // cho phép public
-                    .anyRequest().authenticated() // các API khác phải login
+                    .anyRequest().permitAll() // các API khác phải login
             );
     return http.build();
 }

@@ -3,6 +3,7 @@ package exe2.learningapp.logineko.authentication.service;
 import exe2.learningapp.logineko.authentication.client.IdentityClient;
 import exe2.learningapp.logineko.authentication.dtos.AccountDTO;
 import exe2.learningapp.logineko.authentication.dtos.TokenExchangeParams;
+import exe2.learningapp.logineko.authentication.dtos.TokenExchangeResponse;
 import exe2.learningapp.logineko.authentication.dtos.UserInfo;
 import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.entity.Role;
@@ -15,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,12 +42,13 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
     @Override
     public AccountDTO.AccountResponse register(AccountDTO.CreateAccountRequest request) {
         //get account from keycloak
-        var token = identityClient.exchangeToken(TokenExchangeParams.builder()
-                .grantType("client_credentials")
-                .clientId(clientId)
-                .clientSecret(clientSecret).scope("openid")
-                .build());
-
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "client_credentials");
+        params.add("client_id", "logineko");
+        params.add("client_secret", "cKYZ9zDz2mQ6eyLnWh3hDVSD2uo6KAVa");
+        params.add("scope", "openid");
+        TokenExchangeResponse response = identityClient.exchangeToken(params);
+        log.info("Token: {}", response);
         //exchange client Token
 
         //create user in keycloak

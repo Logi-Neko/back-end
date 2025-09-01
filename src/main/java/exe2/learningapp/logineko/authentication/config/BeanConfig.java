@@ -3,6 +3,10 @@ package exe2.learningapp.logineko.authentication.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -25,4 +29,17 @@ public class BeanConfig {
         );
         return builder;
     }
+    @Bean
+    public OpenAPI securityOpenAPI() {
+        final String scheme = "bearerAuth";
+        return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement().addList(scheme))
+                .components(new Components().addSecuritySchemes(scheme,
+                        new SecurityScheme()
+                                .name(scheme)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")));
+    }
+
 }
