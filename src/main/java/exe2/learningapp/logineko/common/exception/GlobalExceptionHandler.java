@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
         log.warn("API Exception: {} - {}", ex.getErrorCode().getCode(), ex.getMessage());
 
         ErrorCode error = ex.getErrorCode();
-        String message = MessageFormatter.format(error, ex.getArgs());
+        String message = MessageFormatter.format(error);
 
         ApiResponse<?> response = ApiResponse.builder()
                 .status(error.getStatus())
@@ -37,49 +37,49 @@ public class GlobalExceptionHandler {
     }
 
     // Handle Keycloak/Feign exceptions (for your 401 issue)
-    @ExceptionHandler(FeignException.class)
-    public ResponseEntity<ApiResponse<?>> handleFeignException(FeignException ex, HttpServletRequest request) {
-        log.error("Feign Exception: {} - {}", ex.status(), ex.getMessage());
-
-        ErrorCode errorCode;
-
-        // Map common Feign exceptions to your ErrorCodes
-        switch (ex.status()) {
-            case 400:
-                errorCode = ErrorCode.ERR_BAD_REQUEST;
-                break;
-            case 401:
-                // Check if it's Keycloak token exchange
-                if (ex.request() != null && ex.request().url().contains("/protocol/openid-connect/token")) {
-                    errorCode = ErrorCode.AUTH_INVALID_CREDENTIALS;
-                } else {
-                    errorCode = ErrorCode.ERR_UNAUTHORIZED;
-                }
-                break;
-            case 403:
-                errorCode = ErrorCode.ERR_FORBIDDEN;
-                break;
-            case 404:
-                errorCode = ErrorCode.ERR_NOT_FOUND;
-                break;
-            case 408:
-                errorCode = ErrorCode.ERR_TIMEOUT;
-                break;
-            case 500:
-            default:
-                errorCode = ErrorCode.ERR_SERVER_ERROR;
-                break;
-        }
-
-        ApiResponse<?> response = ApiResponse.builder()
-                .status(errorCode.getStatus())
-                .code(errorCode.getCode())
-                .message(errorCode.getMessage())
-                .path(request.getRequestURI())
-                .build();
-
-        return ResponseEntity.status(errorCode.getStatus()).body(response);
-    }
+//    @ExceptionHandler(FeignException.class)
+//    public ResponseEntity<ApiResponse<?>> handleFeignException(FeignException ex, HttpServletRequest request) {
+//        log.error("Feign Exception: {} - {}", ex.status(), ex.getMessage());
+//
+//        ErrorCode errorCode;
+//
+//        // Map common Feign exceptions to your ErrorCodes
+//        switch (ex.status()) {
+//            case 400:
+//                errorCode = ErrorCode.ERR_BAD_REQUEST;
+//                break;
+//            case 401:
+//                // Check if it's Keycloak token exchange
+//                if (ex.request() != null && ex.request().url().contains("/protocol/openid-connect/token")) {
+//                    errorCode = ErrorCode.AUTH_INVALID_CREDENTIALS;
+//                } else {
+//                    errorCode = ErrorCode.ERR_UNAUTHORIZED;
+//                }
+//                break;
+//            case 403:
+//                errorCode = ErrorCode.ERR_FORBIDDEN;
+//                break;
+//            case 404:
+//                errorCode = ErrorCode.ERR_NOT_FOUND;
+//                break;
+//            case 408:
+//                errorCode = ErrorCode.ERR_TIMEOUT;
+//                break;
+//            case 500:
+//            default:
+//                errorCode = ErrorCode.ERR_SERVER_ERROR;
+//                break;
+//        }
+//
+//        ApiResponse<?> response = ApiResponse.builder()
+//                .status(errorCode.getStatus())
+//                .code(errorCode.getCode())
+//                .message(errorCode.getMessage())
+//                .path(request.getRequestURI())
+//                .build();
+//
+//        return ResponseEntity.status(errorCode.getStatus()).body(response);
+//    }
 
     // Handle validation errors
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})

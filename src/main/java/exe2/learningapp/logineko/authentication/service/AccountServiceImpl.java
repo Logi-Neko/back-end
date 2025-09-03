@@ -4,9 +4,8 @@ import exe2.learningapp.logineko.authentication.client.IdentityClient;
 import exe2.learningapp.logineko.authentication.dtos.*;
 import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.entity.Role;
-import exe2.learningapp.logineko.common.exception.ApiException;
 import exe2.learningapp.logineko.authentication.repository.AccountRepository;
-import exe2.learningapp.logineko.common.exception.ErrorCode;
+import exe2.learningapp.logineko.authentication.exception.ErrorNormalizer;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +27,7 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService , UserDetailsService {
     private final AccountRepository accountRepository;
     private final IdentityClient identityClient;
+    private final ErrorNormalizer errorNormalizer;
 
     @Value("${keycloak.resource}")
     private String clientId;
@@ -41,7 +41,7 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
 
     @Override
     public AccountDTO.AccountResponse register(AccountDTO.CreateAccountRequest request) {
-
+        try {
             // Lấy token
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
             params.add("grant_type", "client_credentials");
@@ -85,7 +85,10 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
 
             accountRepository.saveAndFlush(account);
             return mapToDTO(account);
-
+        }
+        catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakError(e);
+        }
 
     }
 
