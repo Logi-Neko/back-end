@@ -1,9 +1,8 @@
 package exe2.learningapp.logineko.authentication.dtos;
 
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.Builder;
 
-
+@Builder
 public record Credentials(
         String type,
         String value,

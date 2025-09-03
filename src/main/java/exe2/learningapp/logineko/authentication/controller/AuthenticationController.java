@@ -179,15 +179,10 @@ public class AuthenticationController {
     @PostMapping("/register")
     @Operation(summary = "Tạo user mới")
     public ResponseEntity<ApiResponse<?>> registerUser(@RequestBody AccountDTO.CreateAccountRequest request) {
-        try {
             AccountDTO.AccountResponse newUser = accountService.register(request);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(ApiResponse.created(newUser, "User registered successfully"));
-        } catch (Exception e) {
-            log.error("Error registering user", e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "User registration failed: " + e.getMessage()));
-        }
+                    .body(ApiResponse.created(newUser));
+
     }
 
 }

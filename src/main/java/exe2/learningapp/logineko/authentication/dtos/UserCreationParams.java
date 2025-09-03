@@ -1,11 +1,11 @@
 package exe2.learningapp.logineko.authentication.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
+import lombok.Builder;
+
 
 import java.util.List;
-
+@Builder
 public record UserCreationParams(
         String username,
         String email,
