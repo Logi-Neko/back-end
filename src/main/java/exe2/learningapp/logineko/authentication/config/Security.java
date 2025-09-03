@@ -2,11 +2,13 @@ package exe2.learningapp.logineko.authentication.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -20,35 +22,25 @@ public class Security {
             "/v3/api-docs/**", // OpenAPI documentation
             "/swagger-ui/**", // Swagger UI
             "/swagger-ui.html", // Swagger UI HTML
-            "api/login/**"
+            "api/login/**",
+            "api/register/**"
     };
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity
-//                .csrf(csrf -> csrf.disable()) // disable CSRF để test API
-//                .authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
-//                .permitAll()
-//                .anyRequest()
-//                .authenticated());
-//
-//        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
-//                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
-//        httpSecurity.csrf(AbstractHttpConfigurer::disable);
-//
-//
-//        return httpSecurity.build();
-//    }
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
-    http
-            .csrf(csrf -> csrf.disable()) // disable CSRF để test API
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("api/login/**", "api/callback").permitAll() // cho phép public
-                    .anyRequest().permitAll() // các API khác phải login
-            );
-    return http.build();
-}
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults()).authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                )
+
+                .build();
+    }
 
 
 }

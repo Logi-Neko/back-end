@@ -21,7 +21,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             throws IOException {
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-
+        response.setCharacterEncoding("UTF-8");
         ApiResponse<?> apiResponse = ApiResponse.unauthorized();
 
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
