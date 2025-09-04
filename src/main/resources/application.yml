@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: LogiNeko
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/logineko_db
+    username: postgres
+    password: 12345
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+      format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
