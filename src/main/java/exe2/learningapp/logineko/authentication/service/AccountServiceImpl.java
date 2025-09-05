@@ -7,9 +7,11 @@ import exe2.learningapp.logineko.authentication.entity.Role;
 import exe2.learningapp.logineko.authentication.repository.AccountRepository;
 import exe2.learningapp.logineko.authentication.exception.ErrorNormalizer;
 import feign.FeignException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -104,7 +106,11 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
 
     @Override
     public List<AccountDTO.AccountResponse> getAllUsers() {
-        return List.of();
+        List<Account> accounts = accountRepository.findAll();
+        if(accounts.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        return accounts.stream().map(this::mapToDTO).toList();
     }
 
     private AccountDTO.AccountResponse mapToDTO(Account account) {

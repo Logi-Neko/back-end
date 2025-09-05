@@ -3,9 +3,12 @@ package exe2.learningapp.logineko.common.exception;
 import exe2.learningapp.logineko.common.ApiResponse;
 import exe2.learningapp.logineko.common.util.MessageFormatter;
 import feign.FeignException;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -125,6 +128,53 @@ public class GlobalExceptionHandler {
         log.error("Uncaught Exception: {}", ex.getMessage(), ex);
 
         ErrorCode error = ErrorCode.ERR_SERVER_ERROR;
+
+        ApiResponse<?> response = ApiResponse.builder()
+                .status(error.getStatus())
+                .code(error.getCode())
+                .message(error.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(response);
+    }
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
+        log.warn("Entity Not Found Exception: {}", ex.getMessage());
+
+        ErrorCode error = ErrorCode.ERR_NOT_FOUND;
+
+        ApiResponse<?> response = ApiResponse.builder()
+                .status(error.getStatus())
+                .code(error.getCode())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(response);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<ApiResponse<?>> handleEntityExistsException(EntityExistsException ex, HttpServletRequest request) {
+        log.warn("Entity Exists Exception: {}", ex.getMessage());
+
+        ErrorCode error = ErrorCode.ERR_EXISTS;
+
+        ApiResponse<?> response = ApiResponse.builder()
+                .status(error.getStatus())
+                .code(error.getCode())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        log.warn("Access Denied Exception: {}", ex.getMessage());
+
+        ErrorCode error = ErrorCode.ERR_FORBIDDEN;
 
         ApiResponse<?> response = ApiResponse.builder()
                 .status(error.getStatus())

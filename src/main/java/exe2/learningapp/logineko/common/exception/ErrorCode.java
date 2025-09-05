@@ -47,6 +47,7 @@ public enum ErrorCode {
     // ERRORS
     // =========================
     ERR_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "ERR_NOT_FOUND", "Không tìm thấy tài nguyên yêu cầu."),
+    ERR_EXISTS(HttpStatus.CONFLICT.value(), "ERR_EXISTS", "Tài nguyên đã tồn tại."),
     ERR_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "ERR_SERVER_ERROR", "Lỗi máy chủ. Vui lòng thử lại sau."),
     ERR_BAD_REQUEST(HttpStatus.BAD_REQUEST.value(), "ERR_BAD_REQUEST", "Yêu cầu không hợp lệ."),
     ERR_FORBIDDEN(HttpStatus.FORBIDDEN.value(), "ERR_FORBIDDEN", "Bạn không có quyền thực hiện thao tác này."),

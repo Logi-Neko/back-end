@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -183,6 +184,15 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.created(newUser));
 
+    }
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Lấy tất cả user")
+    public ResponseEntity<ApiResponse<?>> getAllUsers() {
+        return ResponseEntity.ok(ApiResponse.success(
+                accountService.getAllUsers(),
+                "Lấy danh sách user thành công"
+        ));
     }
 
 }
