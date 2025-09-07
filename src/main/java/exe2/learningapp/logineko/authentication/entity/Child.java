@@ -19,7 +19,7 @@ public class Child {
     String name;
     LocalDate birthDate;
     String gender;
-    String avatarUrl;
+    String imageUrl;
     @ManyToOne
     @JoinColumn(name = "parent_id")
     Account parent;
