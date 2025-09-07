@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Builder
 @Entity
-@Table(name = "accounts")
+@Table(name = "children")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,6 +18,8 @@ public class Child {
     Long id;
     String name;
     LocalDate birthDate;
+    String gender;
+    String avatarUrl;
     @ManyToOne
     @JoinColumn(name = "parent_id")
     Account parent;

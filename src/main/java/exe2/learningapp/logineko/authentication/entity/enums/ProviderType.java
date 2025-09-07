@@ -1,4 +1,4 @@
-package exe2.learningapp.logineko.authentication.entity;
+package exe2.learningapp.logineko.authentication.entity.enums;
 
 public enum ProviderType {
     LOCAL,      // Username/password
