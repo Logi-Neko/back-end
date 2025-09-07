@@ -7,16 +7,53 @@ spring:
     encoding: UTF-8
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/logineko_db
-    username: postgres
-    password: 12345
+    url: jdbc:postgresql://localhost:5432/logineko_db   # tên DB của bạn
+    username: postgres                                  # user postgres
+    password: ${POSTGRES_PASSWORD}                          # mật khẩu
     driver-class-name: org.postgresql.Driver
 
   jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
       hibernate:
-      format_sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+          ddl-auto: update
+      show-sql: true
+      properties:
+          hibernate:
+          format_sql: true
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/${keycloak.realm}
+
+
+
+server:
+  port: 8081
+
+idp:
+  url: ${KEYCLOAK_URL_WEB}
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_URL}
+  auth-server: ${KEYCLOAK_URL_WEB}
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_CLIENT_ID}
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET}
+
+google:
+  oauth:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+
+app:
+  jwt-secret: ${JWT_SECRET}
+  redirect-uri: ${REDIRECT_URI}
+  redirect-uri-web: ${REDIRECT_URI_WEB}
+
+
+
+
+
