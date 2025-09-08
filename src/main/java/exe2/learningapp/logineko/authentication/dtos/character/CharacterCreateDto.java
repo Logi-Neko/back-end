@@ -3,26 +3,26 @@ package exe2.learningapp.logineko.authentication.dtos.character;
 import jakarta.validation.constraints.*;
 
 public record CharacterCreateDto(
-        @NotBlank(message = "Character name is required")
-        @Size(min = 1, max = 100, message = "Character name must be between 1 and 100 characters")
+        @NotBlank(message = "Tên nhân vật không được để trống")
+        @Size(min = 1, max = 100, message = "Tên nhân vật phải có từ 1 đến 100 ký tự")
         String name,
 
-        @NotBlank(message = "Description is required")
-        @Size(max = 500, message = "Description must not exceed 500 characters")
+        @NotBlank(message = "Mô tả không được để trống")
+        @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
         String description,
 
-        @NotBlank(message = "Image URL is required")
+        @NotBlank(message = "URL hình ảnh không được để trống")
         @Pattern(regexp = "^(http|https)://.*\\.(jpg|jpeg|png|gif|webp)$",
-                message = "Image URL must be a valid HTTP/HTTPS URL ending with image extension")
+                message = "URL hình ảnh phải là đường dẫn HTTP/HTTPS hợp lệ và kết thúc bằng định dạng ảnh")
         String imageUrl,
 
-        @Min(value = 0, message = "Star required must be at least 0")
-        @Max(value = 1000, message = "Star required must not exceed 1000")
+        @Min(value = 0, message = "Số sao yêu cầu phải từ 0 trở lên")
+        @Max(value = 1000, message = "Số sao yêu cầu không được vượt quá 1000")
         int starRequired,
 
-        @NotNull(message = "Premium status must be specified")
+        @NotNull(message = "Trạng thái premium phải được chỉ định")
         boolean isPremium,
 
-        @NotNull(message = "Active status must be specified")
+        @NotNull(message = "Trạng thái hoạt động phải được chỉ định")
         boolean isActive
 ) {}

@@ -1,13 +1,14 @@
 package exe2.learningapp.logineko.authentication.service;
 
+import exe2.learningapp.logineko.authentication.dtos.character.CharacterCreateDto;
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterDto;
 
 import java.util.List;
 
 public interface CharacterService {
-    CharacterDto createCharacter(String username, String characterName);
-    CharacterDto deleteCharacter(String username, String characterName);
-    CharacterDto updateCharacter(String username, String characterName, String newCharacterName);
-    CharacterDto getCharacter(String username);
+    CharacterDto createCharacter(CharacterCreateDto characterCreateDto);
+    void deleteCharacter(Long characterId);
+    CharacterDto updateCharacter(Long id,CharacterCreateDto characterCreateDto);
+    CharacterDto getCharacter(Long characterId);
     List<CharacterDto> getAllCharacters();
 }
