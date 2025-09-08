@@ -1,4 +1,4 @@
 package exe2.learningapp.logineko.authentication.service;
 
-public interface AuthenticationService {
+public class ChildServiceImpl {
 }
