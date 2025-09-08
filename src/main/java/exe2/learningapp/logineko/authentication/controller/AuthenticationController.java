@@ -195,4 +195,13 @@ public class AuthenticationController {
         ));
     }
 
+    @GetMapping("/exchange-token")
+    @Operation(summary = "Lấy access token mới")
+    public ResponseEntity<ApiResponse<?>> exchangeToken() {
+        return ResponseEntity.ok(ApiResponse.success(
+                accountService.exchangeToken(),
+                "Lấy access token thành công"
+        ));
+    }
+
 }
