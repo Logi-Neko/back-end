@@ -2,7 +2,6 @@ package exe2.learningapp.logineko.common.exception;
 
 import exe2.learningapp.logineko.common.ApiResponse;
 import exe2.learningapp.logineko.common.util.MessageFormatter;
-import feign.FeignException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,8 +21,8 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     // Your main exception handler
-    @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ApiResponse<?>> handleApiException(ApiException ex, HttpServletRequest request) {
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ApiResponse<?>> handleApiException(AppException ex, HttpServletRequest request) {
         log.warn("API Exception: {} - {}", ex.getErrorCode().getCode(), ex.getMessage());
 
         ErrorCode error = ex.getErrorCode();

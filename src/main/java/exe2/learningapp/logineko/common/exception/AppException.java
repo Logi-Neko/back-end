@@ -1,8 +1,8 @@
 package exe2.learningapp.logineko.common.exception;
 
-public class ApiException extends RuntimeException {
+public class AppException extends RuntimeException {
 
-    public ApiException(ErrorCode errorCode) {
+    public AppException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

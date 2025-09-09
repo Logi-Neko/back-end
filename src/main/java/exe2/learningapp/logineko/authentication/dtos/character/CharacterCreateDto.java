@@ -1,5 +1,6 @@
 package exe2.learningapp.logineko.authentication.dtos.character;
 
+import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import jakarta.validation.constraints.*;
 
 public record CharacterCreateDto(
@@ -10,6 +11,9 @@ public record CharacterCreateDto(
         @NotBlank(message = "Mô tả không được để trống")
         @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự")
         String description,
+
+        @NotNull(message = "Độ hiếm của nhân vật phải được chỉ định")
+        CharacterRarity rarity,
 
         @NotBlank(message = "URL hình ảnh không được để trống")
         @Pattern(regexp = "^(http|https)://.*\\.(jpg|jpeg|png|gif|webp)$",

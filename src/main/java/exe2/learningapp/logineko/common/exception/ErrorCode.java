@@ -133,7 +133,16 @@ public enum ErrorCode {
             "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác"),
     USERNAME_IS_MISSING(HttpStatus.BAD_REQUEST.value(),
             "USERNAME_IS_MISSING",
-            "Vui lòng nhập tên đăng nhập");
+            "Vui lòng nhập tên đăng nhập"),
+
+    ERR_INVALID_INPUT(HttpStatus.BAD_REQUEST.value(),
+            "INVALID_AGE_INPUT",
+                    "Tuổi của bé từ 0 đến 18 tuổi"),
+    ERR_INVALID_GENDER(HttpStatus.BAD_REQUEST.value(),
+            "INVALID_GENDER",
+            "Giới tính không hợp lệ")
+
+    ;
 
 
     private final int status;

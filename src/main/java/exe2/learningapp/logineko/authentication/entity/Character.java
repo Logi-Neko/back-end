@@ -1,5 +1,6 @@
 package exe2.learningapp.logineko.authentication.entity;
 
+import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -22,6 +23,7 @@ public class Character {
     String name;
     String description;
     String imageUrl;
+    CharacterRarity rarity;
     int starRequired;
     boolean isPremium;
     boolean isActive;
