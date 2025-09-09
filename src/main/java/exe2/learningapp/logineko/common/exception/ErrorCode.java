@@ -53,7 +53,7 @@ public enum ErrorCode {
     ERR_FORBIDDEN(HttpStatus.FORBIDDEN.value(), "ERR_FORBIDDEN", "Bạn không có quyền thực hiện thao tác này."),
     ERR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "ERR_UNAUTHORIZED", "Chưa được xác thực. Vui lòng đăng nhập."),
     ERR_TIMEOUT(HttpStatus.REQUEST_TIMEOUT.value(), "ERR_TIMEOUT", "Yêu cầu quá thời gian. Vui lòng thử lại."),
-
+    INVALID_END_DATE(HttpStatus.BAD_REQUEST.value(), "ERR_END_DATE", "Ngày kết thúc phải sau ngày bắt đầu."),
     // =========================
     // PERMISSIONS
     // =========================
