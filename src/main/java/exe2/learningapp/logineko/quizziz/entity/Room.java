@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomId;
+    private Long id;
 
     @Column(name = "code", unique = true, nullable = false)
     private String code;
@@ -36,7 +37,8 @@ public class Room {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Participant> participants;
     @PrePersist
     public void prePersist() {
         createdAt = updatedAt = LocalDateTime.now();

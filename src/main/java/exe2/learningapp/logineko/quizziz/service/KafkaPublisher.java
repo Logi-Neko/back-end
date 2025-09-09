@@ -1,11 +1,11 @@
 package exe2.learningapp.logineko.quizziz.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-
 public class KafkaPublisher {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 

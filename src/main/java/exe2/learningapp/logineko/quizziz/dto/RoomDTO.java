@@ -18,7 +18,7 @@ public class RoomDTO {
     { }
     @Builder
     public record RoomResponse(
-            Long roomId,
+            Long id,
             String code,
             String title,
             String description,

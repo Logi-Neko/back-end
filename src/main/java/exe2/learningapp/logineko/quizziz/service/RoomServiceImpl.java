@@ -35,7 +35,7 @@ public class RoomServiceImpl implements RoomService{
         Room saved = roomRepository.save(room);
 
         return new RoomDTO.RoomResponse(
-                saved.getRoomId(),
+                saved.getId(),
                 saved.getCode(),
                 saved.getTitle(),
                 saved.getDescription(),
@@ -72,7 +72,7 @@ public class RoomServiceImpl implements RoomService{
     public Optional<RoomDTO.RoomResponse> findById(Long id) {
         return roomRepository.findById(id)
                 .map(r -> new RoomDTO.RoomResponse(
-                        r.getRoomId(),
+                        r.getId(),
                         r.getCode(),
                         r.getTitle(),
                         r.getDescription(),
@@ -92,7 +92,7 @@ public class RoomServiceImpl implements RoomService{
         }
 
         return rooms.map(r -> new RoomDTO.RoomResponse(
-                r.getRoomId(),
+                r.getId(),
                 r.getCode(),
                 r.getTitle(),
                 r.getDescription(),
