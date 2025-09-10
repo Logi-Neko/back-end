@@ -64,9 +64,6 @@ public class Lesson {
     @Column(nullable = false)
     LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Video> videos;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     Course course;
