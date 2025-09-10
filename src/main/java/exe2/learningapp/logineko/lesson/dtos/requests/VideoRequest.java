@@ -1,6 +1,5 @@
 package exe2.learningapp.logineko.lesson.dtos.requests;
 
-import exe2.learningapp.logineko.lesson.entities.enums.VideoType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -24,9 +23,6 @@ public class VideoRequest {
 
     @NotNull(message = "Thứ tự video là bắt buộc")
     Long order;
-
-    @NotNull(message = "Loại video là bắt buộc")
-    VideoType type;
 
     @NotNull(message = "Câu hỏi là bắt buộc")
     @NotBlank(message = "Câu hỏi cho video không được rỗng")

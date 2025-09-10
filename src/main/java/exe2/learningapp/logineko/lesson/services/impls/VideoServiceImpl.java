@@ -54,7 +54,6 @@ public class VideoServiceImpl implements VideoService {
                 .builder()
                 .title(request.getTitle())
                 .index(request.getOrder())
-                .type(request.getType())
                 .isActive(request.getIsActive())
                 .videoQuestion(videoQuestion)
                 .build();
@@ -99,7 +98,6 @@ public class VideoServiceImpl implements VideoService {
 
         videoEntity.setTitle(request.getTitle());
         videoEntity.setIndex(request.getOrder());
-        videoEntity.setType(request.getType());
         videoEntity.setIsActive(request.getIsActive());
         videoEntity.setLesson(lesson);
 
@@ -199,7 +197,6 @@ public class VideoServiceImpl implements VideoService {
                 .thumbnailPublicId(video.getThumbnailPublicId())
                 .duration(video.getDuration())
                 .order(video.getIndex())
-                .videoType(video.getType())
                 .isActive(video.getIsActive())
                 .createdAt(video.getCreatedAt())
                 .updatedAt(video.getUpdatedAt())
