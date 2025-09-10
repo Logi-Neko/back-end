@@ -28,7 +28,7 @@ public class Lesson {
     String description;
 
     @Column(nullable = false)
-    Long order;
+    Long index;
 
     @Column(nullable = false)
     Long minAge;

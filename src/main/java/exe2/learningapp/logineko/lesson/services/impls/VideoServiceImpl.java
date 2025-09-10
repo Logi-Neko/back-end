@@ -35,7 +35,7 @@ public class VideoServiceImpl implements VideoService {
         Video videoEntity = Video
                 .builder()
                 .title(request.getTitle())
-                .order(request.getOrder())
+                .index(request.getOrder())
                 .type(request.getType())
                 .isActive(request.getIsActive())
                 .build();
@@ -83,7 +83,7 @@ public class VideoServiceImpl implements VideoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bài học"));
 
         videoEntity.setTitle(request.getTitle());
-        videoEntity.setOrder(request.getOrder());
+        videoEntity.setIndex(request.getOrder());
         videoEntity.setType(request.getType());
         videoEntity.setIsActive(request.getIsActive());
         videoEntity.setLesson(lesson);
@@ -175,7 +175,7 @@ public class VideoServiceImpl implements VideoService {
                 .thumbnailUrl(video.getThumbnailUrl())
                 .thumbnailPublicId(video.getThumbnailPublicId())
                 .duration(video.getDuration())
-                .order(video.getOrder())
+                .order(video.getIndex())
                 .videoType(video.getType())
                 .isActive(video.getIsActive())
                 .createdAt(video.getCreatedAt())
