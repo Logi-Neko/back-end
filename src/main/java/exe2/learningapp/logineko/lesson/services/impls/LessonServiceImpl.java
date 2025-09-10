@@ -43,7 +43,7 @@ public class LessonServiceImpl implements LessonService {
                 .builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .order(request.getOrder())
+                .index(request.getOrder())
                 .minAge(request.getMinAge())
                 .maxAge(request.getMaxAge())
                 .difficultyLevel(request.getDifficultyLevel())
@@ -84,7 +84,7 @@ public class LessonServiceImpl implements LessonService {
 
         lesson.setName(request.getName());
         lesson.setDescription(request.getDescription());
-        lesson.setOrder(request.getOrder());
+        lesson.setIndex(request.getOrder());
         lesson.setMinAge(request.getMinAge());
         lesson.setMaxAge(request.getMaxAge());
         lesson.setDifficultyLevel(request.getDifficultyLevel());
@@ -192,7 +192,7 @@ public class LessonServiceImpl implements LessonService {
                 .id(lesson.getId())
                 .name(lesson.getName())
                 .description(lesson.getDescription())
-                .order(lesson.getOrder())
+                .order(lesson.getIndex())
                 .minAge(lesson.getMinAge())
                 .maxAge(lesson.getMaxAge())
                 .difficultyLevel(lesson.getDifficultyLevel())

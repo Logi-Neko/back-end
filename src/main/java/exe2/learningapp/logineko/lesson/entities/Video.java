@@ -41,7 +41,7 @@ public class Video {
     Long duration;
 
     @Column(nullable = false)
-    Long order;
+    Long index;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
