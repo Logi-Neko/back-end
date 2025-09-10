@@ -1,11 +1,14 @@
 package exe2.learningapp.logineko.lesson.services.impls;
 
+import exe2.learningapp.logineko.common.exception.AppException;
+import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonFilterRequest;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.LessonDTO;
-import exe2.learningapp.logineko.lesson.dtos.responses.VideoDTO;
+import exe2.learningapp.logineko.lesson.entities.Course;
 import exe2.learningapp.logineko.lesson.entities.Lesson;
 import exe2.learningapp.logineko.lesson.entities.Video;
+import exe2.learningapp.logineko.lesson.repositories.CourseRepository;
 import exe2.learningapp.logineko.lesson.repositories.LessonRepository;
 import exe2.learningapp.logineko.lesson.repositories.VideoRepository;
 import exe2.learningapp.logineko.lesson.repositories.specifications.LessonSpecifications;
@@ -17,11 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,10 +36,14 @@ public class LessonServiceImpl implements LessonService {
     FileService fileService;
     VideoRepository videoRepository;
     VideoService videoService;
+    CourseRepository courseRepository;
 
     @Override
     @Transactional
     public LessonDTO create(LessonRequest request, MultipartFile thumbnail) {
+        Course course = courseRepository.findById(request.getCourseId()).
+                orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
         Lesson lesson = Lesson
                 .builder()
                 .name(request.getName())
@@ -50,36 +55,34 @@ public class LessonServiceImpl implements LessonService {
                 .duration(request.getDuration())
                 .isPremium(request.getIsPremium())
                 .isActive(request.getIsActive())
+                .course(course)
                 .build();
 
         lessonRepository.save(lesson);
 
         Pair<String, String> fileData;
         try {
-            fileData = fileService.uploadFile(thumbnail, "/" + lesson.getId());
+            fileData = fileService.uploadFile(thumbnail, "/courses/" + course.getId() + "/lessons/" + lesson.getId());
 
             lesson.setThumbnailUrl(fileData.getFirst());
             lesson.setThumbnailPublicId(fileData.getSecond());
+            lessonRepository.save(lesson);
         } catch (IOException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Có lỗi trong quá trình tải file"
-            );
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
         }
 
-        lessonRepository.save(lesson);
-
-        return convertToDTO(lesson);
+        return convertToLessonDTO(lesson);
     }
 
     @Override
     @Transactional
     public LessonDTO update(Long id, LessonRequest request, MultipartFile thumbnail) {
         Lesson lesson = lessonRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy bài học"
-                ));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
+        Course course = courseRepository.findById(request.getCourseId()).
+                orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
         String oldThumbnailPublicId = lesson.getThumbnailPublicId();
 
         lesson.setName(request.getName());
@@ -91,22 +94,19 @@ public class LessonServiceImpl implements LessonService {
         lesson.setDuration(request.getDuration());
         lesson.setIsPremium(request.getIsPremium());
         lesson.setIsActive(request.getIsActive());
+        lesson.setCourse(course);
 
         if (thumbnail != null) {
             Pair<String, String> fileData;
             try {
-                fileData = fileService.uploadFile(thumbnail, "/" + lesson.getId());
+                fileData = fileService.uploadFile(thumbnail, "/courses/" + course.getId() + "/lessons/" + lesson.getId());
 
                 lesson.setThumbnailUrl(fileData.getFirst());
                 lesson.setThumbnailPublicId(fileData.getSecond());
+                lessonRepository.save(lesson);
             } catch (IOException e) {
-                throw new ResponseStatusException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Có lỗi trong quá trình tải file"
-                );
+                throw new AppException(ErrorCode.ERR_SERVER_ERROR);
             }
-
-            lessonRepository.save(lesson);
 
             try {
                 fileService.deleteFile(oldThumbnailPublicId);
@@ -116,16 +116,14 @@ public class LessonServiceImpl implements LessonService {
             lessonRepository.save(lesson);
         }
 
-        return convertToDTO(lesson);
+        return convertToLessonDTO(lesson);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         Lesson lesson = lessonRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy bài học"
-                ));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         List<Video> videos = videoRepository.findByLesson_Id(id);
         for (Video video : videos) {
@@ -143,19 +141,16 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonDTO findById(Long id) {
         Lesson lesson = lessonRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy bài học"
-                ));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
-        return convertToDTO(lesson);
+        return convertToLessonDTO(lesson);
     }
 
     @Override
     public List<LessonDTO> findAll() {
         return lessonRepository.findAll()
                 .stream()
-                .map(this::convertToDTO)
+                .map(this::convertToLessonDTO)
                 .toList();
     }
 
@@ -176,17 +171,12 @@ public class LessonServiceImpl implements LessonService {
 
         return lessonRepository.findAll(spec)
                 .stream()
-                .map(this::convertToDTO)
+                .map(this::convertToLessonDTO)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
-    public LessonDTO convertToDTO(Lesson lesson) {
-        List<VideoDTO> videos = lesson.getVideos()
-                .stream()
-                .map(videoService::convertToDTO)
-                .toList();
-
+    @Override
+    public LessonDTO convertToLessonDTO(Lesson lesson) {
         return LessonDTO
                 .builder()
                 .id(lesson.getId())
@@ -202,7 +192,6 @@ public class LessonServiceImpl implements LessonService {
                 .isActive(lesson.getIsActive())
                 .createdAt(lesson.getCreatedAt())
                 .updatedAt(lesson.getUpdatedAt())
-                .videos(videos)
                 .build();
     }
 }

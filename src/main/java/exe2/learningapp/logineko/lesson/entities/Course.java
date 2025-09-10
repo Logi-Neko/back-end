@@ -1,6 +1,5 @@
 package exe2.learningapp.logineko.lesson.entities;
 
-import exe2.learningapp.logineko.lesson.entities.enums.VideoType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,61 +9,49 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "video")
+@Table(name = "courses")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Video {
+public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(nullable = false, length = 50)
-    String title;
-
-    @Column(nullable = false, length = 500)
-    String videoUrl;
+    @Column(nullable = false)
+    String name;
 
     @Column(nullable = false)
-    String videoPublicId;
+    String description;
 
-    @Column(length = 500)
+    @Column(length = 500, nullable = false)
     String thumbnailUrl;
 
     @Column(nullable = false)
     String thumbnailPublicId;
 
     @Column(nullable = false)
-    Long duration;
+    Long totalLesson;
 
     @Column(nullable = false)
-    Long index;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    VideoType type;
+    Boolean isPremium;
 
     @Column(nullable = false)
     Boolean isActive;
 
-    @Column(nullable = false, updatable = false)
-    @Setter(AccessLevel.NONE)
+    @Column(nullable = false)
+    Long price;
+
     @CreationTimestamp
+    @Setter(AccessLevel.NONE)
+    @Column(nullable = false, updatable = false)
     LocalDateTime createdAt;
 
-    @Column(nullable = false)
-    @Setter(AccessLevel.NONE)
     @UpdateTimestamp
+    @Setter(AccessLevel.NONE)
+    @Column(nullable = false)
     LocalDateTime updatedAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lesson_id", nullable = false)
-    Lesson lesson;
-
-    @OneToOne
-    @JoinColumn(name = "video_question_id", referencedColumnName = "id", nullable = false)
-    VideoQuestion videoQuestion;
 }

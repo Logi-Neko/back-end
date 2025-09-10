@@ -13,6 +13,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LessonRequest {
+    @NotNull(message = "CourseID là bắt buộc")
+    Long courseId;
+
     @NotBlank(message = "Tên bài học không được rỗng")
     @NotNull(message = "Tên bài học là bắt buộc")
     String name;

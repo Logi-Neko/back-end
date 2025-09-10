@@ -4,25 +4,22 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LessonDTO {
+public class CourseDTO {
     Long id;
     String name;
     String description;
-    Long order;
-    Long minAge;
-    Long maxAge;
-    Long difficultyLevel;
     String thumbnailUrl;
-    Long duration;
+    String thumbnailPublicId;
+    Long totalLesson;
     Boolean isPremium;
     Boolean isActive;
+    Long price;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }
