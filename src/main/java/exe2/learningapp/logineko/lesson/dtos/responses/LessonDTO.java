@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,4 +25,5 @@ public class LessonDTO {
     Boolean isActive;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    List<VideoDTO> videos;
 }

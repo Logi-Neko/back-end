@@ -1,14 +1,12 @@
 package exe2.learningapp.logineko.lesson.services.impls;
 
 import exe2.learningapp.logineko.lesson.dtos.requests.VideoRequest;
-import exe2.learningapp.logineko.lesson.dtos.responses.LessonDTO;
 import exe2.learningapp.logineko.lesson.dtos.responses.VideoDTO;
 import exe2.learningapp.logineko.lesson.entities.Lesson;
 import exe2.learningapp.logineko.lesson.entities.Video;
 import exe2.learningapp.logineko.lesson.repositories.LessonRepository;
 import exe2.learningapp.logineko.lesson.repositories.VideoRepository;
 import exe2.learningapp.logineko.lesson.services.FileService;
-import exe2.learningapp.logineko.lesson.services.LessonService;
 import exe2.learningapp.logineko.lesson.services.VideoService;
 import exe2.learningapp.logineko.lesson.utils.FileUtil;
 import lombok.AccessLevel;
@@ -30,7 +28,6 @@ public class VideoServiceImpl implements VideoService {
     VideoRepository videoRepository;
     LessonRepository lessonRepository;
     FileService fileService;
-    LessonService lessonService;
     FileUtil fileUtil;
 
     @Override
@@ -169,9 +166,6 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public VideoDTO convertToDTO(Video video) {
-        Lesson lesson = video.getLesson();
-        LessonDTO lessonDTO = lessonService.convertToDTO(lesson);
-
         return VideoDTO
                 .builder()
                 .id(video.getId())
@@ -186,7 +180,6 @@ public class VideoServiceImpl implements VideoService {
                 .isActive(video.getIsActive())
                 .createdAt(video.getCreatedAt())
                 .updatedAt(video.getUpdatedAt())
-                .lesson(lessonDTO)
                 .build();
     }
 }

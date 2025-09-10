@@ -3,6 +3,7 @@ package exe2.learningapp.logineko.lesson.services.impls;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonFilterRequest;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.LessonDTO;
+import exe2.learningapp.logineko.lesson.dtos.responses.VideoDTO;
 import exe2.learningapp.logineko.lesson.entities.Lesson;
 import exe2.learningapp.logineko.lesson.entities.Video;
 import exe2.learningapp.logineko.lesson.repositories.LessonRepository;
@@ -179,8 +180,13 @@ public class LessonServiceImpl implements LessonService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+    @Transactional
     public LessonDTO convertToDTO(Lesson lesson) {
+        List<VideoDTO> videos = lesson.getVideos()
+                .stream()
+                .map(videoService::convertToDTO)
+                .toList();
+
         return LessonDTO
                 .builder()
                 .id(lesson.getId())
@@ -196,6 +202,7 @@ public class LessonServiceImpl implements LessonService {
                 .isActive(lesson.getIsActive())
                 .createdAt(lesson.getCreatedAt())
                 .updatedAt(lesson.getUpdatedAt())
+                .videos(videos)
                 .build();
     }
 }

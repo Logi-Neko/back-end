@@ -20,6 +20,4 @@ public interface LessonService {
     List<LessonDTO> findAll();
 
     List<LessonDTO> search(LessonFilterRequest request);
-
-    LessonDTO convertToDTO(Lesson lesson);
 }
