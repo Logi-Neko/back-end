@@ -1,5 +1,6 @@
 package exe2.learningapp.logineko.lesson.controllers;
 
+import exe2.learningapp.logineko.common.ApiResponse;
 import exe2.learningapp.logineko.lesson.dtos.requests.VideoRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.VideoDTO;
 import exe2.learningapp.logineko.lesson.services.VideoService;
@@ -20,32 +21,35 @@ public class VideoController {
     VideoService videoService;
 
     @PostMapping
-    public ResponseEntity<VideoDTO> create(
+    public ResponseEntity<ApiResponse<VideoDTO>> create(
             @RequestPart VideoRequest request,
             @RequestPart MultipartFile thumbnail,
             @RequestPart MultipartFile video
     ) {
-        return ResponseEntity.ok(videoService.create(request, thumbnail, video));
+        VideoDTO videoDTO = videoService.create(request, thumbnail, video);
+        return ResponseEntity.ok(ApiResponse.success(videoDTO));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<VideoDTO> update(
+    public ResponseEntity<ApiResponse<VideoDTO>> update(
             @PathVariable Long id,
             @RequestPart VideoRequest request,
             @RequestPart(required = false) MultipartFile thumbnail,
             @RequestPart(required = false) MultipartFile video
     ) {
-        return ResponseEntity.ok(videoService.update(id, request, thumbnail, video));
+        VideoDTO videoDTO = videoService.update(id, request, thumbnail, video);
+        return ResponseEntity.ok(ApiResponse.success(videoDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         videoService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     @GetMapping
-    public ResponseEntity<List<VideoDTO>> findByLessonId(@RequestParam Long lessonId) {
-        return ResponseEntity.ok(videoService.findByLessonId(lessonId));
+    public ResponseEntity<ApiResponse<List<VideoDTO>>> findByLessonId(@RequestParam Long lessonId) {
+        List<VideoDTO> videos = videoService.findByLessonId(lessonId);
+        return ResponseEntity.ok(ApiResponse.success(videos));
     }
 }
