@@ -1,6 +1,5 @@
 package exe2.learningapp.logineko.lesson.entities;
 
-import exe2.learningapp.logineko.lesson.entities.enums.VideoType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -42,10 +41,6 @@ public class Video {
 
     @Column(nullable = false)
     Long index;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    VideoType type;
 
     @Column(nullable = false)
     Boolean isActive;

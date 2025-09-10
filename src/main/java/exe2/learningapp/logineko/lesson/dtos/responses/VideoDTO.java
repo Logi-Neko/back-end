@@ -1,6 +1,5 @@
 package exe2.learningapp.logineko.lesson.dtos.responses;
 
-import exe2.learningapp.logineko.lesson.entities.enums.VideoType;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -20,7 +19,6 @@ public class VideoDTO {
     String thumbnailPublicId;
     Long duration;
     Long order;
-    VideoType videoType;
     Boolean isActive;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
