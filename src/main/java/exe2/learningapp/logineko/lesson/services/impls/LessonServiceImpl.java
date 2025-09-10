@@ -1,11 +1,15 @@
 package exe2.learningapp.logineko.lesson.services.impls;
 
+import exe2.learningapp.logineko.common.exception.AppException;
+import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonFilterRequest;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.LessonDTO;
 import exe2.learningapp.logineko.lesson.dtos.responses.VideoDTO;
+import exe2.learningapp.logineko.lesson.entities.Course;
 import exe2.learningapp.logineko.lesson.entities.Lesson;
 import exe2.learningapp.logineko.lesson.entities.Video;
+import exe2.learningapp.logineko.lesson.repositories.CourseRepository;
 import exe2.learningapp.logineko.lesson.repositories.LessonRepository;
 import exe2.learningapp.logineko.lesson.repositories.VideoRepository;
 import exe2.learningapp.logineko.lesson.repositories.specifications.LessonSpecifications;
@@ -35,10 +39,14 @@ public class LessonServiceImpl implements LessonService {
     FileService fileService;
     VideoRepository videoRepository;
     VideoService videoService;
+    CourseRepository courseRepository;
 
     @Override
     @Transactional
     public LessonDTO create(LessonRequest request, MultipartFile thumbnail) {
+        Course course = courseRepository.findById(request.getCourseId()).
+                orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
         Lesson lesson = Lesson
                 .builder()
                 .name(request.getName())
@@ -50,6 +58,7 @@ public class LessonServiceImpl implements LessonService {
                 .duration(request.getDuration())
                 .isPremium(request.getIsPremium())
                 .isActive(request.getIsActive())
+                .course(course)
                 .build();
 
         lessonRepository.save(lesson);
@@ -76,10 +85,11 @@ public class LessonServiceImpl implements LessonService {
     @Transactional
     public LessonDTO update(Long id, LessonRequest request, MultipartFile thumbnail) {
         Lesson lesson = lessonRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Không tìm thấy bài học"
-                ));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
+        Course course = courseRepository.findById(request.getCourseId()).
+                orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
         String oldThumbnailPublicId = lesson.getThumbnailPublicId();
 
         lesson.setName(request.getName());
@@ -91,6 +101,7 @@ public class LessonServiceImpl implements LessonService {
         lesson.setDuration(request.getDuration());
         lesson.setIsPremium(request.getIsPremium());
         lesson.setIsActive(request.getIsActive());
+        lesson.setCourse(course);
 
         if (thumbnail != null) {
             Pair<String, String> fileData;

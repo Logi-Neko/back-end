@@ -4,7 +4,9 @@ import exe2.learningapp.logineko.lesson.dtos.requests.VideoRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.VideoDTO;
 import exe2.learningapp.logineko.lesson.entities.Lesson;
 import exe2.learningapp.logineko.lesson.entities.Video;
+import exe2.learningapp.logineko.lesson.entities.VideoQuestion;
 import exe2.learningapp.logineko.lesson.repositories.LessonRepository;
+import exe2.learningapp.logineko.lesson.repositories.VideoQuestionRepository;
 import exe2.learningapp.logineko.lesson.repositories.VideoRepository;
 import exe2.learningapp.logineko.lesson.services.FileService;
 import exe2.learningapp.logineko.lesson.services.VideoService;
@@ -26,21 +28,33 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VideoServiceImpl implements VideoService {
     VideoRepository videoRepository;
+    VideoQuestionRepository videoQuestionRepository;
     LessonRepository lessonRepository;
     FileService fileService;
     FileUtil fileUtil;
 
     @Override
     public VideoDTO create(VideoRequest request, MultipartFile thumbnail, MultipartFile video) {
+        VideoQuestion videoQuestion = VideoQuestion.builder()
+                .question(request.getQuestion())
+                .optionA(request.getOptionA())
+                .optionB(request.getOptionB())
+                .optionC(request.getOptionC())
+                .optionD(request.getOptionD())
+                .answer(request.getAnswer())
+                .build();
+
         Video videoEntity = Video
                 .builder()
                 .title(request.getTitle())
                 .index(request.getOrder())
                 .type(request.getType())
                 .isActive(request.getIsActive())
+                .videoQuestion(videoQuestion)
                 .build();
 
         videoRepository.save(videoEntity);
+        videoQuestionRepository.save(videoQuestion);
 
         Pair<String, String> thumbnailData;
         try {
@@ -87,6 +101,17 @@ public class VideoServiceImpl implements VideoService {
         videoEntity.setType(request.getType());
         videoEntity.setIsActive(request.getIsActive());
         videoEntity.setLesson(lesson);
+
+        VideoQuestion videoQuestion = videoEntity.getVideoQuestion();
+        videoQuestion.setQuestion(request.getQuestion());
+        videoQuestion.setOptionA(request.getOptionA());
+        videoQuestion.setOptionB(request.getOptionB());
+        videoQuestion.setOptionC(request.getOptionC());
+        videoQuestion.setOptionD(request.getOptionD());
+        videoQuestion.setAnswer(request.getAnswer());
+        videoQuestionRepository.save(videoQuestion);
+
+        videoEntity.setVideoQuestion(videoQuestion);
 
         String oldThumbnailPublicId = videoEntity.getThumbnailPublicId();
         String oldVideoPublicId = videoEntity.getVideoPublicId();

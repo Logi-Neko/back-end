@@ -7,16 +7,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Table
-@Entity(name = "lessons")
-@Data
-@AllArgsConstructor
+@Entity
+@Table(name = "courses")
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Lesson {
+public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -24,20 +24,8 @@ public class Lesson {
     @Column(nullable = false)
     String name;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false)
     String description;
-
-    @Column(nullable = false)
-    Long index;
-
-    @Column(nullable = false)
-    Long minAge;
-
-    @Column(nullable = false)
-    Long maxAge;
-
-    @Column(nullable = false)
-    Long difficultyLevel;
 
     @Column(length = 500, nullable = false)
     String thumbnailUrl;
@@ -46,13 +34,16 @@ public class Lesson {
     String thumbnailPublicId;
 
     @Column(nullable = false)
-    Long duration;
+    Long totalLesson;
 
     @Column(nullable = false)
     Boolean isPremium;
 
     @Column(nullable = false)
     Boolean isActive;
+
+    @Column(nullable = false)
+    Long price;
 
     @CreationTimestamp
     @Setter(AccessLevel.NONE)
@@ -63,11 +54,4 @@ public class Lesson {
     @Setter(AccessLevel.NONE)
     @Column(nullable = false)
     LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Video> videos;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
-    Course course;
 }
