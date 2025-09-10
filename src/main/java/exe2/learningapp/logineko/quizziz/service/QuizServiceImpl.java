@@ -1,5 +1,7 @@
 package exe2.learningapp.logineko.quizziz.service;
 
+import exe2.learningapp.logineko.common.exception.AppException;
+import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.quizziz.dto.QuizDTO;
 import exe2.learningapp.logineko.quizziz.entity.Quiz;
 import exe2.learningapp.logineko.quizziz.entity.Room;
@@ -21,7 +23,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public QuizDTO.Response createQuiz(QuizDTO.Request request) {
         Room room = roomRepository.findById(request.roomId())
-                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         Quiz quiz = Quiz
                 .builder()
@@ -44,7 +46,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public Optional<QuizDTO.Response> findById(Long id) {
         Quiz quiz = quizRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Quiz not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         return  Optional.of(QuizDTO.Response.builder()
                 .id(quiz.getQuizId())
@@ -80,7 +82,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public QuizDTO.Response updateQuiz(Long id, QuizDTO.Request request) {
         Quiz quiz = quizRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Quiz not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
         quiz.setName(request.name());
         quiz.setDescription(request.description());
         quiz.setDuration(request.duration());
@@ -99,7 +101,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public QuizDTO.Response startQuiz(Long id) {
         Quiz quiz = quizRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Quiz not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
         if("RUNNING".equalsIgnoreCase(quiz.getStatus().toString()))
             throw new IllegalStateException("Quiz is already running");
         if("CLOSED".equalsIgnoreCase(quiz.getStatus().toString()))

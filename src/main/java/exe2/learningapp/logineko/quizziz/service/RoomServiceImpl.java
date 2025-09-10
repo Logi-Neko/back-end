@@ -1,5 +1,7 @@
 package exe2.learningapp.logineko.quizziz.service;
 
+import exe2.learningapp.logineko.common.exception.AppException;
+import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.quizziz.dto.RoomDTO;
 import exe2.learningapp.logineko.quizziz.entity.Room;
 import exe2.learningapp.logineko.quizziz.repository.RoomRepository;
@@ -46,7 +48,7 @@ public class RoomServiceImpl implements RoomService{
     @Override
     public RoomDTO.UpdateRoom update(Long id,RoomDTO.UpdateRoom update) {
         Room room = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         room.setTitle(update.title());
         room.setDescription(update.description());
