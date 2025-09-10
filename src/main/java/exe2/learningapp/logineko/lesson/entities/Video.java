@@ -63,4 +63,8 @@ public class Video {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
     Lesson lesson;
+
+    @OneToOne
+    @JoinColumn(name = "video_question_id", referencedColumnName = "id", nullable = false)
+    VideoQuestion videoQuestion;
 }
