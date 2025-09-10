@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Table
 @Entity(name = "lessons")
@@ -62,4 +63,7 @@ public class Lesson {
     @Setter(AccessLevel.NONE)
     @Column(nullable = false)
     LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Video> videos;
 }

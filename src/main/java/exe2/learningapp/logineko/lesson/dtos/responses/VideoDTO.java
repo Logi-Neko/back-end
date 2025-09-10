@@ -26,5 +26,4 @@ public class VideoDTO {
     Boolean isActive;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
-    LessonDTO lesson;
 }
