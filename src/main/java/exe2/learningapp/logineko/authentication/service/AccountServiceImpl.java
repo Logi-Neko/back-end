@@ -43,13 +43,7 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
     @Override
     public AccountDTO.AccountResponse register(AccountDTO.CreateAccountRequest request) {
         try {
-            // Lấy token
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            params.add("grant_type", "client_credentials");
-            params.add("client_id", clientId);
-            params.add("client_secret", clientSecret);
-            params.add("scope", "openid");
-            TokenExchangeResponse response = identityClient.exchangeToken(params);
+            TokenExchangeResponse response = exchangeToken();
 
             // Tạo user trên Keycloak
             var creationUser = identityClient.createUser(
@@ -110,6 +104,17 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
             throw new EntityNotFoundException();
         }
         return accounts.stream().map(this::mapToDTO).toList();
+    }
+
+    @Override
+    public TokenExchangeResponse exchangeToken() {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "client_credentials");
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("scope", "openid");
+        TokenExchangeResponse response = identityClient.exchangeToken(params);
+        return response;
     }
 
     private AccountDTO.AccountResponse mapToDTO(Account account) {

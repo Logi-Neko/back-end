@@ -1,11 +1,7 @@
 package exe2.learningapp.logineko.lesson.dtos.responses;
 
-import exe2.learningapp.logineko.lesson.entities.Lesson;
-import exe2.learningapp.logineko.lesson.entities.enums.VideoType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
@@ -13,6 +9,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class VideoDTO {
     Long id;
     String title;
@@ -22,9 +19,8 @@ public class VideoDTO {
     String thumbnailPublicId;
     Long duration;
     Long order;
-    VideoType videoType;
     Boolean isActive;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
-    LessonDTO lesson;
+    VideoQuestionDTO videoQuestion;
 }

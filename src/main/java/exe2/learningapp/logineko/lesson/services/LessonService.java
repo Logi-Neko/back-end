@@ -21,5 +21,5 @@ public interface LessonService {
 
     List<LessonDTO> search(LessonFilterRequest request);
 
-    LessonDTO convertToDTO(Lesson lesson);
+    LessonDTO convertToLessonDTO(Lesson lesson);
 }

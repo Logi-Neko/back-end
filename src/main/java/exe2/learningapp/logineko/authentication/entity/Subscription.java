@@ -24,7 +24,7 @@ public class Subscription {
     @ManyToOne
     Account account;
 
-    String Type;
+    String type;
     @JoinColumn(name = "start_date")
     LocalDate startDate;
     @JoinColumn(name = "end_date")

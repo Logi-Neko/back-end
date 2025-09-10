@@ -7,6 +7,7 @@ import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.service.AccountService;
 import exe2.learningapp.logineko.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -179,7 +180,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @Operation(summary = "Tạo user mới")
-    public ResponseEntity<ApiResponse<?>> registerUser(@RequestBody AccountDTO.CreateAccountRequest request) {
+    public ResponseEntity<ApiResponse<?>> registerUser(@RequestBody @Valid AccountDTO.CreateAccountRequest request) {
             AccountDTO.AccountResponse newUser = accountService.register(request);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(ApiResponse.created(newUser));
@@ -192,6 +193,15 @@ public class AuthenticationController {
         return ResponseEntity.ok(ApiResponse.success(
                 accountService.getAllUsers(),
                 "Lấy danh sách user thành công"
+        ));
+    }
+
+    @GetMapping("/exchange-token")
+    @Operation(summary = "Lấy access token mới")
+    public ResponseEntity<ApiResponse<?>> exchangeToken() {
+        return ResponseEntity.ok(ApiResponse.success(
+                accountService.exchangeToken(),
+                "Lấy access token thành công"
         ));
     }
 

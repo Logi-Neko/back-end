@@ -1,6 +1,5 @@
 package exe2.learningapp.logineko.lesson.entities;
 
-import exe2.learningapp.logineko.lesson.entities.enums.VideoType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -41,11 +40,7 @@ public class Video {
     Long duration;
 
     @Column(nullable = false)
-    Long order;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    VideoType type;
+    Long index;
 
     @Column(nullable = false)
     Boolean isActive;
@@ -63,4 +58,8 @@ public class Video {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id", nullable = false)
     Lesson lesson;
+
+    @OneToOne
+    @JoinColumn(name = "video_question_id", referencedColumnName = "id", nullable = false)
+    VideoQuestion videoQuestion;
 }

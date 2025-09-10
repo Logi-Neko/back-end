@@ -1,5 +1,6 @@
 package exe2.learningapp.logineko.lesson.controllers;
 
+import exe2.learningapp.logineko.common.ApiResponse;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonFilterRequest;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.LessonDTO;
@@ -22,40 +23,45 @@ public class LessonController {
     LessonService lessonService;
 
     @PostMapping
-    ResponseEntity<LessonDTO> create(
+    ResponseEntity<ApiResponse<LessonDTO>> create(
             @RequestPart @Valid LessonRequest request,
             @RequestPart MultipartFile thumbnail
     ) {
-        return ResponseEntity.ok(lessonService.create(request, thumbnail));
+        LessonDTO lessonDTO = lessonService.create(request, thumbnail);
+        return ResponseEntity.ok(ApiResponse.success(lessonDTO));
     }
 
     @PatchMapping("/{id}")
-    ResponseEntity<LessonDTO> update(
+    ResponseEntity<ApiResponse<LessonDTO>> update(
             @PathVariable Long id,
             @RequestPart @Valid LessonRequest request,
             @RequestPart(required = false) MultipartFile thumbnail
     ) {
-        return ResponseEntity.ok(lessonService.update(id, request, thumbnail));
+        LessonDTO lessonDTO = lessonService.update(id, request, thumbnail);
+        return ResponseEntity.ok(ApiResponse.success(lessonDTO));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> delete(@PathVariable Long id) {
+    ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         lessonService.delete(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success());
     }
 
     @GetMapping
-    ResponseEntity<List<LessonDTO>> findAll() {
-        return ResponseEntity.ok(lessonService.findAll());
+    ResponseEntity<ApiResponse<List<LessonDTO>>> findAll() {
+        List<LessonDTO> lessons = lessonService.findAll();
+        return ResponseEntity.ok(ApiResponse.success(lessons));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<LessonDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(lessonService.findById(id));
+    ResponseEntity<ApiResponse<LessonDTO>> findById(@PathVariable Long id) {
+        LessonDTO lessonDTO = lessonService.findById(id);
+        return ResponseEntity.ok(ApiResponse.success(lessonDTO));
     }
 
     @GetMapping("/search")
-    ResponseEntity<List<LessonDTO>> search(@RequestBody LessonFilterRequest request) {
-        return ResponseEntity.ok(lessonService.search(request));
+    ResponseEntity<ApiResponse<List<LessonDTO>>> search(@RequestBody LessonFilterRequest request) {
+        List<LessonDTO> lessons = lessonService.search(request);
+        return ResponseEntity.ok(ApiResponse.success(lessons));
     }
 }

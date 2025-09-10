@@ -53,7 +53,7 @@ public enum ErrorCode {
     ERR_FORBIDDEN(HttpStatus.FORBIDDEN.value(), "ERR_FORBIDDEN", "Bạn không có quyền thực hiện thao tác này."),
     ERR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "ERR_UNAUTHORIZED", "Chưa được xác thực. Vui lòng đăng nhập."),
     ERR_TIMEOUT(HttpStatus.REQUEST_TIMEOUT.value(), "ERR_TIMEOUT", "Yêu cầu quá thời gian. Vui lòng thử lại."),
-
+    INVALID_END_DATE(HttpStatus.BAD_REQUEST.value(), "ERR_END_DATE", "Ngày kết thúc phải sau ngày bắt đầu."),
     // =========================
     // PERMISSIONS
     // =========================
@@ -133,7 +133,16 @@ public enum ErrorCode {
             "Tên đăng nhập đã tồn tại, vui lòng chọn tên khác"),
     USERNAME_IS_MISSING(HttpStatus.BAD_REQUEST.value(),
             "USERNAME_IS_MISSING",
-            "Vui lòng nhập tên đăng nhập");
+            "Vui lòng nhập tên đăng nhập"),
+
+    ERR_INVALID_INPUT(HttpStatus.BAD_REQUEST.value(),
+            "INVALID_AGE_INPUT",
+                    "Tuổi của bé từ 0 đến 18 tuổi"),
+    ERR_INVALID_GENDER(HttpStatus.BAD_REQUEST.value(),
+            "INVALID_GENDER",
+            "Giới tính không hợp lệ")
+
+    ;
 
 
     private final int status;

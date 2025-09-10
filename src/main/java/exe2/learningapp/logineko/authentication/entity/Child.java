@@ -23,5 +23,4 @@ public class Child {
     @ManyToOne
     @JoinColumn(name = "parent_id")
     Account parent;
-
 }

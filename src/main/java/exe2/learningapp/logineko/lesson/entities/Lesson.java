@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Table
 @Entity(name = "lessons")
@@ -27,7 +28,7 @@ public class Lesson {
     String description;
 
     @Column(nullable = false)
-    Long order;
+    Long index;
 
     @Column(nullable = false)
     Long minAge;
@@ -62,4 +63,8 @@ public class Lesson {
     @Setter(AccessLevel.NONE)
     @Column(nullable = false)
     LocalDateTime updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    Course course;
 }
