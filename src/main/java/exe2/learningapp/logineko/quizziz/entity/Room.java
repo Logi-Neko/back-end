@@ -25,7 +25,7 @@ public class Room {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
+    @JoinColumn(name = "account_id", nullable = false)
     private Account creator;
 
     @Column(name = "is_public", nullable = false)
