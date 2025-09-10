@@ -39,6 +39,9 @@ public class Room {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Participant> participants;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Quiz> quizzes;
     @PrePersist
     public void prePersist() {
         createdAt = updatedAt = LocalDateTime.now();

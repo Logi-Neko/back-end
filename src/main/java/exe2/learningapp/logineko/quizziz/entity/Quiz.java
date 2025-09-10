@@ -7,11 +7,14 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "quiz")
 public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String quizId;
+    private Long quizId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -19,8 +22,8 @@ public class Quiz {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "subject", nullable = false)
-    private String subject;
+//    @Column(name = "subject", nullable = false)
+//    private String subject;
 
     @Column(name = "duration", nullable = false)
     private int duration;
@@ -41,7 +44,13 @@ public class Quiz {
     private boolean isActive;
 
 
+    @ManyToOne
+    @JoinColumn(name = "room_id")
+    private Room room;
+
+
     public  enum Status {
-      OPEN, CLOSED,
+      OPEN,CLOSED,
+        RUNNING
     }
 }
