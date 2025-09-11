@@ -7,18 +7,18 @@ import java.time.LocalDateTime;
 
 @Builder
 @Entity
-@Table(name = "child_characters")
+@Table(name = "account_characters")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChildCharacter {
+public class AccountCharacter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    @JoinColumn(name = "child_id")
+    @JoinColumn(name = "account_id")
     @ManyToOne
-    Child child;
+    Account account;
     @JoinColumn(name = "character_id")
     @ManyToOne
     Character character;

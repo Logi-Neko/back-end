@@ -1,8 +1,8 @@
 package exe2.learningapp.logineko.authentication.controller;
 
-import exe2.learningapp.logineko.authentication.dtos.child_character.ChildCharacterCreateDto;
-import exe2.learningapp.logineko.authentication.dtos.child_character.ChildCharacterDto;
-import exe2.learningapp.logineko.authentication.service.ChildCharacterService;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterCreateDto;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterDto;
+import exe2.learningapp.logineko.authentication.service.AccountCharacterService;
 import exe2.learningapp.logineko.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -25,7 +25,7 @@ import java.util.List;
 @Tag(name = "Child Character Management", description = "API quản lý nhân vật của trẻ em")
 public class ChildCharacterController {
 
-    private final ChildCharacterService childCharacterService;
+    private final AccountCharacterService childCharacterService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -38,12 +38,12 @@ public class ChildCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy trẻ em hoặc nhân vật"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Nhân vật đã tồn tại cho trẻ này")
     })
-    public exe2.learningapp.logineko.common.ApiResponse<ChildCharacterDto> createChildCharacter(
-            @Valid @RequestBody ChildCharacterCreateDto createDto) {
+    public exe2.learningapp.logineko.common.ApiResponse<AccountCharacterDto> createChildCharacter(
+            @Valid @RequestBody AccountCharacterCreateDto createDto) {
         log.info("Creating child character for childId: {}, characterId: {}",
                 createDto.childId(), createDto.characterId());
 
-        ChildCharacterDto childCharacter = childCharacterService.createChildCharacter(createDto);
+        AccountCharacterDto childCharacter = childCharacterService.createChildCharacter(createDto);
         return ApiResponse.success(childCharacter, "Tạo nhân vật cho trẻ thành công");
     }
 
@@ -56,11 +56,11 @@ public class ChildCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy thông tin thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy nhân vật của trẻ")
     })
-    public ApiResponse<ChildCharacterDto> getChildCharacterById(
+    public ApiResponse<AccountCharacterDto> getChildCharacterById(
             @Parameter(description = "ID của nhân vật trẻ em") @PathVariable Long id) {
         log.info("Getting child character by ID: {}", id);
 
-        ChildCharacterDto childCharacter = childCharacterService.getChildCharacterById(id);
+        AccountCharacterDto childCharacter = childCharacterService.getChildCharacterById(id);
         return ApiResponse.success(childCharacter, "Lấy thông tin nhân vật thành công");
     }
 
@@ -72,10 +72,10 @@ public class ChildCharacterController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách thành công")
     })
-    public ApiResponse<List<ChildCharacterDto>> getAllChildCharacters() {
+    public ApiResponse<List<AccountCharacterDto>> getAllChildCharacters() {
         log.info("Getting all child characters");
 
-        List<ChildCharacterDto> childCharacters = childCharacterService.getAllChildCharacters();
+        List<AccountCharacterDto> childCharacters = childCharacterService.getAllChildCharacters();
         return ApiResponse.success(childCharacters, "Lấy danh sách nhân vật thành công");
     }
 
@@ -87,11 +87,11 @@ public class ChildCharacterController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách phân trang thành công")
     })
-    public ApiResponse<Page<ChildCharacterDto>> getChildCharactersPaged(
+    public ApiResponse<Page<AccountCharacterDto>> getChildCharactersPaged(
             @Parameter(description = "Thông tin phân trang") Pageable pageable) {
         log.info("Getting child characters paged: {}", pageable);
 
-        Page<ChildCharacterDto> childCharacters = childCharacterService.getChildCharactersPaged(pageable);
+        Page<AccountCharacterDto> childCharacters = childCharacterService.getChildCharactersPaged(pageable);
         return ApiResponse.success(childCharacters, "Lấy danh sách nhân vật phân trang thành công");
     }
 
@@ -104,11 +104,11 @@ public class ChildCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách nhân vật của trẻ thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy trẻ em")
     })
-    public ApiResponse<List<ChildCharacterDto>> getChildCharactersByChildId(
+    public ApiResponse<List<AccountCharacterDto>> getChildCharactersByChildId(
             @Parameter(description = "ID của trẻ em") @PathVariable Long childId) {
         log.info("Getting child characters for child ID: {}", childId);
 
-        List<ChildCharacterDto> childCharacters = childCharacterService.getChildCharactersByChildId(childId);
+        List<AccountCharacterDto> childCharacters = childCharacterService.getChildCharactersByChildId(childId);
         return ApiResponse.success(childCharacters, "Lấy danh sách nhân vật của trẻ thành công");
     }
 
@@ -121,11 +121,11 @@ public class ChildCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách nhân vật yêu thích thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy trẻ em")
     })
-    public ApiResponse<List<ChildCharacterDto>> getFavoriteCharactersByChildId(
+    public ApiResponse<List<AccountCharacterDto>> getFavoriteCharactersByChildId(
             @Parameter(description = "ID của trẻ em") @PathVariable Long childId) {
         log.info("Getting favorite characters for child ID: {}", childId);
 
-        List<ChildCharacterDto> favoriteCharacters = childCharacterService.getFavoriteCharactersByChildId(childId);
+        List<AccountCharacterDto> favoriteCharacters = childCharacterService.getFavoriteCharactersByChildId(childId);
         return ApiResponse.success(favoriteCharacters, "Lấy danh sách nhân vật yêu thích thành công");
     }
 
@@ -138,12 +138,12 @@ public class ChildCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cập nhật thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy nhân vật của trẻ")
     })
-    public ApiResponse<ChildCharacterDto> updateChildCharacter(
+    public ApiResponse<AccountCharacterDto> updateChildCharacter(
             @Parameter(description = "ID của nhân vật trẻ em") @PathVariable Long id,
-            @Valid @RequestBody ChildCharacterCreateDto updateDto) {
+            @Valid @RequestBody AccountCharacterCreateDto updateDto) {
         log.info("Updating child character with ID: {}", id);
 
-        ChildCharacterDto childCharacter = childCharacterService.updateChildCharacter(id, updateDto);
+        AccountCharacterDto childCharacter = childCharacterService.updateChildCharacter(id, updateDto);
         return ApiResponse.success(childCharacter, "Cập nhật nhân vật thành công");
     }
 
@@ -156,11 +156,11 @@ public class ChildCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Thay đổi trạng thái yêu thích thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy nhân vật của trẻ")
     })
-    public ApiResponse<ChildCharacterDto> toggleFavorite(
+    public ApiResponse<AccountCharacterDto> toggleFavorite(
             @Parameter(description = "ID của nhân vật trẻ em") @PathVariable Long id) {
         log.info("Toggling favorite status for child character ID: {}", id);
 
-        ChildCharacterDto childCharacter = childCharacterService.toggleFavorite(id);
+        AccountCharacterDto childCharacter = childCharacterService.toggleFavorite(id);
         return ApiResponse.success(childCharacter, "Thay đổi trạng thái yêu thích thành công");
     }
 
@@ -190,12 +190,12 @@ public class ChildCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Mở khóa thành công hoặc đã mở khóa trước đó"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy trẻ em hoặc nhân vật")
     })
-    public ApiResponse<ChildCharacterDto> unlockCharacterForChild(
+    public ApiResponse<AccountCharacterDto> unlockCharacterForChild(
             @Parameter(description = "ID của trẻ em") @PathVariable Long childId,
             @Parameter(description = "ID của nhân vật") @PathVariable Long characterId) {
         log.info("Unlocking character {} for child {}", characterId, childId);
 
-        ChildCharacterDto childCharacter = childCharacterService.unlockCharacterForChild(childId, characterId);
+        AccountCharacterDto childCharacter = childCharacterService.unlockCharacterForChild(childId, characterId);
         return ApiResponse.success(childCharacter, "Mở khóa nhân vật thành công");
     }
 

@@ -1,14 +1,12 @@
 package exe2.learningapp.logineko.authentication.service;
 
-import exe2.learningapp.logineko.authentication.dtos.child_character.ChildCharacterCreateDto;
-import exe2.learningapp.logineko.authentication.dtos.child_character.ChildCharacterDto;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterCreateDto;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterDto;
 import exe2.learningapp.logineko.authentication.entity.Character;
-import exe2.learningapp.logineko.authentication.entity.Child;
-import exe2.learningapp.logineko.authentication.entity.ChildCharacter;
-import exe2.learningapp.logineko.authentication.repository.ChildCharacterRepository;
-import exe2.learningapp.logineko.authentication.repository.ChildRepository;
+import exe2.learningapp.logineko.authentication.entity.AccountCharacter;
+import exe2.learningapp.logineko.authentication.repository.AccountCharacterRepository;
 import exe2.learningapp.logineko.authentication.repository.CharacterRepository;
-import exe2.learningapp.logineko.authentication.mapper.ChildCharacterMapper;
+import exe2.learningapp.logineko.authentication.mapper.AccountCharacterMapper;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -26,15 +24,14 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Transactional
-public class ChildCharacterServiceImpl implements ChildCharacterService {
+public class AccountCharacterServiceImpl implements AccountCharacterService {
 
-    private final ChildCharacterRepository childCharacterRepository;
-    private final ChildRepository childRepository;
+    private final AccountCharacterRepository childCharacterRepository;
     private final CharacterRepository characterRepository;
-    private final ChildCharacterMapper childCharacterMapper;
+    private final AccountCharacterMapper childCharacterMapper;
 
     @Override
-    public ChildCharacterDto createChildCharacter(ChildCharacterCreateDto createDto) {
+    public AccountCharacterDto createChildCharacter(AccountCharacterCreateDto createDto) {
         log.info("Creating child character for childId: {}, characterId: {}",
                 createDto.childId(), createDto.characterId());
 
@@ -44,20 +41,20 @@ public class ChildCharacterServiceImpl implements ChildCharacterService {
         Character character = characterRepository.findById(createDto.characterId())
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
-        Optional<ChildCharacter> existing = childCharacterRepository
+        Optional<AccountCharacter> existing = childCharacterRepository
                 .findByChild_IdAndCharacter_Id(createDto.childId(), createDto.characterId());
         if (existing.isPresent()) {
             throw new AppException(ErrorCode.ERR_EXISTS);
         }
 
-        ChildCharacter childCharacter = ChildCharacter.builder()
+        AccountCharacter childCharacter = AccountCharacter.builder()
                 .child(child)
                 .character(character)
                 .isFavorite(createDto.isFavorite())
                 .unlockedAt(LocalDateTime.now())
                 .build();
 
-        ChildCharacter saved = childCharacterRepository.save(childCharacter);
+        AccountCharacter saved = childCharacterRepository.save(childCharacter);
         log.info("Created child character with ID: {}", saved.getId());
 
         return childCharacterMapper.toDto(saved);
@@ -65,10 +62,10 @@ public class ChildCharacterServiceImpl implements ChildCharacterService {
 
     @Override
     @Transactional(readOnly = true)
-    public ChildCharacterDto getChildCharacterById(Long id) {
+    public AccountCharacterDto getChildCharacterById(Long id) {
         log.info("Getting child character by ID: {}", id);
 
-        ChildCharacter childCharacter = childCharacterRepository.findById(id)
+        AccountCharacter childCharacter = childCharacterRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         return childCharacterMapper.toDto(childCharacter);
@@ -76,10 +73,10 @@ public class ChildCharacterServiceImpl implements ChildCharacterService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChildCharacterDto> getAllChildCharacters() {
+    public List<AccountCharacterDto> getAllChildCharacters() {
         log.info("Getting all child characters");
 
-        List<ChildCharacter> childCharacters = childCharacterRepository.findAll();
+        List<AccountCharacter> childCharacters = childCharacterRepository.findAll();
         return childCharacters.stream()
                 .map(childCharacterMapper::toDto)
                 .toList();
@@ -87,23 +84,23 @@ public class ChildCharacterServiceImpl implements ChildCharacterService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ChildCharacterDto> getChildCharactersPaged(Pageable pageable) {
+    public Page<AccountCharacterDto> getChildCharactersPaged(Pageable pageable) {
         log.info("Getting child characters paged: {}", pageable);
 
-        Page<ChildCharacter> childCharacters = childCharacterRepository.findAll(pageable);
+        Page<AccountCharacter> childCharacters = childCharacterRepository.findAll(pageable);
         return childCharacters.map(childCharacterMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChildCharacterDto> getChildCharactersByChildId(Long childId) {
+    public List<AccountCharacterDto> getChildCharactersByChildId(Long childId) {
         log.info("Getting child characters for child ID: {}", childId);
 
         if (!childRepository.existsById(childId)) {
             throw new AppException(ErrorCode.ERR_NOT_FOUND);
         }
 
-        List<ChildCharacter> childCharacters = childCharacterRepository.findByChild_Id(childId);
+        List<AccountCharacter> childCharacters = childCharacterRepository.findByChild_Id(childId);
         return childCharacters.stream()
                 .map(childCharacterMapper::toDto)
                 .toList();
@@ -111,14 +108,14 @@ public class ChildCharacterServiceImpl implements ChildCharacterService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ChildCharacterDto> getFavoriteCharactersByChildId(Long childId) {
+    public List<AccountCharacterDto> getFavoriteCharactersByChildId(Long childId) {
         log.info("Getting favorite characters for child ID: {}", childId);
 
         if (!childRepository.existsById(childId)) {
             throw new AppException(ErrorCode.ERR_NOT_FOUND);
         }
 
-        List<ChildCharacter> favoriteCharacters = childCharacterRepository
+        List<AccountCharacter> favoriteCharacters = childCharacterRepository
                 .findByChild_IdAndIsFavoriteTrue(childId);
         return favoriteCharacters.stream()
                 .map(childCharacterMapper::toDto)
@@ -126,30 +123,30 @@ public class ChildCharacterServiceImpl implements ChildCharacterService {
     }
 
     @Override
-    public ChildCharacterDto updateChildCharacter(Long id, ChildCharacterCreateDto updateDto) {
+    public AccountCharacterDto updateChildCharacter(Long id, AccountCharacterCreateDto updateDto) {
         log.info("Updating child character with ID: {}", id);
 
-        ChildCharacter childCharacter = childCharacterRepository.findById(id)
+        AccountCharacter childCharacter = childCharacterRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         childCharacter.setFavorite(updateDto.isFavorite());
 
-        ChildCharacter updated = childCharacterRepository.save(childCharacter);
+        AccountCharacter updated = childCharacterRepository.save(childCharacter);
         log.info("Updated child character with ID: {}", updated.getId());
 
         return childCharacterMapper.toDto(updated);
     }
 
     @Override
-    public ChildCharacterDto toggleFavorite(Long id) {
+    public AccountCharacterDto toggleFavorite(Long id) {
         log.info("Toggling favorite status for child character ID: {}", id);
 
-        ChildCharacter childCharacter = childCharacterRepository.findById(id)
+        AccountCharacter childCharacter = childCharacterRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         childCharacter.setFavorite(!childCharacter.isFavorite());
 
-        ChildCharacter updated = childCharacterRepository.save(childCharacter);
+        AccountCharacter updated = childCharacterRepository.save(childCharacter);
         log.info("Toggled favorite status for child character ID: {}, new status: {}",
                 updated.getId(), updated.isFavorite());
 
@@ -190,17 +187,17 @@ public class ChildCharacterServiceImpl implements ChildCharacterService {
     }
 
     @Override
-    public ChildCharacterDto unlockCharacterForChild(Long childId, Long characterId) {
+    public AccountCharacterDto unlockCharacterForChild(Long childId, Long characterId) {
         log.info("Unlocking character {} for child {}", characterId, childId);
 
-        Optional<ChildCharacter> existing = childCharacterRepository
+        Optional<AccountCharacter> existing = childCharacterRepository
                 .findByChild_IdAndCharacter_Id(childId, characterId);
         if (existing.isPresent()) {
             log.info("Character {} already unlocked for child {}", characterId, childId);
             return childCharacterMapper.toDto(existing.get());
         }
 
-        ChildCharacterCreateDto createDto = new ChildCharacterCreateDto(childId, characterId, false);
+        AccountCharacterCreateDto createDto = new AccountCharacterCreateDto(childId, characterId, false);
         return createChildCharacter(createDto);
     }
 }
