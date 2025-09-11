@@ -108,9 +108,23 @@ public class QuestionServiceImpl implements QuestionService{
     }
     @Override
     public Page<QuestionDTO.Response> findByQuizId(Long quizId, Pageable pageable) {
-        Page<Question> questions = questionRepository.findByQuizId(quizId,pageable);
+        Page<Question> questions = questionRepository.findByQuiz_QuizId(quizId,pageable);
         return questions.map(this::mapToDto);
     }
+
+    @Override
+    public List<QuestionDTO.Response> findAllByQuizId(Long quizId) {
+        List<Question> questions = questionRepository.findByQuiz_QuizId(quizId);
+        return questions.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void startQuestion(Long quizId, Integer questionNo) {
+
+    }
+
     private QuestionDTO.Response mapToDto(Question question) {
         List<AnswerOptionDTO.Response> optionResponses = question.getOptions().stream()
                 .map(option -> AnswerOptionDTO.Response.builder()

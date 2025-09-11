@@ -11,5 +11,6 @@ public interface QuizService {
   List<QuizDTO.Response> findByRoom(Long roomId);
   void deleteQuiz(Long id);
   QuizDTO.Response updateQuiz(Long id, QuizDTO.Request request);
-  QuizDTO.Response startQuiz(Long id);
+  QuizDTO.Response startTimeQuiz(Long id);
+  void startQuiz(Long roomId,Long quizId);
 }

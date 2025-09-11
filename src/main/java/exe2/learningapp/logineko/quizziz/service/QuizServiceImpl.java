@@ -2,13 +2,17 @@ package exe2.learningapp.logineko.quizziz.service;
 
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
+import exe2.learningapp.logineko.quizziz.dto.QuestionDTO;
 import exe2.learningapp.logineko.quizziz.dto.QuizDTO;
 import exe2.learningapp.logineko.quizziz.entity.Quiz;
+import exe2.learningapp.logineko.quizziz.entity.QuizSession;
 import exe2.learningapp.logineko.quizziz.entity.Room;
 import exe2.learningapp.logineko.quizziz.repository.QuizRepository;
+import exe2.learningapp.logineko.quizziz.repository.QuizSessionRepository;
 import exe2.learningapp.logineko.quizziz.repository.RoomRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +24,9 @@ import java.util.Optional;
 public class QuizServiceImpl implements QuizService {
     private final QuizRepository quizRepository;
     private final RoomRepository roomRepository;
+    private final KafkaPublisher kafkaPublisher;
+    private final QuestionService questionService;
+    private final QuizSessionRepository quizSessionRepository;
     @Override
     public QuizDTO.Response createQuiz(QuizDTO.Request request) {
         Room room = roomRepository.findById(request.roomId())
@@ -99,7 +106,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizDTO.Response startQuiz(Long id) {
+    public QuizDTO.Response startTimeQuiz(Long id) {
         Quiz quiz = quizRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
         if("RUNNING".equalsIgnoreCase(quiz.getStatus().toString()))
@@ -121,5 +128,35 @@ public class QuizServiceImpl implements QuizService {
                 .endTime(quiz.getEndTime())
                 .roomId(quiz.getRoom() != null ? quiz.getRoom().getId() : null)
                 .build();
+    }
+
+    @Override
+    public void startQuiz(Long roomId,Long quizId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+        if("RUNNING".equalsIgnoreCase(quiz.getStatus().toString()))
+            throw new IllegalStateException("Quiz is already running");
+        if("CLOSED".equalsIgnoreCase(quiz.getStatus().toString()))
+            throw new IllegalStateException("Quiz is already closed");
+        QuizSession quizSession = QuizSession.builder()
+                .quiz(quiz)
+                .room(room)
+                .startTime(LocalDateTime.now())
+                .isActive(true)
+                .build();
+
+        quizSessionRepository.save(quizSession);
+        quiz.setStatus(Quiz.Status.RUNNING);
+        quiz.setStartTime(LocalDateTime.now());
+
+        kafkaPublisher.publishEvent(roomId,"START_QUIZ", quizId);
+
+        List<QuestionDTO.Response> questions = questionService.findAllByQuizId(quizId);
+        if(questions.isEmpty())
+            throw new IllegalStateException("Quiz has no questions");
+
+
     }
 }
