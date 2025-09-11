@@ -30,6 +30,8 @@ public class Question {
     @Column(name = "question_text", nullable = false, columnDefinition = "TEXT")
     private String questionText;
 
+    @Column(name="time_limit", nullable = false)
+    private Integer timeLimit = 30; // inseconds
     @Column(name = "points", nullable = false)
     private Integer points = 1000;
 

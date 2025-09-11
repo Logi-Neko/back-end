@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -48,6 +49,9 @@ public class Quiz {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @OneToMany
+    @JoinColumn(name = "quiz_id")
+    private List<Question> questions;
 
     public  enum Status {
       OPEN,CLOSED,

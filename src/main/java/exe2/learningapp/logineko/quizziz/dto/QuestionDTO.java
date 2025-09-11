@@ -10,15 +10,18 @@ public class QuestionDTO {
     public record Request(
             Long quizId,
             String questionText,
-            List<AnswerOption> answerOptions
+            List<AnswerOptionDTO.Request> answerOptions,
+            Integer timeLimit,
+            Integer points
     )
     {}
     @Builder
     public record Response(
             Long id,
             String questionText,
-            List<AnswerOption> answerOptions,
+            List<AnswerOptionDTO.Response> answerOptions,
             Integer points,
+            Integer timeLimit,
             Long quizId
     ){}
 

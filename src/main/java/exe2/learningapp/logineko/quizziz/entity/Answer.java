@@ -36,4 +36,8 @@ public class Answer {
 
     @Column(name="score", nullable = false)
     private int score;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "participant_id", nullable = false)
+    private Participant participant;
 }
