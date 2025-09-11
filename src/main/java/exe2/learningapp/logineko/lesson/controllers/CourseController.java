@@ -23,7 +23,7 @@ public class CourseController {
     CourseService courseService;
 
     @PostMapping
-    ResponseEntity<ApiResponse<CourseDTO>> create(
+    public ResponseEntity<ApiResponse<CourseDTO>> create(
             @RequestPart @Valid CourseRequest request,
             @RequestPart MultipartFile thumbnail
     ) {
@@ -32,7 +32,7 @@ public class CourseController {
     }
 
     @PatchMapping("/{id}")
-    ResponseEntity<ApiResponse<CourseDTO>> update(
+    public ResponseEntity<ApiResponse<CourseDTO>> update(
             @PathVariable Long id,
             @RequestPart @Valid CourseRequest request,
             @RequestPart(required = false) MultipartFile thumbnail
@@ -42,13 +42,13 @@ public class CourseController {
     }
 
     @GetMapping
-    ResponseEntity<ApiResponse<List<CourseDTO>>> findAll() {
+    public ResponseEntity<ApiResponse<List<CourseDTO>>> findAll() {
         List<CourseDTO> courses = courseService.findAll();
         return ResponseEntity.ok(ApiResponse.success(courses));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<CourseDTO>> findById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CourseDTO>> findById(@PathVariable Long id) {
         CourseDTO courseDTO = courseService.findById(id);
         return ResponseEntity.ok(ApiResponse.success(courseDTO));
     }

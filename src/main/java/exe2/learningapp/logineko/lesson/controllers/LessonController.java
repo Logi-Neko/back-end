@@ -23,7 +23,7 @@ public class LessonController {
     LessonService lessonService;
 
     @PostMapping
-    ResponseEntity<ApiResponse<LessonDTO>> create(
+    public ResponseEntity<ApiResponse<LessonDTO>> create(
             @RequestPart @Valid LessonRequest request,
             @RequestPart MultipartFile thumbnail
     ) {
@@ -32,7 +32,7 @@ public class LessonController {
     }
 
     @PatchMapping("/{id}")
-    ResponseEntity<ApiResponse<LessonDTO>> update(
+    public ResponseEntity<ApiResponse<LessonDTO>> update(
             @PathVariable Long id,
             @RequestPart @Valid LessonRequest request,
             @RequestPart(required = false) MultipartFile thumbnail
@@ -42,33 +42,33 @@ public class LessonController {
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         lessonService.delete(id);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
     @GetMapping
-    ResponseEntity<ApiResponse<List<LessonDTO>>> findAll() {
+    public ResponseEntity<ApiResponse<List<LessonDTO>>> findAll() {
         List<LessonDTO> lessons = lessonService.findAll();
         return ResponseEntity.ok(ApiResponse.success(lessons));
     }
 
-    @GetMapping
-    ResponseEntity<ApiResponse<List<LessonDTO>>> findByCourseId(
-            @RequestParam Long courseId
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<ApiResponse<List<LessonDTO>>> findByCourseId(
+            @PathVariable Long courseId
     ) {
         List<LessonDTO> lessons = lessonService.findByCourseId(courseId);
         return ResponseEntity.ok(ApiResponse.success(lessons));
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<ApiResponse<LessonDTO>> findById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<LessonDTO>> findById(@PathVariable Long id) {
         LessonDTO lessonDTO = lessonService.findById(id);
         return ResponseEntity.ok(ApiResponse.success(lessonDTO));
     }
 
     @GetMapping("/search")
-    ResponseEntity<ApiResponse<List<LessonDTO>>> search(@RequestBody LessonFilterRequest request) {
+    public ResponseEntity<ApiResponse<List<LessonDTO>>> search(@RequestBody LessonFilterRequest request) {
         List<LessonDTO> lessons = lessonService.search(request);
         return ResponseEntity.ok(ApiResponse.success(lessons));
     }
