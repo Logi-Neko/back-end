@@ -19,6 +19,8 @@ public interface LessonService {
 
     List<LessonDTO> findAll();
 
+    List<LessonDTO> findByCourseId(Long courseId);
+
     List<LessonDTO> search(LessonFilterRequest request);
 
     LessonDTO convertToLessonDTO(Lesson lesson);

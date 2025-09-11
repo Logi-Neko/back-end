@@ -53,6 +53,14 @@ public class LessonController {
         return ResponseEntity.ok(ApiResponse.success(lessons));
     }
 
+    @GetMapping
+    ResponseEntity<ApiResponse<List<LessonDTO>>> findByCourseId(
+            @RequestParam Long courseId
+    ) {
+        List<LessonDTO> lessons = lessonService.findByCourseId(courseId);
+        return ResponseEntity.ok(ApiResponse.success(lessons));
+    }
+
     @GetMapping("/{id}")
     ResponseEntity<ApiResponse<LessonDTO>> findById(@PathVariable Long id) {
         LessonDTO lessonDTO = lessonService.findById(id);

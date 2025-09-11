@@ -155,6 +155,17 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
+    public List<LessonDTO> findByCourseId(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
+        return lessonRepository.findByCourse(course)
+                .stream()
+                .map(this::convertToLessonDTO)
+                .toList();
+    }
+
+    @Override
     public List<LessonDTO> search(LessonFilterRequest request) {
         Specification<Lesson> spec = Specification.allOf(
                 LessonSpecifications.hasName(request.getName()),
