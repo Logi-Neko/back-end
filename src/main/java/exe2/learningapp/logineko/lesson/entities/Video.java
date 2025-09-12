@@ -24,19 +24,16 @@ public class Video {
     @Column(nullable = false, length = 50)
     String title;
 
-    @Column(nullable = false, length = 500)
+    @Column(length = 500)
     String videoUrl;
 
-    @Column(nullable = false)
     String videoPublicId;
 
     @Column(length = 500)
     String thumbnailUrl;
 
-    @Column(nullable = false)
     String thumbnailPublicId;
 
-    @Column(nullable = false)
     Long duration;
 
     @Column(nullable = false)
