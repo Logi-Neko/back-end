@@ -39,10 +39,9 @@ public class Lesson {
     @Column(nullable = false)
     Long difficultyLevel;
 
-    @Column(length = 500, nullable = false)
+    @Column(length = 500)
     String thumbnailUrl;
 
-    @Column(nullable = false)
     String thumbnailPublicId;
 
     @Column(nullable = false)
