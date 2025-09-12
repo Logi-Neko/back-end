@@ -41,6 +41,9 @@ public class VideoServiceImpl implements VideoService {
     @Override
     @Transactional
     public VideoDTO create(VideoRequest request, MultipartFile thumbnail, MultipartFile video) {
+        Lesson lesson = lessonRepository.findById(request.getLessonId())
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
         VideoQuestion videoQuestion = VideoQuestion.builder()
                 .question(request.getQuestion())
                 .optionA(request.getOptionA())
@@ -56,10 +59,11 @@ public class VideoServiceImpl implements VideoService {
                 .index(request.getOrder())
                 .isActive(request.getIsActive())
                 .videoQuestion(videoQuestion)
+                .lesson(lesson)
                 .build();
 
-        videoRepository.save(videoEntity);
         videoQuestionRepository.save(videoQuestion);
+        videoRepository.save(videoEntity);
 
         Pair<String, String> thumbnailData;
         try {
