@@ -2,7 +2,7 @@ package exe2.learningapp.logineko.quizziz.controller;
 
 import exe2.learningapp.logineko.quizziz.dto.RoomDTO;
 import exe2.learningapp.logineko.quizziz.service.RoomService;
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -14,8 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/rooms")

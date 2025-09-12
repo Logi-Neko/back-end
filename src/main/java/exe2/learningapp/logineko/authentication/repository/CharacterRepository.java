@@ -3,12 +3,13 @@ package exe2.learningapp.logineko.authentication.repository;
 import exe2.learningapp.logineko.authentication.entity.Character;
 import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface CharacterRepository extends JpaRepository<Character, Long> {
+public interface CharacterRepository extends JpaRepository<Character, Long>, JpaSpecificationExecutor<Character> {
 
     boolean existsByName(String name);
 
@@ -16,7 +17,4 @@ public interface CharacterRepository extends JpaRepository<Character, Long> {
 
     List<Character> findByNameContainingIgnoreCase(String keyword);
 
-    List<Character> findByIsActiveTrue();
-
-    List<Character> findByIsActiveFalse();
 }

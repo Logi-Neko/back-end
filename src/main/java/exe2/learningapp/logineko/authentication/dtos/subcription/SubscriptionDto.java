@@ -1,5 +1,6 @@
 package exe2.learningapp.logineko.authentication.dtos.subcription;
 
+import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import exe2.learningapp.logineko.authentication.entity.enums.SubscriptionStatus;
 
 import java.time.LocalDate;

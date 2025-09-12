@@ -1,6 +1,6 @@
 package exe2.learningapp.logineko.common.exception;
 
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import exe2.learningapp.logineko.common.util.MessageFormatter;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;

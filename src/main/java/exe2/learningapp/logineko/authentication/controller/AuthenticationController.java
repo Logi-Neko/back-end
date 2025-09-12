@@ -1,11 +1,8 @@
 package exe2.learningapp.logineko.authentication.controller;
 
 import exe2.learningapp.logineko.authentication.dtos.AccountDTO;
-import exe2.learningapp.logineko.authentication.dtos.UserCreationParams;
-import exe2.learningapp.logineko.authentication.dtos.UserInfo;
-import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.service.AccountService;
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

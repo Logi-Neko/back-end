@@ -2,7 +2,7 @@ package exe2.learningapp.logineko.authentication.config;
 
 import java.io.IOException;
 
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
