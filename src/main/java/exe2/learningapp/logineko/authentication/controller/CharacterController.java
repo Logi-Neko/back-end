@@ -2,9 +2,11 @@ package exe2.learningapp.logineko.authentication.controller;
 
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterCreateDto;
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterDto;
+import exe2.learningapp.logineko.authentication.dtos.character.CharacterSearchRequest;
 import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import exe2.learningapp.logineko.authentication.service.CharacterService;
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
+import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -116,20 +118,41 @@ public class CharacterController {
 
     @GetMapping("/search")
     @Operation(
-            summary = "Tìm kiếm nhân vật theo tên",
-            description = "Tìm kiếm nhân vật dựa trên từ khóa trong tên. Hỗ trợ tìm kiếm không phân biệt hoa thường"
+            summary = "Tìm kiếm nhân vật",
+            description = "Tìm kiếm nhân vật theo các tiêu chí như tên, độ hiếm, trạng thái premium, số sao..."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tìm kiếm nhân vật thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Từ khóa tìm kiếm không hợp lệ")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Tham số tìm kiếm không hợp lệ")
     })
-    public ApiResponse<List<CharacterDto>> searchCharactersByName(
-            @Parameter(description = "Từ khóa tìm kiếm trong tên nhân vật")
-            @RequestParam String keyword) {
-        log.info("Searching characters by keyword: {}", keyword);
+    public ApiResponse<PaginatedResponse<CharacterDto>> searchCharacters(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) CharacterRarity rarity,
+            @RequestParam(required = false) Boolean isPremium,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) Integer minStars,
+            @RequestParam(required = false) Integer maxStars,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
 
-        List<CharacterDto> characters = characterService.searchCharactersByName(keyword);
-        return ApiResponse.success(characters, "Tìm kiếm nhân vật thành công");
+        log.info("Searching characters with keyword: {}, rarity: {}", keyword, rarity);
+
+        CharacterSearchRequest request = new CharacterSearchRequest();
+        request.setKeyword(keyword);
+        request.setRarity(rarity);
+        request.setIsPremium(isPremium);
+        request.setIsActive(isActive);
+        request.setMinStars(minStars);
+        request.setMaxStars(maxStars);
+        request.setPage(page);
+        request.setSize(size);
+        request.setSortBy(sortBy);
+        request.setSortDir(sortDir);
+
+        PaginatedResponse<CharacterDto> result = characterService.searchCharacters(request);
+        return ApiResponse.success(result, "Tìm kiếm nhân vật thành công");
     }
 
     @PatchMapping("/{id}/deactivate")

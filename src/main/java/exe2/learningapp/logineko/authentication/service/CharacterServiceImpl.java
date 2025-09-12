@@ -2,15 +2,23 @@ package exe2.learningapp.logineko.authentication.service;
 
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterCreateDto;
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterDto;
+import exe2.learningapp.logineko.authentication.dtos.character.CharacterSearchRequest;
 import exe2.learningapp.logineko.authentication.entity.Character;
 import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import exe2.learningapp.logineko.authentication.repository.CharacterRepository;
 import exe2.learningapp.logineko.authentication.mapper.CharacterMapper;
+import exe2.learningapp.logineko.authentication.repository.specification.CharacterSpecification;
+import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -113,19 +121,32 @@ public class CharacterServiceImpl implements CharacterService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<CharacterDto> searchCharactersByName(String keyword) {
-        log.info("Searching characters by keyword: {}", keyword);
+    public PaginatedResponse<CharacterDto> searchCharacters(CharacterSearchRequest request) {
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return getAllCharacters();
-        }
 
-        List<Character> characters = characterRepository.findByNameContainingIgnoreCase(keyword.trim());
-        return characters.stream()
-                .map(characterMapper::toDto)
-                .toList();
+        Specification<Character> spec = Specification.allOf(
+                CharacterSpecification.hasKeyword(request.getKeyword()),
+                CharacterSpecification.isPremium(request.getIsPremium()),
+                CharacterSpecification.isActive(request.getIsActive()),
+                CharacterSpecification.starRequiredBetween(request.getMinStars(), request.getMaxStars()),
+                CharacterSpecification.hasRarity(request.getRarity())
+        );
+        // Tạo Pageable (có sort)
+        Sort sort = Sort.by(
+                "desc".equalsIgnoreCase(request.getSortDir())
+                        ? Sort.Order.desc(request.getSortBy())
+                        : Sort.Order.asc(request.getSortBy())
+        );
+
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+        // Thực hiện tìm kiếm và map DTO
+        Page<CharacterDto> responsePage = characterRepository.findAll(spec, pageable)
+                .map(characterMapper::toDto);
+
+        return new PaginatedResponse<>(responsePage);
     }
+
 
     @Override
     public void deleteCharacter(Long characterId) {

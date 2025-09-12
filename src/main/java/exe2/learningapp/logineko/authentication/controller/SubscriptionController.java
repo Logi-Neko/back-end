@@ -6,7 +6,7 @@ import exe2.learningapp.logineko.authentication.dtos.subcription.SubscriptionSum
 import exe2.learningapp.logineko.authentication.dtos.subcription.SubscriptionUpdateDto;
 import exe2.learningapp.logineko.authentication.entity.enums.SubscriptionStatus;
 import exe2.learningapp.logineko.authentication.service.SubscriptionService;
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

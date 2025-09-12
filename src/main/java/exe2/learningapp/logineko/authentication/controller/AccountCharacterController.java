@@ -3,7 +3,7 @@ package exe2.learningapp.logineko.authentication.controller;
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterCreateDto;
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterDto;
 import exe2.learningapp.logineko.authentication.service.AccountCharacterService;
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -11,8 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

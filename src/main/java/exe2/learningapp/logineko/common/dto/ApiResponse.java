@@ -1,4 +1,4 @@
-package exe2.learningapp.logineko.common;
+package exe2.learningapp.logineko.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
