@@ -66,6 +66,9 @@ public class CharacterServiceImpl implements CharacterService {
         character.setDescription(characterCreateDto.description());
         character.setImageUrl(characterCreateDto.imageUrl());
         character.setRarity(characterCreateDto.rarity());
+        character.setPremium(characterCreateDto.isPremium());
+        character.setStarRequired(characterCreateDto.starRequired());
+        character.setActive(characterCreateDto.isActive());
 
         Character updated = characterRepository.save(character);
         log.info("Updated character with ID: {} and name: {}", updated.getId(), updated.getName());
