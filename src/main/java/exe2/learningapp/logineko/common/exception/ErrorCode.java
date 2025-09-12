@@ -54,6 +54,7 @@ public enum ErrorCode {
     ERR_UNAUTHORIZED(HttpStatus.UNAUTHORIZED.value(), "ERR_UNAUTHORIZED", "Chưa được xác thực. Vui lòng đăng nhập."),
     ERR_TIMEOUT(HttpStatus.REQUEST_TIMEOUT.value(), "ERR_TIMEOUT", "Yêu cầu quá thời gian. Vui lòng thử lại."),
     INVALID_END_DATE(HttpStatus.BAD_REQUEST.value(), "ERR_END_DATE", "Ngày kết thúc phải sau ngày bắt đầu."),
+    ERR_INACTIVE(HttpStatus.BAD_REQUEST.value(), "ERR_INACTIVE", "Tài nguyên không còn hoạt động."),
     // =========================
     // PERMISSIONS
     // =========================

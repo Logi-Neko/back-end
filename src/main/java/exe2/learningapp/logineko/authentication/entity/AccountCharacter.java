@@ -2,6 +2,7 @@ package exe2.learningapp.logineko.authentication.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +23,7 @@ public class AccountCharacter {
     @JoinColumn(name = "character_id")
     @ManyToOne
     Character character;
+    @CreationTimestamp
     LocalDateTime unlockedAt;
     boolean isFavorite;
 }

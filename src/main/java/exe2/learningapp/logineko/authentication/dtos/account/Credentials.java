@@ -1,4 +1,4 @@
-package exe2.learningapp.logineko.authentication.dtos;
+package exe2.learningapp.logineko.authentication.dtos.account;
 
 import lombok.Builder;
 

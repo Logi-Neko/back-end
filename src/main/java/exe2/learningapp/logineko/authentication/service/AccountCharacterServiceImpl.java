@@ -3,6 +3,8 @@ package exe2.learningapp.logineko.authentication.service;
 import exe2.learningapp.logineko.authentication.component.CurrentUserProvider;
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterCreateDto;
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterDto;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterSearchRequest;
+import exe2.learningapp.logineko.authentication.dtos.character.CharacterDto;
 import exe2.learningapp.logineko.authentication.entity.Character;
 import exe2.learningapp.logineko.authentication.entity.AccountCharacter;
 import exe2.learningapp.logineko.authentication.entity.Account;
@@ -10,10 +12,18 @@ import exe2.learningapp.logineko.authentication.repository.AccountCharacterRepos
 import exe2.learningapp.logineko.authentication.repository.CharacterRepository;
 import exe2.learningapp.logineko.authentication.repository.AccountRepository;
 import exe2.learningapp.logineko.authentication.mapper.AccountCharacterMapper;
+import exe2.learningapp.logineko.authentication.repository.specification.AccountCharacterSpecification;
+import exe2.learningapp.logineko.authentication.repository.specification.CharacterSpecification;
+import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -42,6 +52,10 @@ public class AccountCharacterServiceImpl implements AccountCharacterService {
 
         Character character = characterRepository.findById(createDto.characterId())
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
+        if(!character.isActive()){
+            throw new AppException(ErrorCode.ERR_INACTIVE);
+        }
 
         Optional<AccountCharacter> existing = accountCharacterRepository
                 .findByAccountIdAndCharacterId(currentUser.getId(), createDto.characterId());
@@ -143,7 +157,7 @@ public class AccountCharacterServiceImpl implements AccountCharacterService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AccountCharacterDto> searchAccountCharacters(String searchTerm) {
+    public PaginatedResponse<AccountCharacterDto> searchAccountCharacters(AccountCharacterSearchRequest request) {
         Account currentUser = currentUserProvider.getCurrentUser();
         Long accountId = currentUser.getId();
 
@@ -151,12 +165,25 @@ public class AccountCharacterServiceImpl implements AccountCharacterService {
             throw new AppException(ErrorCode.ERR_NOT_FOUND);
         }
 
-        List<AccountCharacter> accountCharacters = accountCharacterRepository.findByAccountId(accountId);
+        Specification<AccountCharacter> spec = Specification.allOf(
+                AccountCharacterSpecification.hasCharacterName(request.getCharacterName()),
+                AccountCharacterSpecification.hasCharacterRarity(request.getCharacterRarity()),
+                AccountCharacterSpecification.isFavorite(request.getIsFavorite()),
+                AccountCharacterSpecification.belongsToAccount(accountId)
+        );
+        // Tạo Pageable (có sort)
+        Sort sort = Sort.by(
+                "desc".equalsIgnoreCase(request.getSortDir())
+                        ? Sort.Order.desc(request.getSortBy())
+                        : Sort.Order.asc(request.getSortBy())
+        );
 
-        return accountCharacters.stream()
-                .filter(ac -> ac.getCharacter().getName().toLowerCase()
-                        .contains(searchTerm.toLowerCase()))
-                .map(accountCharacterMapper::toDto)
-                .toList();
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+        // Thực hiện tìm kiếm và map DTO
+        Page<AccountCharacterDto> responsePage = accountCharacterRepository.findAll( spec, pageable)
+                .map(accountCharacterMapper::toDto);
+
+        return new PaginatedResponse<>(responsePage);
     }
 }

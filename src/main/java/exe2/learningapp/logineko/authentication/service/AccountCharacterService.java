@@ -2,6 +2,8 @@ package exe2.learningapp.logineko.authentication.service;
 
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterDto;
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterCreateDto;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterSearchRequest;
+import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,5 +26,5 @@ public interface AccountCharacterService {
 
     AccountCharacterDto setFavoriteCharacter( Long id, boolean isFavorite);
 
-    List<AccountCharacterDto> searchAccountCharacters(String searchTerm );
+    PaginatedResponse<AccountCharacterDto> searchAccountCharacters(AccountCharacterSearchRequest searchTerm );
 }

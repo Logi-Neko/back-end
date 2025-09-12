@@ -2,8 +2,11 @@ package exe2.learningapp.logineko.authentication.controller;
 
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterCreateDto;
 import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterDto;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterSearchRequest;
+import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import exe2.learningapp.logineko.authentication.service.AccountCharacterService;
 import exe2.learningapp.logineko.common.dto.ApiResponse;
+import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -76,7 +79,7 @@ public class AccountCharacterController {
     }
 
 
-    @GetMapping("/account/favorites")
+    @GetMapping("favorites")
     @Operation(
             summary = "Lấy nhân vật yêu thích của tài khoản",
             description = "Lấy danh sách tất cả các nhân vật mà tài khoản đã đánh dấu là yêu thích"
@@ -92,7 +95,7 @@ public class AccountCharacterController {
         return ApiResponse.success(favoriteCharacters, "Lấy danh sách nhân vật yêu thích thành công");
     }
 
-    @GetMapping("/account/unlocked")
+    @GetMapping("unlocked")
     @Operation(
             summary = "Lấy nhân vật đã mở khóa của tài khoản",
             description = "Lấy danh sách tất cả các nhân vật mà tài khoản đã mở khóa"
@@ -124,7 +127,7 @@ public class AccountCharacterController {
     }
 
 
-    @GetMapping("/account/{accountId}/search")
+    @GetMapping("/search")
     @Operation(
             summary = "Tìm kiếm nhân vật của tài khoản",
             description = "Tìm kiếm nhân vật theo tên trong danh sách nhân vật của tài khoản"
@@ -133,13 +136,28 @@ public class AccountCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tìm kiếm thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy tài khoản")
     })
-    public ApiResponse<List<AccountCharacterDto>> searchAccountCharacters(
-            @Parameter(description = "Từ khóa tìm kiếm") @RequestParam String searchTerm,
-            @Parameter(description = "ID của tài khoản") @PathVariable Long accountId) {
-        log.info("Searching account characters for account: {}, term: {}", accountId, searchTerm);
+    public ApiResponse<PaginatedResponse<AccountCharacterDto>> searchAccountCharacters(// Required parameter
+            @RequestParam(required = false) String characterName,
+            @RequestParam(required = false) CharacterRarity characterRarity,
+            @RequestParam(required = false) Boolean isFavorite,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "unlockedAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
 
-        List<AccountCharacterDto> accountCharacters = accountCharacterService.searchAccountCharacters(searchTerm);
-        return ApiResponse.success(accountCharacters, "Tìm kiếm nhân vật thành công");
+        AccountCharacterSearchRequest request = AccountCharacterSearchRequest.builder()
+                .characterName(characterName)
+                .characterRarity(characterRarity)
+                .isFavorite(isFavorite)
+                .page(page)
+                .size(size)
+                .sortBy(sortBy)
+                .sortDir(sortDir)
+                .build();
+
+        PaginatedResponse<AccountCharacterDto> result = accountCharacterService.searchAccountCharacters(request);
+
+        return ApiResponse.success(result, "Tìm kiếm nhân vật thành công");
     }
 
     @DeleteMapping("/{id}")
