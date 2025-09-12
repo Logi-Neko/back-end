@@ -5,93 +5,90 @@ import exe2.learningapp.logineko.quizziz.entity.AnswerOption;
 import exe2.learningapp.logineko.quizziz.entity.Question;
 import exe2.learningapp.logineko.quizziz.repository.AnswerOptionRepository;
 import exe2.learningapp.logineko.quizziz.repository.QuestionRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AnswerOptionServiceImpl implements AnswerOptionService {
 
     private final AnswerOptionRepository answerOptionRepository;
     private final QuestionRepository questionRepository;
 
-    private AnswerOptionDTO.Response mapToDto(AnswerOption answerOption) {
-        return AnswerOptionDTO.Response.builder()
-                .id(answerOption.getId())
-                .optionLabel(answerOption.getOptionLabel())
-                .optionText(answerOption.getOptionText())
-                .isCorrect(answerOption.getIsCorrect())
-                .questionId(answerOption.getQuestion() != null ? answerOption.getQuestion().getId() : null)
-                .build();
-    }
-
-    private AnswerOption mapToEntity(AnswerOptionDTO.Request request, Question question) {
-        return AnswerOption.builder()
-                .question(question)
-                .optionLabel(request.optionLabel())
-                .optionText(request.optionText())
-                .isCorrect(request.isCorrect())
-                .build();
-    }
-
     @Override
     public AnswerOptionDTO.Response create(AnswerOptionDTO.Request request) {
         Question question = questionRepository.findById(request.questionId())
-                .orElseThrow(() -> new EntityNotFoundException("Question not found with ID: " + request.questionId()));
+                .orElseThrow(() -> new RuntimeException("Question not found"));
 
-        AnswerOption answerOption = mapToEntity(request, question);
-        AnswerOption saved = answerOptionRepository.save(answerOption);
-        return mapToDto(saved);
+        AnswerOption option = AnswerOption.builder()
+                .question(question)
+                .optionText(request.optionText())
+                .isCorrect(request.isCorrect())
+                .build();
+
+        AnswerOption saved = answerOptionRepository.save(option);
+
+        return AnswerOptionDTO.Response.builder()
+                .id(saved.getId())
+                .optionText(saved.getOptionText())
+                .isCorrect(saved.getIsCorrect())
+                .questionId(saved.getQuestion().getId())
+                .build();
     }
 
     @Override
     public AnswerOptionDTO.Response update(Long id, AnswerOptionDTO.Request request) {
-        AnswerOption existingOption = answerOptionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Answer Option not found with ID: " + id));
+        AnswerOption option = answerOptionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("AnswerOption not found"));
 
-        Question question = questionRepository.findById(request.questionId())
-                .orElseThrow(() -> new EntityNotFoundException("Question not found with ID: " + request.questionId()));
+        option.setOptionText(request.optionText());
+        option.setIsCorrect(request.isCorrect());
 
-        existingOption.setQuestion(question);
-        existingOption.setOptionLabel(request.optionLabel());
-        existingOption.setOptionText(request.optionText());
-        existingOption.setIsCorrect(request.isCorrect());
+        AnswerOption saved = answerOptionRepository.save(option);
 
-        AnswerOption updated = answerOptionRepository.save(existingOption);
-        return mapToDto(updated);
+        return AnswerOptionDTO.Response.builder()
+                .id(saved.getId())
+                .optionText(saved.getOptionText())
+                .isCorrect(saved.getIsCorrect())
+                .questionId(saved.getQuestion().getId())
+                .build();
     }
 
     @Override
     public void delete(Long id) {
-        if (!answerOptionRepository.existsById(id)) {
-            throw new EntityNotFoundException("Answer Option not found with ID: " + id);
+        if(!answerOptionRepository.existsById(id)) {
+            throw new RuntimeException("AnswerOption not found");
         }
         answerOptionRepository.deleteById(id);
     }
 
     @Override
-    public AnswerOptionDTO.Response findById(Long id) {
+    public Optional<AnswerOptionDTO.Response> findById(Long id) {
         return answerOptionRepository.findById(id)
-                .map(this::mapToDto)
-                .orElseThrow(() -> new EntityNotFoundException("Answer Option not found with ID: " + id));
+                .map(opt -> AnswerOptionDTO.Response.builder()
+                        .id(opt.getId())
+                        .optionText(opt.getOptionText())
+                        .isCorrect(opt.getIsCorrect())
+                        .questionId(opt.getQuestion().getId())
+                        .build())
+                ;
     }
 
     @Override
-    public List<AnswerOptionDTO.Response> findAllByQuestionId(Long questionId) {
-        questionRepository.findById(questionId)
-                .orElseThrow(() -> new EntityNotFoundException("Question not found with ID: " + questionId));
-
-        return answerOptionRepository.findByQuestionId(questionId)
-                .stream()
-                .map(this::mapToDto)
+    public List<AnswerOptionDTO.Response> findByQuestion(Long questionId) {
+        return answerOptionRepository.findByQuestion_Id(questionId).stream()
+                .map(opt -> AnswerOptionDTO.Response.builder()
+                        .id(opt.getId())
+                        .optionText(opt.getOptionText())
+                        .isCorrect(opt.getIsCorrect())
+                        .questionId(opt.getQuestion().getId())
+                        .build())
                 .collect(Collectors.toList());
     }
 }

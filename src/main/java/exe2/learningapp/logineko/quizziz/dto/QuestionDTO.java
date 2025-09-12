@@ -8,7 +8,6 @@ import java.util.List;
 public class QuestionDTO {
     @Builder
     public record Request(
-            Long quizId,
             String questionText,
             List<AnswerOptionDTO.Request> answerOptions,
             Integer timeLimit,
@@ -21,8 +20,7 @@ public class QuestionDTO {
             String questionText,
             List<AnswerOptionDTO.Response> answerOptions,
             Integer points,
-            Integer timeLimit,
-            Long quizId
+            Integer timeLimit
     ){}
 
 }

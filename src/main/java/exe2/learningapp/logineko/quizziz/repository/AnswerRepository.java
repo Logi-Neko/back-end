@@ -6,8 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
-    List<Answer> findByQuestionId(Long questionId);
     Page<Answer> findByParticipantId(Long participantId, Pageable pageable);
+    Page<Answer> findByContestQuestionId(Long contestQuestionId, Pageable pageable);
+    boolean existsBySubmissionUuid(Long submissionUuid);
+    Optional<Answer> findBySubmissionUuid(Long submissionUuid);
+
 }

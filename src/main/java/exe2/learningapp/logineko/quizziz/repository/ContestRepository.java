@@ -1,7 +1,6 @@
 package exe2.learningapp.logineko.quizziz.repository;
 
-import exe2.learningapp.logineko.quizziz.dto.RoomDTO;
-import exe2.learningapp.logineko.quizziz.entity.Room;
+import exe2.learningapp.logineko.quizziz.entity.Contest;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,10 +11,10 @@ import java.util.Optional;
 
 
 @Repository
-public interface RoomRepository extends JpaRepository<Room, Long> {
-    Page<Room> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+public interface ContestRepository extends JpaRepository<Contest, Long> {
+    Page<Contest> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
             String title, String description, Pageable pageable
     );
 
-    Optional<Room> findByCode(String code);
+    Optional<Contest> findByCode(String code);
 }

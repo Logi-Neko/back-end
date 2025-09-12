@@ -1,4 +1,4 @@
-package exe2.learningapp.logineko.quizziz.service;
+package exe2.learningapp.logineko.quizziz.service.kafka;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

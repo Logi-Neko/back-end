@@ -17,12 +17,9 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "answer_text", nullable = false)
-    private String answerText;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id", nullable = false)
-    private Question question;
+    @JoinColumn(name = "contest_question_id", nullable = false)
+    private ContestQuestion contestQuestion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_option_id", nullable = false)
@@ -36,6 +33,9 @@ public class Answer {
 
     @Column(name="score", nullable = false)
     private int score;
+
+    @Column(name = "submission_uuid", unique = true)
+    private Long submissionUuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id", nullable = false)

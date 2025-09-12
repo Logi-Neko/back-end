@@ -12,9 +12,9 @@ public class AnswerDTO {
             @NotNull(message = "Participant ID must not be null")
             Long participantId,
             @NotNull(message = "Question ID must not be null")
-            Long questionId,
+            Long contestQuestionId,
             @NotNull(message = "Selected option ID must not be null")
-            Long selectedOptionId,
+            Long answerOptionId,
             @NotNull(message = "Answer time must not be null")
             @Min(value = 0, message = "Answer time must be a non-negative value")
             Integer answerTime
@@ -23,13 +23,12 @@ public class AnswerDTO {
     @Builder
     public record Response(
             Long id,
-            String answerText,
             Boolean isCorrect,
             Integer answerTime,
             Integer score,
             Long participantId,
             Long questionId,
-            Long selectedOptionId
+            Long answerOptionId
     ) {}
 
     @Builder

@@ -9,8 +9,6 @@ public class AnswerOptionDTO {
     public record Request(
             @NotNull(message = "Question ID must not be null")
             Long questionId,
-            @NotBlank(message = "Option label must not be blank")
-            String optionLabel,
             @NotBlank(message = "Option text must not be blank")
             String optionText,
             @NotNull(message = "isCorrect must not be null")
@@ -20,7 +18,6 @@ public class AnswerOptionDTO {
     @Builder
     public record Response(
             Long id,
-            String optionLabel,
             String optionText,
             Boolean isCorrect,
             Long questionId

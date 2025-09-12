@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -21,15 +22,18 @@ public class Participant {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false)
-    private Room room;
+    @JoinColumn(name = "contest_id", nullable = false)
+    private Contest contest;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
-    @Column(name = "nick_name", nullable = false)
-    private String nickName;
+
+    private int score;
 
     @Column(name ="join_at", nullable = false)
     private LocalDateTime joinAt;
+
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL)
+    private List<Answer> submissions;
 }
