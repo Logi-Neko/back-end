@@ -16,7 +16,4 @@ public interface CharacterRepository extends JpaRepository<Character, Long> {
 
     List<Character> findByNameContainingIgnoreCase(String keyword);
 
-    List<Character> findByIsActiveTrue();
-
-    List<Character> findByIsActiveFalse();
 }

@@ -36,7 +36,7 @@ public class Security {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(new JwtAuthenticationConverter())).authenticationEntryPoint(new JwtAuthenticationEntryPoint())

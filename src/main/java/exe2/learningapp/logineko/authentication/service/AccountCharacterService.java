@@ -9,23 +9,20 @@ import java.util.List;
 
 public interface AccountCharacterService {
 
-    // Create
-    AccountCharacterDto createChildCharacter(AccountCharacterCreateDto createDto);
-    AccountCharacterDto getChildCharacterById(Long id);
-    List<AccountCharacterDto> getAllChildCharacters();
-    Page<AccountCharacterDto> getChildCharactersPaged(Pageable pageable);
-    List<AccountCharacterDto> getChildCharactersByChildId(Long childId);
-    List<AccountCharacterDto> getFavoriteCharactersByChildId(Long childId);
+    // CRUD Operations
+    AccountCharacterDto createAccountCharacter(AccountCharacterCreateDto createDto);
 
-    // Update
-    AccountCharacterDto updateChildCharacter(Long id, AccountCharacterCreateDto updateDto);
-    AccountCharacterDto toggleFavorite(Long id);
+    AccountCharacterDto getAccountCharacterById(Long id);
 
-    // Delete
-    void deleteChildCharacter(Long id);
-    void deleteChildCharactersByChildId(Long childId);
+    List<AccountCharacterDto> getAllAccountCharacters();
 
-    // Business logic
-    boolean isCharacterUnlockedByChild(Long childId, Long characterId);
-    AccountCharacterDto unlockCharacterForChild(Long childId, Long characterId);
+    void deleteAccountCharacter(Long id);
+
+    List<AccountCharacterDto> getUnlockedCharactersByAccount();
+    // Favorite management
+    List<AccountCharacterDto> getFavoriteCharactersByAccountId();
+
+    AccountCharacterDto setFavoriteCharacter( Long id, boolean isFavorite);
+
+    List<AccountCharacterDto> searchAccountCharacters(String searchTerm );
 }
