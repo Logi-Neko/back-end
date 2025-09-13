@@ -1,14 +1,8 @@
 package exe2.learningapp.logineko.quizziz.controller;
 
-<<<<<<< HEAD:src/main/java/exe2/learningapp/logineko/quizziz/controller/ContestController.java
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
-import exe2.learningapp.logineko.common.ApiResponse;
-=======
-import exe2.learningapp.logineko.quizziz.dto.RoomDTO;
-import exe2.learningapp.logineko.quizziz.service.RoomService;
-import exe2.learningapp.logineko.common.dto.ApiResponse;
->>>>>>> origin/main:src/main/java/exe2/learningapp/logineko/quizziz/controller/RoomController.java
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -22,13 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/api/contest")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Room Management", description = "API quản lý các phòng học (Room)")
 public class ContestController {
 
-    private final ContestService roomService;
+    private final ContestService contestService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -43,7 +37,7 @@ public class ContestController {
     public ApiResponse<ContestDTO.Response> createRoom(
             @Valid @RequestBody ContestDTO.Request create) {
         log.info("Creating a new room with title: {}", create.title());
-        ContestDTO.Response room = roomService.create(create);
+        ContestDTO.Response room = contestService.create(create);
         return ApiResponse.success(room, "Tạo phòng học thành công");
     }
 
@@ -61,7 +55,7 @@ public class ContestController {
             @Parameter(description = "ID của Room") @PathVariable Long id,
             @Valid @RequestBody ContestDTO.UpdateRoom update) {
         log.info("Updating room with ID: {}", id);
-        ContestDTO.UpdateRoom room = roomService.update(id, update);
+        ContestDTO.UpdateRoom room = contestService.update(id, update);
         return ApiResponse.success(room, "Cập nhật phòng học thành công");
     }
 
@@ -78,7 +72,7 @@ public class ContestController {
     public ApiResponse<Void> deleteRoom(
             @Parameter(description = "ID của Room") @PathVariable Long id) {
         log.info("Deleting room with ID: {}", id);
-        roomService.delete(id);
+        contestService.delete(id);
         return ApiResponse.success(null, "Xóa phòng học thành công");
     }
 
@@ -94,7 +88,7 @@ public class ContestController {
     public ApiResponse<ContestDTO.Response> getRoomById(
             @Parameter(description = "ID của Room") @PathVariable Long id) {
         log.info("Getting room by ID: {}", id);
-        ContestDTO.Response room = roomService.findById(id)
+        ContestDTO.Response room = contestService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
         return ApiResponse.success(room, "Lấy thông tin phòng học thành công");
     }
@@ -111,7 +105,7 @@ public class ContestController {
             @Parameter(description = "Từ khóa tìm kiếm (tiêu đề hoặc mô tả)") @RequestParam(required = false) String keyword,
             @Parameter(description = "Thông tin phân trang (page, size, sort)") Pageable pageable) {
         log.info("Getting all rooms with keyword: {}", keyword);
-        Page<ContestDTO.Response> rooms = roomService.findAll(keyword, pageable);
+        Page<ContestDTO.Response> rooms = contestService.findAll(keyword, pageable);
         return ApiResponse.success(rooms, "Lấy danh sách phòng học thành công");
     }
 }
