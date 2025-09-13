@@ -27,10 +27,9 @@ public class Course {
     @Column(nullable = false)
     String description;
 
-    @Column(length = 500, nullable = false)
+    @Column(length = 500)
     String thumbnailUrl;
 
-    @Column(nullable = false)
     String thumbnailPublicId;
 
     @Column(nullable = false)

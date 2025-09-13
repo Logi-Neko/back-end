@@ -1,11 +1,8 @@
 package exe2.learningapp.logineko.authentication.controller;
 
-import exe2.learningapp.logineko.authentication.dtos.AccountDTO;
-import exe2.learningapp.logineko.authentication.dtos.UserCreationParams;
-import exe2.learningapp.logineko.authentication.dtos.UserInfo;
-import exe2.learningapp.logineko.authentication.entity.Account;
+import exe2.learningapp.logineko.authentication.dtos.account.AccountDTO;
 import exe2.learningapp.logineko.authentication.service.AccountService;
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -196,11 +193,11 @@ public class AuthenticationController {
         ));
     }
 
-    @GetMapping("/exchange-token")
-    @Operation(summary = "Lấy access token mới")
-    public ResponseEntity<ApiResponse<?>> exchangeToken() {
+    @PostMapping("/login/exchange")
+    @Operation(summary = "Loign lấy access token mới")
+    public ResponseEntity<ApiResponse<?>> login(@RequestBody @Valid AccountDTO.LoginRequest loginRequest) {
         return ResponseEntity.ok(ApiResponse.success(
-                accountService.exchangeToken(),
+                accountService.login(loginRequest),
                 "Lấy access token thành công"
         ));
     }

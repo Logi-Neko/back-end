@@ -1,25 +1,24 @@
 package exe2.learningapp.logineko.authentication.mapper;
 
-import exe2.learningapp.logineko.authentication.dtos.child_character.ChildCharacterDto;
-import exe2.learningapp.logineko.authentication.entity.ChildCharacter;
+import exe2.learningapp.logineko.authentication.dtos.account_character.AccountCharacterDto;
+import exe2.learningapp.logineko.authentication.entity.AccountCharacter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class ChildCharacterMapper {
+public class AccountCharacterMapper {
 
-    private final ChildMapper childMapper;
     private final CharacterMapper characterMapper;
 
-    public ChildCharacterDto toDto(ChildCharacter childCharacter) {
+    public AccountCharacterDto toDto(AccountCharacter childCharacter) {
         if (childCharacter == null) {
             return null;
         }
 
-        return ChildCharacterDto.builder()
+        return AccountCharacterDto.builder()
                 .id(childCharacter.getId())
-                .childId(childCharacter.getChild().getId())
+                .accountId(childCharacter.getAccount().getId())
                 .character(characterMapper.toDto(childCharacter.getCharacter()))
                 .isFavorite(childCharacter.isFavorite())
                 .unlockedAt(childCharacter.getUnlockedAt())

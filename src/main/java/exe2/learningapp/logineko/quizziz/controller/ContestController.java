@@ -1,8 +1,14 @@
 package exe2.learningapp.logineko.quizziz.controller;
 
+<<<<<<< HEAD:src/main/java/exe2/learningapp/logineko/quizziz/controller/ContestController.java
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
 import exe2.learningapp.logineko.common.ApiResponse;
+=======
+import exe2.learningapp.logineko.quizziz.dto.RoomDTO;
+import exe2.learningapp.logineko.quizziz.service.RoomService;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
+>>>>>>> origin/main:src/main/java/exe2/learningapp/logineko/quizziz/controller/RoomController.java
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

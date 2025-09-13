@@ -26,17 +26,11 @@ public interface SubscriptionService {
     // Lấy tất cả đăng ký
     List<SubscriptionDto> getAllSubscriptions();
 
-    // Lấy đăng ký theo tài khoản
-    List<SubscriptionDto> getSubscriptionsByAccountId(Long accountId);
-
     // Lấy đăng ký đang hoạt động theo tài khoản
-    SubscriptionDto getActiveSubscriptionByAccountId(Long accountId);
-
-    // Lấy đăng ký theo trạng thái
-    List<SubscriptionDto> getSubscriptionsByStatus(SubscriptionStatus status);
+    SubscriptionDto getActiveSubscriptionByAccountId();
 
     // Lấy tóm tắt đăng ký theo tài khoản
-    List<SubscriptionSummaryDto> getSubscriptionSummaryByAccountId(Long accountId);
+    List<SubscriptionSummaryDto> getSubscriptionSummaryByAccountId();
 
     // Gia hạn đăng ký
     SubscriptionDto renewSubscription(Long id, LocalDate newEndDate);
@@ -44,31 +38,10 @@ public interface SubscriptionService {
     // Hủy đăng ký
     SubscriptionDto cancelSubscription(Long id);
 
-    SubscriptionDto activateSubscription(Long id);
-
-    // Tính số ngày còn lại của đăng ký
-    long calculateDaysRemaining(Long subscriptionId);
-
-    // Lấy tổng doanh thu theo loại đăng ký
-    double getTotalRevenueByType(String type);
-
-    // Lấy tổng doanh thu trong khoảng thời gian
-    double getTotalRevenueBetween(LocalDate startDate, LocalDate endDate);
-
-    // Đếm số đăng ký theo trạng thái
-    long countSubscriptionsByStatus(SubscriptionStatus status);
-
-    // Đếm số đăng ký hoạt động
-    long countActiveSubscriptions();
-
     // Xóa đăng ký
     void deleteSubscription(Long id);
 
-    // Xóa đăng ký theo tài khoản
-    void deleteSubscriptionsByAccountId(Long accountId);
-
-    // Cập nhật trạng thái đăng ký hết hạn tự động
-    void updateExpiredSubscriptions();
+    boolean isSubscriptionActive();
 
     // Lấy thống kê đăng ký theo tháng
     List<Object[]> getSubscriptionStatsByMonth(int year);

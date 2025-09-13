@@ -1,7 +1,10 @@
 package exe2.learningapp.logineko.authentication.service;
 
 import exe2.learningapp.logineko.authentication.client.IdentityClient;
-import exe2.learningapp.logineko.authentication.dtos.*;
+import exe2.learningapp.logineko.authentication.dtos.account.AccountDTO;
+import exe2.learningapp.logineko.authentication.dtos.account.Credentials;
+import exe2.learningapp.logineko.authentication.dtos.account.TokenExchangeResponse;
+import exe2.learningapp.logineko.authentication.dtos.account.UserCreationParams;
 import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.entity.enums.Role;
 import exe2.learningapp.logineko.authentication.repository.AccountRepository;
@@ -11,6 +14,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -107,14 +112,29 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
     }
 
     @Override
-    public TokenExchangeResponse exchangeToken() {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "client_credentials");
-        params.add("client_id", clientId);
-        params.add("client_secret", clientSecret);
-        params.add("scope", "openid");
-        TokenExchangeResponse response = identityClient.exchangeToken(params);
-        return response;
+    public TokenExchangeResponse login(AccountDTO.LoginRequest loginRequest) {
+        try {
+            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+            requestBody.add("client_id", clientId);
+            requestBody.add("client_secret", clientSecret);  // Thêm dòng này
+            requestBody.add("grant_type", "password");
+            requestBody.add("scope", "openid profile email");
+            requestBody.add("username", loginRequest.username());
+            requestBody.add("password", loginRequest.password());
+
+            return identityClient.exchangeToken(requestBody);
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakError(e);
+        }
+    }
+
+    private TokenExchangeResponse exchangeToken() {
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("client_id", clientId);
+        requestBody.add("client_secret", clientSecret);
+        requestBody.add("grant_type", "client_credentials");
+
+        return identityClient.exchangeToken(requestBody);
     }
 
     private AccountDTO.AccountResponse mapToDTO(Account account) {

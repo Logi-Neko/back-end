@@ -19,6 +19,7 @@ public class CharacterMapper {
                 .id(character.getId())
                 .name(character.getName())
                 .description(character.getDescription())
+                .rarity(character.getRarity())
                 .imageUrl(character.getImageUrl())
                 .starRequired(character.getStarRequired())
                 .isPremium(character.isPremium())

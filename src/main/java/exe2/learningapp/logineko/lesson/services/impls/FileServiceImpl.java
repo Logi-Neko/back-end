@@ -25,7 +25,9 @@ public class FileServiceImpl implements FileService {
                 .uploader()
                 .upload(
                         file.getBytes(),
-                        ObjectUtils.asMap("folder", "exe201" + destination)
+                        ObjectUtils.asMap(
+                                "folder", "exe201" + destination,
+                                "resource_type", "auto")
                 );
 
         String url = (String) uploadResult.get("secure_url");

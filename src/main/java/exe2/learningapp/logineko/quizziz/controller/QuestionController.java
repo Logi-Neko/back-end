@@ -1,6 +1,6 @@
 package exe2.learningapp.logineko.quizziz.controller;
 
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import exe2.learningapp.logineko.quizziz.dto.QuestionDTO;
 import exe2.learningapp.logineko.quizziz.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;

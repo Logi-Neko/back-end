@@ -1,6 +1,6 @@
 package exe2.learningapp.logineko.lesson.controllers;
 
-import exe2.learningapp.logineko.common.ApiResponse;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import exe2.learningapp.logineko.lesson.dtos.requests.VideoRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.VideoDTO;
 import exe2.learningapp.logineko.lesson.services.VideoService;
