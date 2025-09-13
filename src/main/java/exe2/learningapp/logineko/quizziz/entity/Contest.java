@@ -9,8 +9,8 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "room")
-public class Room {
+@Table(name = "contest")
+public class Contest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,12 +24,16 @@ public class Room {
     @Column(name = "description", nullable = false)
     private String description;
 
+//    @Column(name = "total_questions", nullable = false)
+//    private int totalQuestions;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false)
     private Account creator;
 
-    @Column(name = "is_public", nullable = false)
-    private boolean isPublic = true;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Contest.Status status = Contest.Status.OPEN;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -37,11 +41,17 @@ public class Room {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "contest", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Participant> participants;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Quiz> quizzes;
+    @OneToMany(mappedBy = "contest", cascade = CascadeType.ALL)
+    private List<ContestQuestion> contestQuestion;
+
+    @Column(name="start_time", nullable = false)
+    private LocalDateTime startTime;
+
+    @Column(name="end_time", nullable = false)
+    private LocalDateTime endTime;
     @PrePersist
     public void prePersist() {
         createdAt = updatedAt = LocalDateTime.now();
@@ -51,5 +61,8 @@ public class Room {
     public void preUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
+    public  enum Status {
+        OPEN,CLOSED,
+        RUNNING
+    }
 }

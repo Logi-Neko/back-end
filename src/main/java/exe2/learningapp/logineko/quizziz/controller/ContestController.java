@@ -1,8 +1,14 @@
 package exe2.learningapp.logineko.quizziz.controller;
 
+<<<<<<< HEAD:src/main/java/exe2/learningapp/logineko/quizziz/controller/ContestController.java
+import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
+import exe2.learningapp.logineko.quizziz.service.ContestService;
+import exe2.learningapp.logineko.common.ApiResponse;
+=======
 import exe2.learningapp.logineko.quizziz.dto.RoomDTO;
 import exe2.learningapp.logineko.quizziz.service.RoomService;
 import exe2.learningapp.logineko.common.dto.ApiResponse;
+>>>>>>> origin/main:src/main/java/exe2/learningapp/logineko/quizziz/controller/RoomController.java
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -20,9 +26,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Room Management", description = "API quản lý các phòng học (Room)")
-public class RoomController {
+public class ContestController {
 
-    private final RoomService roomService;
+    private final ContestService roomService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -34,10 +40,10 @@ public class RoomController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Tạo Room thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Thông tin Room không hợp lệ")
     })
-    public ApiResponse<RoomDTO.RoomResponse> createRoom(
-            @Valid @RequestBody RoomDTO.CreateRoomRequest create) {
+    public ApiResponse<ContestDTO.Response> createRoom(
+            @Valid @RequestBody ContestDTO.Request create) {
         log.info("Creating a new room with title: {}", create.title());
-        RoomDTO.RoomResponse room = roomService.create(create);
+        ContestDTO.Response room = roomService.create(create);
         return ApiResponse.success(room, "Tạo phòng học thành công");
     }
 
@@ -51,11 +57,11 @@ public class RoomController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy Room"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Thông tin cập nhật không hợp lệ")
     })
-    public ApiResponse<RoomDTO.UpdateRoom> updateRoom(
+    public ApiResponse<ContestDTO.UpdateRoom> updateRoom(
             @Parameter(description = "ID của Room") @PathVariable Long id,
-            @Valid @RequestBody RoomDTO.UpdateRoom update) {
+            @Valid @RequestBody ContestDTO.UpdateRoom update) {
         log.info("Updating room with ID: {}", id);
-        RoomDTO.UpdateRoom room = roomService.update(id, update);
+        ContestDTO.UpdateRoom room = roomService.update(id, update);
         return ApiResponse.success(room, "Cập nhật phòng học thành công");
     }
 
@@ -85,10 +91,10 @@ public class RoomController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy thông tin Room thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy Room")
     })
-    public ApiResponse<RoomDTO.RoomResponse> getRoomById(
+    public ApiResponse<ContestDTO.Response> getRoomById(
             @Parameter(description = "ID của Room") @PathVariable Long id) {
         log.info("Getting room by ID: {}", id);
-        RoomDTO.RoomResponse room = roomService.findById(id)
+        ContestDTO.Response room = roomService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
         return ApiResponse.success(room, "Lấy thông tin phòng học thành công");
     }
@@ -101,11 +107,11 @@ public class RoomController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách Room thành công")
     })
-    public ApiResponse<Page<RoomDTO.RoomResponse>> getAllRooms(
+    public ApiResponse<Page<ContestDTO.Response>> getAllRooms(
             @Parameter(description = "Từ khóa tìm kiếm (tiêu đề hoặc mô tả)") @RequestParam(required = false) String keyword,
             @Parameter(description = "Thông tin phân trang (page, size, sort)") Pageable pageable) {
         log.info("Getting all rooms with keyword: {}", keyword);
-        Page<RoomDTO.RoomResponse> rooms = roomService.findAll(keyword, pageable);
+        Page<ContestDTO.Response> rooms = roomService.findAll(keyword, pageable);
         return ApiResponse.success(rooms, "Lấy danh sách phòng học thành công");
     }
 }
