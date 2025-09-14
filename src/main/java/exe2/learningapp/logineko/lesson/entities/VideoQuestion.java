@@ -1,6 +1,7 @@
 package exe2.learningapp.logineko.lesson.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -33,5 +34,6 @@ public class VideoQuestion {
     String optionD;
 
     @Column(nullable = false)
+    @Pattern(regexp = "[ABCD]")
     String answer;
 }

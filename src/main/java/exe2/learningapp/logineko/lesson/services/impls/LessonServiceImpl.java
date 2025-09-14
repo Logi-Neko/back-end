@@ -1,13 +1,17 @@
 package exe2.learningapp.logineko.lesson.services.impls;
 
+import exe2.learningapp.logineko.authentication.component.CurrentUserProvider;
+import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonFilterRequest;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.LessonDTO;
+import exe2.learningapp.logineko.lesson.entities.AccountLessonProgress;
 import exe2.learningapp.logineko.lesson.entities.Course;
 import exe2.learningapp.logineko.lesson.entities.Lesson;
 import exe2.learningapp.logineko.lesson.entities.Video;
+import exe2.learningapp.logineko.lesson.repositories.AccountLessonProgressRepository;
 import exe2.learningapp.logineko.lesson.repositories.CourseRepository;
 import exe2.learningapp.logineko.lesson.repositories.LessonRepository;
 import exe2.learningapp.logineko.lesson.repositories.VideoRepository;
@@ -37,6 +41,8 @@ public class LessonServiceImpl implements LessonService {
     VideoRepository videoRepository;
     VideoService videoService;
     CourseRepository courseRepository;
+    AccountLessonProgressRepository accountLessonProgressRepository;
+    CurrentUserProvider currentUserProvider;
 
     @Override
     @Transactional
@@ -188,6 +194,12 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public LessonDTO convertToLessonDTO(Lesson lesson) {
+        AccountLessonProgress accountLessonProgress = null;
+        Account account = currentUserProvider.getCurrentUser();
+        if (account != null) {
+            accountLessonProgress = accountLessonProgressRepository.findByLessonAndAccount(lesson, account);
+        }
+
         return LessonDTO
                 .builder()
                 .id(lesson.getId())
@@ -199,6 +211,7 @@ public class LessonServiceImpl implements LessonService {
                 .difficultyLevel(lesson.getDifficultyLevel())
                 .thumbnailUrl(lesson.getThumbnailUrl())
                 .duration(lesson.getDuration())
+                .star(accountLessonProgress != null ? accountLessonProgress.getStar() : 0)
                 .isPremium(lesson.getIsPremium())
                 .isActive(lesson.getIsActive())
                 .createdAt(lesson.getCreatedAt())

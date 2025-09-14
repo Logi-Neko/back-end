@@ -48,10 +48,12 @@ public class Lesson {
     Long duration;
 
     @Column(nullable = false)
-    Boolean isPremium;
+    @Builder.Default
+    Boolean isPremium = false;
 
     @Column(nullable = false)
-    Boolean isActive;
+    @Builder.Default
+    Boolean isActive = true;
 
     @CreationTimestamp
     @Setter(AccessLevel.NONE)
