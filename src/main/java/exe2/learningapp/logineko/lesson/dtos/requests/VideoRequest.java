@@ -46,7 +46,7 @@ public class VideoRequest {
 
     @NotNull(message = "Đáp án là bắt buộc")
     @NotBlank(message = "Đáp án cho video không được rỗng")
-    @Pattern(regexp = "A|B|C|D", message = "Đáp án chỉ được phép là A, B, C hoặc D")
+    @Pattern(regexp = "[ABCD]", message = "Đáp án chỉ được phép là A, B, C hoặc D")
     String answer;
 
     Boolean isActive = true;
