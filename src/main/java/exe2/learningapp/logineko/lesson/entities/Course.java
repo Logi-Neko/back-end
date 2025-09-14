@@ -36,10 +36,12 @@ public class Course {
     Long totalLesson;
 
     @Column(nullable = false)
-    Boolean isPremium;
+    @Builder.Default
+    Boolean isPremium = false;
 
     @Column(nullable = false)
-    Boolean isActive;
+    @Builder.Default
+    Boolean isActive = true;
 
     @Column(nullable = false)
     Long price;
