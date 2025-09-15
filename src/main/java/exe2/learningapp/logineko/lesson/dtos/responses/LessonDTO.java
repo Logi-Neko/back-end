@@ -21,6 +21,7 @@ public class LessonDTO {
     Long difficultyLevel;
     String thumbnailUrl;
     Long duration;
+    Long totalVideo;
     Long star;
     Boolean isPremium;
     Boolean isActive;
