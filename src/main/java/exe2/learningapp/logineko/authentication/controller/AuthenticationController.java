@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -187,6 +188,7 @@ public class AuthenticationController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Lấy tất cả user")
     public ResponseEntity<ApiResponse<?>> getAllUsers() {
+        Authentication authentication =  org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(ApiResponse.success(
                 accountService.getAllUsers(),
                 "Lấy danh sách user thành công"

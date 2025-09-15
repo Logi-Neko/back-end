@@ -7,11 +7,8 @@ spring:
     encoding: UTF-8
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/logineko_db   # tên DB của bạn
-    username: postgres                                  # user postgres
-    password: ${POSTGRES_PASSWORD}                          # mật khẩu
+    url: jdbc:postgresql://ep-noisy-wave-a1gc5pap-pooler.ap-southeast-1.aws.neon.tech/neondb?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}&sslmode=require&channelBinding=require
     driver-class-name: org.postgresql.Driver
-
   jpa:
       hibernate:
           ddl-auto: update

@@ -49,7 +49,7 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
     public AccountDTO.AccountResponse register(AccountDTO.CreateAccountRequest request) {
         try {
             TokenExchangeResponse response = exchangeToken();
-
+            log.info("Obtained access token from Keycloak: {}", response.accessToken());
             // Tạo user trên Keycloak
             var creationUser = identityClient.createUser(
                     "Bearer " + response.accessToken(),

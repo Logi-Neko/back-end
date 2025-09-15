@@ -23,30 +23,30 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:25.0
     container_name: logineko_keycloak
-    command: start-dev --db=postgres
+    command: start-dev --db=postgres --verbose
     environment:
+      # Admin account
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
 
       KC_DB: postgres
-      KC_DB_URL_HOST: postgres-db
-      KC_DB_URL_DATABASE: logineko_db
-      KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KC_DB_SCHEMA: public
+      KC_DB_URL: jdbc:postgresql://ep-royal-sky-a1wya79r-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD_KEYCLOAK}
 
+      # Hostname config
       KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
 
-      # Thêm timeout cho DB connection
-      KC_DB_URL_PROPERTIES: "?connectTimeout=30000&socketTimeout=30000"
+      # Connection settings for Neon
+      KC_DB_POOL_INITIAL_SIZE: 2
+      KC_DB_POOL_MIN_SIZE: 1
+      KC_DB_POOL_MAX_SIZE: 5
+
     ports:
       - "8080:8080"
-    depends_on:
-      postgres-db:
-        condition: service_healthy
     restart: unless-stopped
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -73,7 +73,5 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     restart: unless-stopped
-
-
 volumes:
   postgres-data:
