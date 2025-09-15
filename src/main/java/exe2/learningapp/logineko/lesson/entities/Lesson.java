@@ -48,7 +48,8 @@ public class Lesson {
     Long duration;
 
     @Column(nullable = false)
-    Long totalVideo;
+    @Builder.Default
+    Long totalVideo = 0L;
 
     @Column(nullable = false)
     @Builder.Default
