@@ -218,6 +218,7 @@ public class LessonServiceImpl implements LessonService {
                 .difficultyLevel(lesson.getDifficultyLevel())
                 .thumbnailUrl(lesson.getThumbnailUrl())
                 .duration(lesson.getDuration())
+                .totalVideo(lesson.getTotalVideo())
                 .star(accountLessonProgress != null ? accountLessonProgress.getStar() : 0)
                 .isPremium(lesson.getIsPremium())
                 .isActive(lesson.getIsActive())
