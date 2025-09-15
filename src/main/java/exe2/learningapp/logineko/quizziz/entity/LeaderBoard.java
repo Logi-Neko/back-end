@@ -14,17 +14,14 @@ public class LeaderBoard {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private int score;
+    @Column(name = "final_rank")
+    private Integer  finalRank;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contest_id")
+    private Contest contest;
 
-    private Integer totalScore;
-    private Integer rank;
-
-    @ManyToOne
-    @JoinColumn(name = "room_id")
-    private Room room;
-
-
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "participant_id")
     private Participant participant;
 

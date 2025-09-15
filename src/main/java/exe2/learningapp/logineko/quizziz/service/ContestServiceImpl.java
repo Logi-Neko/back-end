@@ -2,64 +2,66 @@ package exe2.learningapp.logineko.quizziz.service;
 
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
-import exe2.learningapp.logineko.quizziz.dto.RoomDTO;
-import exe2.learningapp.logineko.quizziz.entity.Room;
-import exe2.learningapp.logineko.quizziz.repository.RoomRepository;
+import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
+import exe2.learningapp.logineko.quizziz.entity.Contest;
+import exe2.learningapp.logineko.quizziz.repository.ContestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class RoomServiceImpl implements RoomService{
-    private final RoomRepository roomRepository;
+public class ContestServiceImpl implements ContestService {
+    private final ContestRepository contestRepository;
 
 
     @Override
-    public RoomDTO.RoomResponse create(RoomDTO.CreateRoomRequest create) {
-        Room room = new Room();
+    public ContestDTO.Response create(ContestDTO.Request create) {
+        Contest room = new Contest();
         room.setTitle(create.title());
         room.setDescription(create.description());
-        room.setPublic(true);
+        room.setStartTime(LocalDateTime.now());
 
         String generatedCode;
         do {
             generatedCode = generateUniqueRoomCode();
-        } while (roomRepository.findByCode(generatedCode).isPresent());
+        } while (contestRepository.findByCode(generatedCode).isPresent());
 
         room.setCode(generatedCode);
 
 
-        Room saved = roomRepository.save(room);
+        Contest saved = contestRepository.save(room);
 
-        return new RoomDTO.RoomResponse(
+        return new ContestDTO.Response(
                 saved.getId(),
                 saved.getCode(),
                 saved.getTitle(),
                 saved.getDescription(),
-                saved.isPublic()
+                saved.getStatus().toString(),
+                saved.getStartTime()
+//                saved.getEndTime(),
+//                saved.getCreatorId()
         );
         }
 
     @Override
-    public RoomDTO.UpdateRoom update(Long id,RoomDTO.UpdateRoom update) {
-        Room room = roomRepository.findById(id)
+    public ContestDTO.UpdateRoom update(Long id, ContestDTO.UpdateRoom update) {
+        Contest room = contestRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
         room.setTitle(update.title());
         room.setDescription(update.description());
-        room.setPublic(update.isPublic());
 
-        Room saved = roomRepository.save(room);
+        Contest saved = contestRepository.save(room);
 
-        return new RoomDTO.UpdateRoom(
+        return new ContestDTO.UpdateRoom(
                 saved.getTitle(),
-                saved.getDescription(),
-                saved.isPublic()
+                saved.getDescription()
         );
 
 
@@ -71,34 +73,37 @@ public class RoomServiceImpl implements RoomService{
     }
 
     @Override
-    public Optional<RoomDTO.RoomResponse> findById(Long id) {
-        return roomRepository.findById(id)
-                .map(r -> new RoomDTO.RoomResponse(
+    public Optional<ContestDTO.Response> findById(Long id) {
+        return contestRepository.findById(id)
+                .map(r -> new ContestDTO.Response(
                         r.getId(),
                         r.getCode(),
                         r.getTitle(),
                         r.getDescription(),
-                        r.isPublic()
+                        r.getStatus().toString(),
+                        r.getStartTime()
                 ));
     }
 
     @Override
-    public Page<RoomDTO.RoomResponse> findAll(String keyword, Pageable pageable) {
-        Page<Room> rooms;
+    public Page<ContestDTO.Response> findAll(String keyword, Pageable pageable) {
+        Page<Contest> rooms;
         if (keyword == null || keyword.isBlank()) {
-            rooms = roomRepository.findAll(pageable);
+            rooms = contestRepository.findAll(pageable);
         } else {
-            rooms = roomRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+            rooms = contestRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
                     keyword, keyword, pageable
             );
         }
 
-        return rooms.map(r -> new RoomDTO.RoomResponse(
+        return rooms.map(r -> new ContestDTO.Response(
                 r.getId(),
                 r.getCode(),
                 r.getTitle(),
                 r.getDescription(),
-                r.isPublic()
+                r.getStatus().toString(),
+                r.getStartTime()
+
         ));
     }
 

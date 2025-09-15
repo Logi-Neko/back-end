@@ -6,7 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     Question findByQuestionText(String questionText);
     Page<Question> findByQuestionTextContainingIgnoreCase(String keyword, Pageable pageable);
+
 }

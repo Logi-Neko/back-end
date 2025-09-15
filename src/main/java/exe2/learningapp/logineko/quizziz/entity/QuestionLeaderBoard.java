@@ -19,7 +19,7 @@ public class QuestionLeaderBoard {
 
     @ManyToOne
     @JoinColumn(name = "room_id")
-    private Room room;
+    private Contest room;
 
     @ManyToOne
     @JoinColumn(name = "question_id")
