@@ -202,7 +202,7 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonDTO convertToLessonDTO(Lesson lesson) {
         AccountLessonProgress accountLessonProgress = null;
-        Account account = currentUserProvider.getCurrentUser();
+        Account account = currentUserProvider.getCurrentUser2();
         if (account != null) {
             accountLessonProgress = accountLessonProgressRepository.findByLessonAndAccount(lesson, account);
         }

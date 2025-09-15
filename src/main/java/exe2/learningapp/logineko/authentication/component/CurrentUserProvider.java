@@ -30,4 +30,18 @@ public class CurrentUserProvider {
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
 
     }
+
+    public Account getCurrentUser2() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return null;
+        }
+
+        String keycloakUserId = authentication.getName();
+
+        return accountRepository.findByUserId(keycloakUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
+    }
 }
