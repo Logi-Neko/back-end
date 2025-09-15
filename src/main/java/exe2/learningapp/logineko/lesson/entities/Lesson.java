@@ -48,6 +48,9 @@ public class Lesson {
     Long duration;
 
     @Column(nullable = false)
+    Long totalVideo;
+
+    @Column(nullable = false)
     @Builder.Default
     Boolean isPremium = false;
 
