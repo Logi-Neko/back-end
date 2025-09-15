@@ -77,6 +77,9 @@ public class LessonServiceImpl implements LessonService {
             throw new AppException(ErrorCode.ERR_SERVER_ERROR);
         }
 
+        course.setTotalLesson(course.getTotalLesson() + 1);
+        courseRepository.save(course);
+
         return convertToLessonDTO(lesson);
     }
 
@@ -140,6 +143,10 @@ public class LessonServiceImpl implements LessonService {
             fileService.deleteFile(lesson.getThumbnailPublicId());
         } catch (IOException ignored) {
         }
+
+        Course course = lesson.getCourse();
+        course.setTotalLesson(course.getTotalLesson() - 1);
+        courseRepository.save(course);
 
         lessonRepository.delete(lesson);
     }
