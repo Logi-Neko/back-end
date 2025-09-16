@@ -1,6 +1,7 @@
 package exe2.learningapp.logineko.authentication.service;
 
 import exe2.learningapp.logineko.authentication.client.IdentityClient;
+import exe2.learningapp.logineko.authentication.component.CurrentUserProvider;
 import exe2.learningapp.logineko.authentication.dtos.account.AccountDTO;
 import exe2.learningapp.logineko.authentication.dtos.account.Credentials;
 import exe2.learningapp.logineko.authentication.dtos.account.TokenExchangeResponse;
@@ -16,10 +17,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -40,6 +40,7 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
     private final KeycloakService keycloakService;
     private final IdentityClient identityClient;
     private final ErrorNormalizer errorNormalizer;
+    private final CurrentUserProvider currentUserProvider;
 
     @Value("${keycloak.resource}")
     private String clientId;
@@ -124,15 +125,19 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
         try {
             MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
             requestBody.add("client_id", clientId);
-            requestBody.add("client_secret", clientSecret);  // Thêm dòng này
+            requestBody.add("client_secret", clientSecret);
             requestBody.add("grant_type", "password");
-            requestBody.add("scope", "openid profile email");
+//            requestBody.add("scope", "openid profile email");
             requestBody.add("username", loginRequest.username());
             requestBody.add("password", loginRequest.password());
 
             return identityClient.exchangeToken(requestBody);
         } catch (FeignException e) {
-            throw errorNormalizer.handleKeycloakError(e);
+            log.info("Failed to login with Keycloak: {}", e.getMessage());
+            if( e.status() == 401) {
+                throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS);
+            }
+            throw errorNormalizer.handleLoginKeycloakError(e);
         }
     }
     @Override
@@ -148,12 +153,11 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
             if (users.isEmpty()) {
                 throw new AppException(ErrorCode.ERR_NOT_FOUND);
             }
-
-            String userId = users.get(0).getId();
+            String userId = users.getFirst().getId();
             keycloak.realm(realm)
                     .users()
                     .get(userId)
-                    .executeActionsEmail(Arrays.asList("UPDATE_PASSWORD"));
+                    .executeActionsEmail(List.of("UPDATE_PASSWORD"));
 
         } catch (AppException e) {
             throw e;
@@ -172,8 +176,65 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
         requestBody.add("client_id", clientId);
         requestBody.add("client_secret", clientSecret);
         requestBody.add("grant_type", "client_credentials");
-
         return identityClient.exchangeToken(requestBody);
+    }
+    @Override
+    public TokenExchangeResponse refreshToken(String refreshToken) {
+        try {
+            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+            requestBody.add("client_id", clientId);
+            requestBody.add("client_secret", clientSecret);
+            requestBody.add("grant_type", "refresh_token");
+            requestBody.add("refresh_token", refreshToken);
+
+            return identityClient.exchangeToken(requestBody);
+        } catch (FeignException e) {
+            log.info("Failed to refresh token: {}", e.getMessage());
+            throw new AppException(ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+    }
+
+    @Override
+    public void logout(String refreshToken) {
+        try {
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+            body.add("client_id", clientId);
+            body.add("client_secret", clientSecret);
+            body.add("refresh_token", refreshToken);
+            identityClient.logout(body);
+        } catch (FeignException e) {
+            throw new AppException(ErrorCode.REFRESH_TOKEN_INVALID);
+        }
+    }
+
+    @Override
+    public void resetPassword( String oldPassword, String newPassword) {
+        try (Keycloak keycloak = keycloakService.getKeyCloakInstance()) {
+            Account currentUser =  currentUserProvider.getCurrentUser();
+            String username = currentUser.getUsername();
+            if (!validateCurrentPassword(username, oldPassword)) {
+                throw new AppException(ErrorCode.AUTH_INVALID_PASSWORD);
+            }
+
+            List<UserRepresentation> users = keycloak.realm(realm)
+                    .users()
+                    .search(username);
+
+            if (users.isEmpty()) {
+                throw new AppException(ErrorCode.ERR_NOT_FOUND);
+            }
+
+            String userId = users.getFirst().getId();
+            CredentialRepresentation newCred = new CredentialRepresentation();
+            newCred.setType(CredentialRepresentation.PASSWORD);
+            newCred.setValue(newPassword);
+            newCred.setTemporary(false);
+            keycloak.realm(realm).users().get(userId).resetPassword(newCred);
+        } catch (AppException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
+        }
     }
 
     private AccountDTO.AccountResponse mapToDTO(Account account) {
@@ -184,5 +245,30 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                 account.getLastName(),
                 account.getUsername()
         );
+    }
+
+    private boolean validateCurrentPassword(String username, String oldPassword) {
+        try {
+            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+            requestBody.add("client_id", clientId);
+            requestBody.add("client_secret", clientSecret);
+            requestBody.add("grant_type", "password");
+            requestBody.add("username", username);
+            requestBody.add("password", oldPassword);
+
+            // Try to get token with old password
+            TokenExchangeResponse response = identityClient.exchangeToken(requestBody);
+            return response != null && response.accessToken() != null;
+
+        } catch (FeignException e) {
+            if (e.status() == 401) {
+                return false; // Invalid password
+            }
+            log.error("Error validating current password", e);
+            return false;
+        } catch (Exception e) {
+            log.error("Error validating current password", e);
+            return false;
+        }
     }
 }

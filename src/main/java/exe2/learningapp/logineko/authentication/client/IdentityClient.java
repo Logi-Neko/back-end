@@ -18,6 +18,10 @@ public interface IdentityClient {
             produces = MediaType.APPLICATION_JSON_VALUE)
     TokenExchangeResponse exchangeToken(@RequestBody MultiValueMap<String, String> params);
 
+    @PostMapping(value = "/realms/${keycloak.realm}/protocol/openid-connect/logout",
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    void logout(@RequestBody MultiValueMap<String, String> params);
+
     @PostMapping(value = "/realms/${keycloak.realm}/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     TokenExchangeResponse login(

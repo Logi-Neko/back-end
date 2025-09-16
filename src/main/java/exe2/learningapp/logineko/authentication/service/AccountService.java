@@ -10,4 +10,7 @@ public interface AccountService {
     List<AccountDTO.AccountResponse> getAllUsers();
     TokenExchangeResponse login(AccountDTO.LoginRequest loginRequest);
     void sendResetPasswordEmail(String username);
+    TokenExchangeResponse refreshToken(String refreshToken);
+    void logout(String refreshToken);
+    void resetPassword(String oldPassword ,String newPassword);
 }

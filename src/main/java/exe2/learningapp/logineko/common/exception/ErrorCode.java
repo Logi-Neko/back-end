@@ -12,6 +12,7 @@ public enum ErrorCode {
     // AUTHENTICATION
     // =========================
     AUTH_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED.value(), "AUTH_INVALID_CREDENTIALS", "Tên đăng nhập hoặc mật khẩu không hợp lệ."),
+    AUTH_INVALID_PASSWORD(HttpStatus.UNAUTHORIZED.value(), "AUTH_INVALID_PASSWORD", "Mật khẩu không hợp lệ."),
     AUTH_ACCOUNT_LOCKED(HttpStatus.LOCKED.value(), "AUTH_ACCOUNT_LOCKED", "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên."),
     AUTH_SUCCESS(HttpStatus.OK.value(), "AUTH_SUCCESS", "Đăng nhập thành công."),
     AUTH_FAILURE(HttpStatus.UNAUTHORIZED.value(), "AUTH_FAILURE", "Đăng nhập không thành công. Vui lòng thử lại."),
@@ -19,6 +20,7 @@ public enum ErrorCode {
     AUTH_SESSION_EXPIRED(HttpStatus.UNAUTHORIZED.value(), "AUTH_SESSION_EXPIRED", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),
     AUTH_OTP_REQUIRED(HttpStatus.UNAUTHORIZED.value(), "AUTH_OTP_REQUIRED", "Vui lòng nhập mã OTP để xác thực."),
     AUTH_OTP_INVALID(HttpStatus.UNAUTHORIZED.value(), "AUTH_OTP_INVALID", "Mã OTP không hợp lệ hoặc đã hết hạn."),
+    REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED.value(), "REFRESH_TOKEN_INVALID", "Token làm mới không hợp lệ hoặc đã hết hạn."),
 
     // =========================
     // REGISTRATION

@@ -211,4 +211,30 @@ public class AuthenticationController {
             return ResponseEntity.ok(ApiResponse.success("Yêu cầu đặt lại mật khẩu đã được gửi đến email của bạn"));
     }
 
+    @PostMapping("/refresh-token")
+    @Operation(summary = "Lấy access token mới từ refresh token")
+    public ResponseEntity<ApiResponse<?>> refreshToken(@RequestParam("refresh_token") String refreshToken) {
+        return ResponseEntity.ok(ApiResponse.success(
+                accountService.refreshToken(refreshToken),
+                "Lấy access token thành công"
+        ));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Đăng xuất, thu hồi refresh token")
+    public ResponseEntity<ApiResponse<?>> logout(@RequestParam("refresh_token") String refreshToken)
+    {
+        accountService.logout(refreshToken);
+        return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công"));
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Đặt lại mật khẩu")
+    public ResponseEntity<ApiResponse<?>> resetPassword(
+            @RequestParam("old_password") String oldPassword,
+            @RequestParam("new_password") String newPassword) {
+        accountService.resetPassword( oldPassword, newPassword);
+        return ResponseEntity.ok(ApiResponse.success("Đặt lại mật khẩu thành công"));
+    }
+
 }
