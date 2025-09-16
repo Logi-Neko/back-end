@@ -35,7 +35,6 @@ public class CourseServiceImpl implements CourseService {
                 .isPremium(request.getIsPremium())
                 .isActive(request.getIsActive())
                 .price(request.getPrice())
-                .totalLesson(0L)
                 .build();
 
         courseRepository.save(course);

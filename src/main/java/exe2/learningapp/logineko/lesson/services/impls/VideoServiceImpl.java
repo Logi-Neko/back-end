@@ -86,6 +86,9 @@ public class VideoServiceImpl implements VideoService {
 
         videoRepository.save(videoEntity);
 
+        lesson.setTotalVideo(lesson.getTotalVideo() + 1);
+        lessonRepository.save(lesson);
+
         return convertToDTO(videoEntity);
     }
 
@@ -171,6 +174,10 @@ public class VideoServiceImpl implements VideoService {
         String videoPublicId = video.getVideoPublicId();
 
         videoRepository.delete(video);
+
+        Lesson lesson = video.getLesson();
+        lesson.setTotalVideo(lesson.getTotalVideo() - 1);
+        lessonRepository.save(lesson);
 
         try {
             fileService.deleteFile(thumbnailPublicId);

@@ -77,6 +77,9 @@ public class LessonServiceImpl implements LessonService {
             throw new AppException(ErrorCode.ERR_SERVER_ERROR);
         }
 
+        course.setTotalLesson(course.getTotalLesson() + 1);
+        courseRepository.save(course);
+
         return convertToLessonDTO(lesson);
     }
 
@@ -141,6 +144,10 @@ public class LessonServiceImpl implements LessonService {
         } catch (IOException ignored) {
         }
 
+        Course course = lesson.getCourse();
+        course.setTotalLesson(course.getTotalLesson() - 1);
+        courseRepository.save(course);
+
         lessonRepository.delete(lesson);
     }
 
@@ -195,7 +202,7 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonDTO convertToLessonDTO(Lesson lesson) {
         AccountLessonProgress accountLessonProgress = null;
-        Account account = currentUserProvider.getCurrentUser();
+        Account account = currentUserProvider.getCurrentUser2();
         if (account != null) {
             accountLessonProgress = accountLessonProgressRepository.findByLessonAndAccount(lesson, account);
         }
@@ -211,6 +218,7 @@ public class LessonServiceImpl implements LessonService {
                 .difficultyLevel(lesson.getDifficultyLevel())
                 .thumbnailUrl(lesson.getThumbnailUrl())
                 .duration(lesson.getDuration())
+                .totalVideo(lesson.getTotalVideo())
                 .star(accountLessonProgress != null ? accountLessonProgress.getStar() : 0)
                 .isPremium(lesson.getIsPremium())
                 .isActive(lesson.getIsActive())

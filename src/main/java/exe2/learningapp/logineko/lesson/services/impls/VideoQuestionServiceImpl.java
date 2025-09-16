@@ -30,7 +30,7 @@ public class VideoQuestionServiceImpl implements VideoQuestionService {
     @Override
     @Transactional
     public void answerQuestion(Long videoQuestionId, String answer) {
-        Account account = currentUserProvider.getCurrentUser();
+        Account account = currentUserProvider.getCurrentUser2();
 
         VideoQuestion videoQuestion = videoQuestionRepository.findById(videoQuestionId)
                 .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));

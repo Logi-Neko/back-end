@@ -33,7 +33,8 @@ public class Course {
     String thumbnailPublicId;
 
     @Column(nullable = false)
-    Long totalLesson;
+    @Builder.Default
+    Long totalLesson = 0L;
 
     @Column(nullable = false)
     @Builder.Default
