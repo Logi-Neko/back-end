@@ -1,6 +1,7 @@
 package exe2.learningapp.logineko.quizziz.controller;
 
 import exe2.learningapp.logineko.common.dto.ApiResponse;
+import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,13 +102,30 @@ public class ContestController {
             description = "Lấy danh sách tất cả các phòng học trong hệ thống với phân trang và tìm kiếm."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách Room thành công")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "Lấy danh sách Room thành công"
+            )
     })
-    public ApiResponse<Page<ContestDTO.Response>> getAllRooms(
-            @Parameter(description = "Từ khóa tìm kiếm (tiêu đề hoặc mô tả)") @RequestParam(required = false) String keyword,
-            @Parameter(description = "Thông tin phân trang (page, size, sort)") Pageable pageable) {
+    public ApiResponse<PaginatedResponse<ContestDTO.Response>> getAllRooms(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
         log.info("Getting all rooms with keyword: {}", keyword);
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Page<ContestDTO.Response> rooms = contestService.findAll(keyword, pageable);
-        return ApiResponse.success(rooms, "Lấy danh sách phòng học thành công");
+
+        PaginatedResponse<ContestDTO.Response> result = new PaginatedResponse<>(rooms);
+
+        return ApiResponse.success(result, "Lấy danh sách phòng học thành công");
     }
 }

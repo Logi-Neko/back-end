@@ -1,6 +1,7 @@
 package exe2.learningapp.logineko.quizziz.controller;
 
 import exe2.learningapp.logineko.common.dto.ApiResponse;
+import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import exe2.learningapp.logineko.quizziz.dto.QuestionDTO;
 import exe2.learningapp.logineko.quizziz.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,7 +12,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,24 +80,48 @@ public class QuestionController {
 
     @GetMapping
     @Operation(summary = "Lấy tất cả Question (có phân trang)")
-    public ApiResponse<Page<QuestionDTO.Response>> getAll(
-            @Parameter(description = "Thông tin phân trang (page, size, sort)") Pageable pageable) {
+    public ApiResponse<PaginatedResponse<QuestionDTO.Response>> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
         log.info("Fetching all questions with pagination");
-        return ApiResponse.success(
-                questionService.findAll(pageable),
-                "Lấy danh sách thành công"
-        );
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<QuestionDTO.Response> questions = questionService.findAll(pageable);
+
+        PaginatedResponse<QuestionDTO.Response> result = new PaginatedResponse<>(questions);
+
+        return ApiResponse.success(result, "Lấy danh sách thành công");
     }
 
     @GetMapping("/search")
     @Operation(summary = "Tìm kiếm Question theo từ khóa")
-    public ApiResponse<Page<QuestionDTO.Response>> search(
-            @Parameter(description = "Từ khóa tìm kiếm") @RequestParam String keyword,
-            @Parameter(description = "Thông tin phân trang (page, size, sort)") Pageable pageable) {
+    public ApiResponse<PaginatedResponse<QuestionDTO.Response>> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir) {
+
         log.info("Searching questions with keyword: {}", keyword);
-        return ApiResponse.success(
-                questionService.search(keyword, pageable),
-                "Tìm kiếm thành công"
-        );
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<QuestionDTO.Response> questions = questionService.search(keyword, pageable);
+
+        PaginatedResponse<QuestionDTO.Response> result = new PaginatedResponse<>(questions);
+
+        return ApiResponse.success(result, "Tìm kiếm thành công");
     }
 }
