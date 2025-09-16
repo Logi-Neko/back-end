@@ -7,11 +7,11 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface ContestQuestionService {
-    ContestQuestionDTO.Response  addQuestionToContest(ContestQuestionDTO.Request create);
+    ContestQuestionDTO.ContestQuestionResponse addQuestionToContest(ContestQuestionDTO.ContestQuestionRequest create);
     void delete(Long id);
-   Optional< ContestQuestionDTO.Response> findById(Long id);
-    ContestQuestionDTO.Response update(Long id, ContestQuestionDTO.Request request);
-    Page<ContestQuestionDTO.Response> findByContest (Long contestId, Pageable pageable);
+   Optional<ContestQuestionDTO.ContestQuestionResponse> findById(Long id);
+    ContestQuestionDTO.ContestQuestionResponse update(Long id, ContestQuestionDTO.ContestQuestionRequest contestQuestionRequest);
+    Page<ContestQuestionDTO.ContestQuestionResponse> findByContest (Long contestId, Pageable pageable);
 
 
 }

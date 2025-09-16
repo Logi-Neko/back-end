@@ -3,7 +3,6 @@ package exe2.learningapp.logineko.quizziz.service;
 import exe2.learningapp.logineko.quizziz.dto.AnswerDTO;
 import exe2.learningapp.logineko.quizziz.entity.*;
 import exe2.learningapp.logineko.quizziz.repository.*;
-import exe2.learningapp.logineko.quizziz.service.AnswerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +20,8 @@ public class AnswerServiceImpl implements AnswerService {
     private final ContestQuestionRepository contestQuestionRepository;
     private final AnswerOptionRepository answerOptionRepository;
 
-    private AnswerDTO.Response mapToDto(Answer answer) {
-        return AnswerDTO.Response.builder()
+    private AnswerDTO.AnswerResponse mapToDto(Answer answer) {
+        return AnswerDTO.AnswerResponse.builder()
                 .id(answer.getId())
                 .isCorrect(answer.isCorrect())
                 .answerTime(answer.getAnswerTime())
@@ -34,7 +33,7 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
-    public AnswerDTO.Response create(AnswerDTO.CreateRequest request) {
+    public AnswerDTO.AnswerResponse create(AnswerDTO.AnswerRequest request) {
         Participant participant = participantRepository.findById(request.participantId())
                 .orElseThrow(() -> new RuntimeException("Participant not found"));
 
@@ -72,17 +71,17 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
-    public Optional<AnswerDTO.Response> findById(Long id) {
+    public Optional<AnswerDTO.AnswerResponse> findById(Long id) {
         return answerRepository.findById(id).map(this::mapToDto);
     }
 
     @Override
-    public Page<AnswerDTO.Response> findByParticipant(Long participantId, Pageable pageable) {
+    public Page<AnswerDTO.AnswerResponse> findByParticipant(Long participantId, Pageable pageable) {
         return answerRepository.findByParticipantId(participantId, pageable).map(this::mapToDto);
     }
 
     @Override
-    public Page<AnswerDTO.Response> findByContestQuestion(Long contestQuestionId, Pageable pageable) {
+    public Page<AnswerDTO.AnswerResponse> findByContestQuestion(Long contestQuestionId, Pageable pageable) {
         return answerRepository.findByContestQuestionId(contestQuestionId, pageable).map(this::mapToDto);
     }
 

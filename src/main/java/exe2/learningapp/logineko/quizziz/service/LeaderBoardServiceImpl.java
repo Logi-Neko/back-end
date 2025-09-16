@@ -46,12 +46,12 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
         leaderboardRepository.saveAll(boards);
     }
     @Override
-    public List<LeaderBoardDTO.Response> getLeaderboard(Long contestId) {
+    public List<LeaderBoardDTO.LeaderBoardResponse> getLeaderboard(Long contestId) {
         List<LeaderBoard> boards = leaderboardRepository.findByContest_IdOrderByScoreDesc(contestId);
         return IntStream.range(0, boards.size())
                 .mapToObj(i -> {
                     LeaderBoard lb = boards.get(i);
-                    return LeaderBoardDTO.Response.builder()
+                    return LeaderBoardDTO.LeaderBoardResponse.builder()
                             .participantId(lb.getParticipant().getId())
                             .score(lb.getScore())
                             .rank(i + 1)

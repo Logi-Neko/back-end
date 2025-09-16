@@ -21,12 +21,12 @@ public class ContestServiceImpl implements ContestService {
 
 
     @Override
-    public ContestDTO.Response create(ContestDTO.Request create) {
+    public ContestDTO.ContestResponse create(ContestDTO.ContestRequest create) {
         Contest room = new Contest();
         room.setTitle(create.title());
         room.setDescription(create.description());
         room.setStartTime(LocalDateTime.now());
-
+        room.setEndTime(LocalDateTime.now().plusHours(1));
         String generatedCode;
         do {
             generatedCode = generateUniqueRoomCode();
@@ -37,7 +37,7 @@ public class ContestServiceImpl implements ContestService {
 
         Contest saved = contestRepository.save(room);
 
-        return new ContestDTO.Response(
+        return new ContestDTO.ContestResponse(
                 saved.getId(),
                 saved.getCode(),
                 saved.getTitle(),
@@ -73,9 +73,9 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
-    public Optional<ContestDTO.Response> findById(Long id) {
+    public Optional<ContestDTO.ContestResponse> findById(Long id) {
         return contestRepository.findById(id)
-                .map(r -> new ContestDTO.Response(
+                .map(r -> new ContestDTO.ContestResponse(
                         r.getId(),
                         r.getCode(),
                         r.getTitle(),
@@ -86,7 +86,7 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
-    public Page<ContestDTO.Response> findAll(String keyword, Pageable pageable) {
+    public Page<ContestDTO.ContestResponse> findAll(String keyword, Pageable pageable) {
         Page<Contest> rooms;
         if (keyword == null || keyword.isBlank()) {
             rooms = contestRepository.findAll(pageable);
@@ -96,7 +96,7 @@ public class ContestServiceImpl implements ContestService {
             );
         }
 
-        return rooms.map(r -> new ContestDTO.Response(
+        return rooms.map(r -> new ContestDTO.ContestResponse(
                 r.getId(),
                 r.getCode(),
                 r.getTitle(),

@@ -36,23 +36,23 @@ public class QuestionController {
             @io.swagger.v3.oas.annotations.responses.
                     ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ")
     })
-    public ApiResponse<QuestionDTO.Response> create(
-            @Valid @RequestBody QuestionDTO.Request request) {
-        log.info("Creating new question: {}", request.questionText());
+    public ApiResponse<QuestionDTO.QuestionResponse> create(
+            @Valid @RequestBody QuestionDTO.QuestionRequest questionRequest) {
+        log.info("Creating new question: {}", questionRequest.questionText());
         return ApiResponse.success(
-                questionService.createQuestion(request),
+                questionService.createQuestion(questionRequest),
                 "Tạo câu hỏi thành công"
         );
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Cập nhật Question")
-    public ApiResponse<QuestionDTO.Response> update(
+    public ApiResponse<QuestionDTO.QuestionResponse> update(
             @Parameter(description = "ID Question") @PathVariable Long id,
-            @Valid @RequestBody QuestionDTO.Request request) {
+            @Valid @RequestBody QuestionDTO.QuestionRequest questionRequest) {
         log.info("Updating question {}", id);
         return ApiResponse.success(
-                questionService.updateQuestion(id, request),
+                questionService.updateQuestion(id, questionRequest),
                 "Cập nhật thành công"
         );
     }
@@ -69,7 +69,7 @@ public class QuestionController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Lấy chi tiết Question theo ID")
-    public ApiResponse<QuestionDTO.Response> getById(
+    public ApiResponse<QuestionDTO.QuestionResponse> getById(
             @Parameter(description = "ID Question") @PathVariable Long id) {
         log.info("Fetching question {}", id);
         return ApiResponse.success(
@@ -80,7 +80,7 @@ public class QuestionController {
 
     @GetMapping
     @Operation(summary = "Lấy tất cả Question (có phân trang)")
-    public ApiResponse<PaginatedResponse<QuestionDTO.Response>> getAll(
+    public ApiResponse<PaginatedResponse<QuestionDTO.QuestionResponse>> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -94,16 +94,16 @@ public class QuestionController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<QuestionDTO.Response> questions = questionService.findAll(pageable);
+        Page<QuestionDTO.QuestionResponse> questions = questionService.findAll(pageable);
 
-        PaginatedResponse<QuestionDTO.Response> result = new PaginatedResponse<>(questions);
+        PaginatedResponse<QuestionDTO.QuestionResponse> result = new PaginatedResponse<>(questions);
 
         return ApiResponse.success(result, "Lấy danh sách thành công");
     }
 
     @GetMapping("/search")
     @Operation(summary = "Tìm kiếm Question theo từ khóa")
-    public ApiResponse<PaginatedResponse<QuestionDTO.Response>> search(
+    public ApiResponse<PaginatedResponse<QuestionDTO.QuestionResponse>> search(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -118,9 +118,9 @@ public class QuestionController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<QuestionDTO.Response> questions = questionService.search(keyword, pageable);
+        Page<QuestionDTO.QuestionResponse> questions = questionService.search(keyword, pageable);
 
-        PaginatedResponse<QuestionDTO.Response> result = new PaginatedResponse<>(questions);
+        PaginatedResponse<QuestionDTO.QuestionResponse> result = new PaginatedResponse<>(questions);
 
         return ApiResponse.success(result, "Tìm kiếm thành công");
     }

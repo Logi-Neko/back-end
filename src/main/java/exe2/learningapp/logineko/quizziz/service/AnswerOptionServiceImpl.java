@@ -6,8 +6,6 @@ import exe2.learningapp.logineko.quizziz.entity.Question;
 import exe2.learningapp.logineko.quizziz.repository.AnswerOptionRepository;
 import exe2.learningapp.logineko.quizziz.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +20,7 @@ public class AnswerOptionServiceImpl implements AnswerOptionService {
     private final QuestionRepository questionRepository;
 
     @Override
-    public AnswerOptionDTO.Response create(AnswerOptionDTO.Request request) {
+    public AnswerOptionDTO.AnswerOptionResponse create(AnswerOptionDTO.AnswerOptionRequest request) {
         Question question = questionRepository.findById(request.questionId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
@@ -34,7 +32,7 @@ public class AnswerOptionServiceImpl implements AnswerOptionService {
 
         AnswerOption saved = answerOptionRepository.save(option);
 
-        return AnswerOptionDTO.Response.builder()
+        return AnswerOptionDTO.AnswerOptionResponse.builder()
                 .id(saved.getId())
                 .optionText(saved.getOptionText())
                 .isCorrect(saved.getIsCorrect())
@@ -43,7 +41,7 @@ public class AnswerOptionServiceImpl implements AnswerOptionService {
     }
 
     @Override
-    public AnswerOptionDTO.Response update(Long id, AnswerOptionDTO.Request request) {
+    public AnswerOptionDTO.AnswerOptionResponse update(Long id, AnswerOptionDTO.AnswerOptionRequest request) {
         AnswerOption option = answerOptionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("AnswerOption not found"));
 
@@ -52,7 +50,7 @@ public class AnswerOptionServiceImpl implements AnswerOptionService {
 
         AnswerOption saved = answerOptionRepository.save(option);
 
-        return AnswerOptionDTO.Response.builder()
+        return AnswerOptionDTO.AnswerOptionResponse.builder()
                 .id(saved.getId())
                 .optionText(saved.getOptionText())
                 .isCorrect(saved.getIsCorrect())
@@ -69,9 +67,9 @@ public class AnswerOptionServiceImpl implements AnswerOptionService {
     }
 
     @Override
-    public Optional<AnswerOptionDTO.Response> findById(Long id) {
+    public Optional<AnswerOptionDTO.AnswerOptionResponse> findById(Long id) {
         return answerOptionRepository.findById(id)
-                .map(opt -> AnswerOptionDTO.Response.builder()
+                .map(opt -> AnswerOptionDTO.AnswerOptionResponse.builder()
                         .id(opt.getId())
                         .optionText(opt.getOptionText())
                         .isCorrect(opt.getIsCorrect())
@@ -81,9 +79,9 @@ public class AnswerOptionServiceImpl implements AnswerOptionService {
     }
 
     @Override
-    public List<AnswerOptionDTO.Response> findByQuestion(Long questionId) {
+    public List<AnswerOptionDTO.AnswerOptionResponse> findByQuestion(Long questionId) {
         return answerOptionRepository.findByQuestion_Id(questionId).stream()
-                .map(opt -> AnswerOptionDTO.Response.builder()
+                .map(opt -> AnswerOptionDTO.AnswerOptionResponse.builder()
                         .id(opt.getId())
                         .optionText(opt.getOptionText())
                         .isCorrect(opt.getIsCorrect())
