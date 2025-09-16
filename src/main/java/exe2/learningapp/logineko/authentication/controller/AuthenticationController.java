@@ -1,6 +1,7 @@
 package exe2.learningapp.logineko.authentication.controller;
 
 import exe2.learningapp.logineko.authentication.dtos.account.AccountDTO;
+import exe2.learningapp.logineko.authentication.dtos.account.ForgotPasswordRequest;
 import exe2.learningapp.logineko.authentication.service.AccountService;
 import exe2.learningapp.logineko.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -202,6 +203,12 @@ public class AuthenticationController {
                 accountService.login(loginRequest),
                 "Lấy access token thành công"
         ));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<?>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+            accountService.sendResetPasswordEmail(request.username());
+            return ResponseEntity.ok(ApiResponse.success("Yêu cầu đặt lại mật khẩu đã được gửi đến email của bạn"));
     }
 
 }

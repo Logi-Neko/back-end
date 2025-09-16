@@ -9,5 +9,5 @@ public interface AccountService {
     AccountDTO.AccountResponse register(AccountDTO.CreateAccountRequest request);
     List<AccountDTO.AccountResponse> getAllUsers();
     TokenExchangeResponse login(AccountDTO.LoginRequest loginRequest);
-
+    void sendResetPasswordEmail(String username);
 }

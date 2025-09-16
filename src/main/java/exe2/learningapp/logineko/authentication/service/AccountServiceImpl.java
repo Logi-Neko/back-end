@@ -9,10 +9,14 @@ import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.entity.enums.Role;
 import exe2.learningapp.logineko.authentication.repository.AccountRepository;
 import exe2.learningapp.logineko.authentication.exception.ErrorNormalizer;
+import exe2.learningapp.logineko.common.exception.AppException;
+import exe2.learningapp.logineko.common.exception.ErrorCode;
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +37,7 @@ import java.util.List;
 @Slf4j
 public class AccountServiceImpl implements AccountService , UserDetailsService {
     private final AccountRepository accountRepository;
+    private final KeycloakService keycloakService;
     private final IdentityClient identityClient;
     private final ErrorNormalizer errorNormalizer;
 
@@ -39,6 +45,8 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
     private String clientId;
     @Value("${keycloak.credentials.secret}")
     private String clientSecret;
+    @Value("${keycloak.realm}")
+    private String realm;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -125,6 +133,37 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
             return identityClient.exchangeToken(requestBody);
         } catch (FeignException e) {
             throw errorNormalizer.handleKeycloakError(e);
+        }
+    }
+    @Override
+    public void sendResetPasswordEmail(String username) {
+        Keycloak keycloak = null;
+        try {
+            keycloak = keycloakService.getKeyCloakInstance();
+
+            List<UserRepresentation> users = keycloak.realm(realm) // Sử dụng biến realm
+                    .users()
+                    .search(username);
+
+            if (users.isEmpty()) {
+                throw new AppException(ErrorCode.ERR_NOT_FOUND);
+            }
+
+            String userId = users.get(0).getId();
+            keycloak.realm(realm)
+                    .users()
+                    .get(userId)
+                    .executeActionsEmail(Arrays.asList("UPDATE_PASSWORD"));
+
+        } catch (AppException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error sending reset password email for user: {}", username, e);
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
+        } finally {
+            if (keycloak != null) {
+                keycloak.close();
+            }
         }
     }
 
