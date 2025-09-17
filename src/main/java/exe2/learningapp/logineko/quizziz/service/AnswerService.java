@@ -4,15 +4,14 @@ import exe2.learningapp.logineko.quizziz.dto.AnswerDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface AnswerService {
-    AnswerDTO.Response create(AnswerDTO.CreateRequest request);
+    AnswerDTO.AnswerResponse create(AnswerDTO.AnswerRequest request);
     void delete(Long id);
-    Optional<AnswerDTO.Response> findById(Long id);
-    Page<AnswerDTO.Response> findByParticipant(Long participantId, Pageable pageable);
-    Page<AnswerDTO.Response> findByContestQuestion(Long contestQuestionId, Pageable pageable);
+    Optional<AnswerDTO.AnswerResponse> findById(Long id);
+    Page<AnswerDTO.AnswerResponse> findByParticipant(Long participantId, Pageable pageable);
+    Page<AnswerDTO.AnswerResponse> findByContestQuestion(Long contestQuestionId, Pageable pageable);
 
     boolean existsBySubmissionUuid(Long submissionUuid);
     void saveFromEvent(

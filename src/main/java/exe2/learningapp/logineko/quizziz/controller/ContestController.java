@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/contest")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Room Management", description = "API quản lý các phòng học (Room)")
+@Tag(name = "Contest Management", description = "API quản lý các Contest (Cuộc thi/Phòng thi)")
 public class ContestController {
 
     private final ContestService contestService;
@@ -30,91 +30,91 @@ public class ContestController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
-            summary = "Tạo một Room mới",
-            description = "Tạo một phòng học mới với tiêu đề và mô tả. Hệ thống sẽ tự động tạo một mã code duy nhất cho Room."
+            summary = "Tạo một Contest mới",
+            description = "Tạo một contest mới với tiêu đề và mô tả. Hệ thống sẽ tự động tạo một mã code duy nhất cho contest."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Tạo Room thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Thông tin Room không hợp lệ")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Tạo contest thành công"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Thông tin contest không hợp lệ")
     })
-    public ApiResponse<ContestDTO.Response> createRoom(
-            @Valid @RequestBody ContestDTO.Request create) {
-        log.info("Creating a new room with title: {}", create.title());
-        ContestDTO.Response room = contestService.create(create);
-        return ApiResponse.success(room, "Tạo phòng học thành công");
+    public ApiResponse<ContestDTO.ContestResponse> createContest(
+            @Valid @RequestBody ContestDTO.ContestRequest create) {
+        log.info("Creating a new contest with title: {}", create.title());
+        ContestDTO.ContestResponse contest = contestService.create(create);
+        return ApiResponse.success(contest, "Tạo contest thành công");
     }
 
     @PutMapping("/{id}")
     @Operation(
-            summary = "Cập nhật thông tin Room",
-            description = "Cập nhật tiêu đề, mô tả và trạng thái công khai của một phòng học."
+            summary = "Cập nhật thông tin Contest",
+            description = "Cập nhật tiêu đề, mô tả và trạng thái công khai của một contest."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cập nhật Room thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy Room"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cập nhật contest thành công"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy contest"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Thông tin cập nhật không hợp lệ")
     })
-    public ApiResponse<ContestDTO.UpdateRoom> updateRoom(
-            @Parameter(description = "ID của Room") @PathVariable Long id,
+    public ApiResponse<ContestDTO.UpdateRoom> updateContest(
+            @Parameter(description = "ID của contest") @PathVariable Long id,
             @Valid @RequestBody ContestDTO.UpdateRoom update) {
-        log.info("Updating room with ID: {}", id);
-        ContestDTO.UpdateRoom room = contestService.update(id, update);
-        return ApiResponse.success(room, "Cập nhật phòng học thành công");
+        log.info("Updating contest with ID: {}", id);
+        ContestDTO.UpdateRoom contest = contestService.update(id, update);
+        return ApiResponse.success(contest, "Cập nhật contest thành công");
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
-            summary = "Xóa một Room",
-            description = "Xóa hoàn toàn một phòng học khỏi hệ thống."
+            summary = "Xóa một Contest",
+            description = "Xóa hoàn toàn một contest khỏi hệ thống."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Xóa Room thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy Room")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Xóa contest thành công"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy contest")
     })
-    public ApiResponse<Void> deleteRoom(
-            @Parameter(description = "ID của Room") @PathVariable Long id) {
-        log.info("Deleting room with ID: {}", id);
+    public ApiResponse<Void> deleteContest(
+            @Parameter(description = "ID của contest") @PathVariable Long id) {
+        log.info("Deleting contest with ID: {}", id);
         contestService.delete(id);
-        return ApiResponse.success(null, "Xóa phòng học thành công");
+        return ApiResponse.success(null, "Xóa contest thành công");
     }
 
     @GetMapping("/{id}")
     @Operation(
-            summary = "Lấy thông tin Room theo ID",
-            description = "Lấy thông tin chi tiết của một phòng học cụ thể, bao gồm mã code Room."
+            summary = "Lấy thông tin Contest theo ID",
+            description = "Lấy thông tin chi tiết của một contest cụ thể, bao gồm mã code contest."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy thông tin Room thành công"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy Room")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy thông tin contest thành công"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy contest")
     })
-    public ApiResponse<ContestDTO.Response> getRoomById(
-            @Parameter(description = "ID của Room") @PathVariable Long id) {
-        log.info("Getting room by ID: {}", id);
-        ContestDTO.Response room = contestService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found"));
-        return ApiResponse.success(room, "Lấy thông tin phòng học thành công");
+    public ApiResponse<ContestDTO.ContestResponse> getContestById(
+            @Parameter(description = "ID của contest") @PathVariable Long id) {
+        log.info("Getting contest by ID: {}", id);
+        ContestDTO.ContestResponse contest = contestService.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contest not found"));
+        return ApiResponse.success(contest, "Lấy thông tin contest thành công");
     }
 
     @GetMapping
     @Operation(
-            summary = "Lấy danh sách tất cả các Room",
-            description = "Lấy danh sách tất cả các phòng học trong hệ thống với phân trang và tìm kiếm."
+            summary = "Lấy danh sách tất cả các Contest",
+            description = "Lấy danh sách tất cả các contest trong hệ thống với phân trang và tìm kiếm."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                     responseCode = "200",
-                    description = "Lấy danh sách Room thành công"
+                    description = "Lấy danh sách contest thành công"
             )
     })
-    public ApiResponse<PaginatedResponse<ContestDTO.Response>> getAllRooms(
+    public ApiResponse<PaginatedResponse<ContestDTO.ContestResponse>> getAllContests(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir) {
 
-        log.info("Getting all rooms with keyword: {}", keyword);
+        log.info("Getting all contests with keyword: {}", keyword);
 
         Sort sort = sortDir.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
@@ -122,10 +122,10 @@ public class ContestController {
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<ContestDTO.Response> rooms = contestService.findAll(keyword, pageable);
+        Page<ContestDTO.ContestResponse> contests = contestService.findAll(keyword, pageable);
 
-        PaginatedResponse<ContestDTO.Response> result = new PaginatedResponse<>(rooms);
+        PaginatedResponse<ContestDTO.ContestResponse> result = new PaginatedResponse<>(contests);
 
-        return ApiResponse.success(result, "Lấy danh sách phòng học thành công");
+        return ApiResponse.success(result, "Lấy danh sách contest thành công");
     }
 }

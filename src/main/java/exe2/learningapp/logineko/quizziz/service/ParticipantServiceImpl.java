@@ -13,8 +13,8 @@ import java.util.Optional;
 public class ParticipantServiceImpl implements ParticipantService{
     private final ParticipantRepository participantRepository;
     @Override
-    public Optional<ParticipantDTO.Response> findById(Long id) {
-        return participantRepository.findById(id).map(participant -> ParticipantDTO.Response.builder()
+    public Optional<ParticipantDTO.ParticipantResponse> findById(Long id) {
+        return participantRepository.findById(id).map(participant -> ParticipantDTO.ParticipantResponse.builder()
                 .id(participant.getId())
                 .build());
     }

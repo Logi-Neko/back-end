@@ -3,7 +3,6 @@ package exe2.learningapp.logineko.quizziz.dto;
 import lombok.Builder;
 
 import java.time.Instant;
-import java.util.List;
 
 public class GameEventDTO
 {
@@ -13,7 +12,7 @@ public class GameEventDTO
                 Long contestId,
                 Long contestQuestionId,
                 Integer orderIndex,
-                QuestionDTO.Response question,
+                QuestionDTO.QuestionResponse question,
                 Instant timestamp
         ) {
               //  public record QuestionPayload(Long questionId, String content, List<Option> options, Integer timeLimitSeconds) {}

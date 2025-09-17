@@ -21,21 +21,21 @@ public class ContestQuestionServiceImpl implements ContestQuestionService{
     private final ContestRepository contestRepository;
     private final QuestionRepository questionRepository;
     @Override
-    public ContestQuestionDTO.Response addQuestionToContest(ContestQuestionDTO.Request request) {
-        Contest contest = contestRepository.findById(request.contestId())
+    public ContestQuestionDTO.ContestQuestionResponse addQuestionToContest(ContestQuestionDTO.ContestQuestionRequest contestQuestionRequest) {
+        Contest contest = contestRepository.findById(contestQuestionRequest.contestId())
                 .orElseThrow(() -> new RuntimeException("Contest not found"));
-        Question question = questionRepository.findById(request.questionId())
+        Question question = questionRepository.findById(contestQuestionRequest.questionId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         ContestQuestion entity = ContestQuestion.builder()
                 .contest(contest)
                 .question(question)
-                .index(request.index())
+                .index(contestQuestionRequest.index())
                 .build();
 
         ContestQuestion saved = contestQuestionRepository.save(entity);
 
-        return ContestQuestionDTO.Response.builder()
+        return ContestQuestionDTO.ContestQuestionResponse.builder()
                 .id(saved.getId())
                 .contestId(contest.getId())
                 .questionId(question.getId())
@@ -44,22 +44,22 @@ public class ContestQuestionServiceImpl implements ContestQuestionService{
     }
 
     @Override
-    public ContestQuestionDTO.Response update(Long id, ContestQuestionDTO.Request request) {
+    public ContestQuestionDTO.ContestQuestionResponse update(Long id, ContestQuestionDTO.ContestQuestionRequest contestQuestionRequest) {
         ContestQuestion entity = contestQuestionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ContestQuestion not found"));
 
-        Contest contest = contestRepository.findById(request.contestId())
+        Contest contest = contestRepository.findById(contestQuestionRequest.contestId())
                 .orElseThrow(() -> new RuntimeException("Contest not found"));
-        Question question = questionRepository.findById(request.questionId())
+        Question question = questionRepository.findById(contestQuestionRequest.questionId())
                 .orElseThrow(() -> new RuntimeException("Question not found"));
 
         entity.setContest(contest);
         entity.setQuestion(question);
-        entity.setIndex(request.index());
+        entity.setIndex(contestQuestionRequest.index());
 
         ContestQuestion saved = contestQuestionRepository.save(entity);
 
-        return ContestQuestionDTO.Response.builder()
+        return ContestQuestionDTO.ContestQuestionResponse.builder()
                 .id(saved.getId())
                 .contestId(contest.getId())
                 .questionId(question.getId())
@@ -73,9 +73,9 @@ public class ContestQuestionServiceImpl implements ContestQuestionService{
     }
 
     @Override
-    public Optional<ContestQuestionDTO.Response> findById(Long id) {
+    public Optional<ContestQuestionDTO.ContestQuestionResponse> findById(Long id) {
         return contestQuestionRepository.findById(id)
-                .map(entity -> ContestQuestionDTO.Response.builder()
+                .map(entity -> ContestQuestionDTO.ContestQuestionResponse.builder()
                         .id(entity.getId())
                         .contestId(entity.getContest().getId())
                         .questionId(entity.getQuestion().getId())
@@ -84,9 +84,9 @@ public class ContestQuestionServiceImpl implements ContestQuestionService{
     }
 
     @Override
-    public Page<ContestQuestionDTO.Response> findByContest(Long contestId, Pageable pageable) {
+    public Page<ContestQuestionDTO.ContestQuestionResponse> findByContest(Long contestId, Pageable pageable) {
         return contestQuestionRepository.findByContest_Id(contestId,pageable)
-                .map(entity -> ContestQuestionDTO.Response.builder()
+                .map(entity -> ContestQuestionDTO.ContestQuestionResponse.builder()
                         .id(entity.getId())
                         .contestId(entity.getContest().getId())
                         .questionId(entity.getQuestion().getId())

@@ -1,24 +1,24 @@
 package exe2.learningapp.logineko.quizziz.dto;
 
-import exe2.learningapp.logineko.quizziz.entity.AnswerOption;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.util.List;
-
+@Schema(name = "Question")
 public class QuestionDTO {
     @Builder
-    public record Request(
+    public record QuestionRequest(
             String questionText,
-            List<AnswerOptionDTO.Request> answerOptions,
+            List<AnswerOptionDTO.AnswerOptionRequest> answerOptions,
             Integer timeLimit,
             Integer points
     )
     {}
     @Builder
-    public record Response(
+    public record QuestionResponse(
             Long id,
             String questionText,
-            List<AnswerOptionDTO.Response> answerOptions,
+            List<AnswerOptionDTO.AnswerOptionResponse> answerOptions,
             Integer points,
             Integer timeLimit
     ){}
