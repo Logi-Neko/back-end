@@ -3,13 +3,17 @@ package exe2.learningapp.logineko.quizziz.service;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
+import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
 import exe2.learningapp.logineko.quizziz.entity.Contest;
 import exe2.learningapp.logineko.quizziz.repository.ContestRepository;
+import exe2.learningapp.logineko.quizziz.service.kafka.EventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
@@ -18,6 +22,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class ContestServiceImpl implements ContestService {
     private final ContestRepository contestRepository;
+    private final EventProducer eventProducer;
 
 
     @Override
@@ -123,5 +128,27 @@ public class ContestServiceImpl implements ContestService {
         return codeBuilder.toString();
     }
 
+    @Override
+    @Transactional
+    public void startContest(Long id) {
+        Contest contest = contestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contest not found"));
+
+        if (contest.getStatus() != Contest.Status.OPEN) {
+            throw new IllegalStateException("Contest is not in OPEN state");
+        }
+
+        contest.setStatus(Contest.Status.RUNNING);
+        contest.setStartTime(LocalDateTime.now());
+        contestRepository.save(contest);
+
+        // publish event
+        GameEventDTO.ContestLifecycleEvent ev = GameEventDTO.ContestLifecycleEvent.builder()
+                .eventType("contest.started")
+                .contestId(id)
+                .timestamp(Instant.now())
+                .build();
+        eventProducer.publishContestLifecycle(id,ev);
+    }
 
 }
