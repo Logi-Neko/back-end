@@ -7,9 +7,10 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface ContestService {
- ContestDTO.Response create(ContestDTO.Request create);
+ ContestDTO.ContestResponse create(ContestDTO.ContestRequest create);
  ContestDTO.UpdateRoom update(Long id, ContestDTO.UpdateRoom update);
  void delete(Long id);
- Optional<ContestDTO.Response> findById(Long id);
- Page<ContestDTO.Response> findAll(String keyword , Pageable pageable);
+ Optional<ContestDTO.ContestResponse> findById(Long id);
+ Page<ContestDTO.ContestResponse> findAll(String keyword , Pageable pageable);
+ void startContest(Long id);
 }

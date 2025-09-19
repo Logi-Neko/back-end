@@ -5,7 +5,6 @@ import exe2.learningapp.logineko.quizziz.dto.QuestionDTO;
 import exe2.learningapp.logineko.quizziz.entity.AnswerOption;
 import exe2.learningapp.logineko.quizziz.entity.Question;
 import exe2.learningapp.logineko.quizziz.repository.QuestionRepository;
-import exe2.learningapp.logineko.quizziz.service.QuestionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,15 +21,15 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionRepository questionRepository;
 
     @Override
-    public QuestionDTO.Response createQuestion(QuestionDTO.Request request) {
+    public QuestionDTO.QuestionResponse createQuestion(QuestionDTO.QuestionRequest questionRequest) {
         Question question = Question.builder()
-                .questionText(request.questionText())
-                .timeLimit(request.timeLimit() != null ? request.timeLimit() : 30)
-                .points(request.points() != null ? request.points() : 1000)
+                .questionText(questionRequest.questionText())
+                .timeLimit(questionRequest.timeLimit() != null ? questionRequest.timeLimit() : 30)
+                .points(questionRequest.points() != null ? questionRequest.points() : 1000)
                 .build();
 
-        if (request.answerOptions() != null) {
-            List<AnswerOption> options = request.answerOptions().stream()
+        if (questionRequest.answerOptions() != null) {
+            List<AnswerOption> options = questionRequest.answerOptions().stream()
                     .map(opt -> AnswerOption.builder()
                             .optionText(opt.optionText())
                             .isCorrect(opt.isCorrect())
@@ -45,17 +44,17 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public QuestionDTO.Response updateQuestion(Long id, QuestionDTO.Request request) {
+    public QuestionDTO.QuestionResponse updateQuestion(Long id, QuestionDTO.QuestionRequest questionRequest) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Question not found with id: " + id));
 
-        question.setQuestionText(request.questionText());
-        question.setPoints(request.points());
-        question.setTimeLimit(request.timeLimit());
+        question.setQuestionText(questionRequest.questionText());
+        question.setPoints(questionRequest.points());
+        question.setTimeLimit(questionRequest.timeLimit());
 
-        if (request.answerOptions() != null) {
+        if (questionRequest.answerOptions() != null) {
             question.getOptions().clear();
-            List<AnswerOption> options = request.answerOptions().stream()
+            List<AnswerOption> options = questionRequest.answerOptions().stream()
                     .map(opt -> AnswerOption.builder()
                             .optionText(opt.optionText())
                             .isCorrect(opt.isCorrect())
@@ -78,33 +77,33 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public QuestionDTO.Response findById(Long id) {
+    public QuestionDTO.QuestionResponse findById(Long id) {
         Question question = questionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Question not found with id: " + id));
         return toResponse(question);
     }
 
     @Override
-    public Page<QuestionDTO.Response> search(String textQuestion, Pageable pageable) {
+    public Page<QuestionDTO.QuestionResponse> search(String textQuestion, Pageable pageable) {
         return questionRepository.findByQuestionTextContainingIgnoreCase(textQuestion, pageable)
                 .map(this::toResponse);
     }
 
     @Override
-    public Page<QuestionDTO.Response> findAll(Pageable pageable) {
+    public Page<QuestionDTO.QuestionResponse> findAll(Pageable pageable) {
         return questionRepository.findAll(pageable)
                 .map(this::toResponse);
     }
 
-    private QuestionDTO.Response toResponse(Question q) {
-        return QuestionDTO.Response.builder()
+    private QuestionDTO.QuestionResponse toResponse(Question q) {
+        return QuestionDTO.QuestionResponse.builder()
                 .id(q.getId())
                 .questionText(q.getQuestionText())
                 .points(q.getPoints())
                 .timeLimit(q.getTimeLimit())
                 .answerOptions(q.getOptions() != null
                         ? q.getOptions().stream()
-                        .map(opt -> AnswerOptionDTO.Response.builder()
+                        .map(opt -> AnswerOptionDTO.AnswerOptionResponse.builder()
                                 .id(opt.getId())
                                 .optionText(opt.getOptionText())
                                 .isCorrect(opt.getIsCorrect())

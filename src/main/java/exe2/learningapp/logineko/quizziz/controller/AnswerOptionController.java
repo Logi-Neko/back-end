@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +34,8 @@ public class AnswerOptionController {
             @io.swagger.v3.oas.annotations.responses.
                     ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ")
     })
-    public ApiResponse<AnswerOptionDTO.Response> create(
-            @Valid @RequestBody AnswerOptionDTO.Request request) {
+    public ApiResponse<AnswerOptionDTO.AnswerOptionResponse> create(
+            @Valid @RequestBody AnswerOptionDTO.AnswerOptionRequest request) {
 
         return ApiResponse.success(
                 answerOptionService.create(request),
@@ -47,9 +45,9 @@ public class AnswerOptionController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Cập nhật đáp án")
-    public ApiResponse<AnswerOptionDTO.Response> update(
+    public ApiResponse<AnswerOptionDTO.AnswerOptionResponse> update(
             @Parameter(description = "ID AnswerOption") @PathVariable Long id,
-            @Valid @RequestBody AnswerOptionDTO.Request request) {
+            @Valid @RequestBody AnswerOptionDTO.AnswerOptionRequest request) {
         log.info("Updating answer option {}", id);
         return ApiResponse.success(
                 answerOptionService.update(id, request),
@@ -69,7 +67,7 @@ public class AnswerOptionController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Lấy chi tiết đáp án theo ID")
-    public ApiResponse<Optional<AnswerOptionDTO.Response>> getById(
+    public ApiResponse<Optional<AnswerOptionDTO.AnswerOptionResponse>> getById(
             @Parameter(description = "ID AnswerOption") @PathVariable Long id) {
         log.info("Fetching answer option {}", id);
         return ApiResponse.success(
@@ -80,7 +78,7 @@ public class AnswerOptionController {
 
     @GetMapping("/question/{questionId}")
     @Operation(summary = "Lấy danh sách đáp án theo Question (có phân trang)")
-    public ApiResponse<List<AnswerOptionDTO.Response>> getByQuestion(
+    public ApiResponse<List<AnswerOptionDTO.AnswerOptionResponse>> getByQuestion(
             @Parameter(description = "ID Question") @PathVariable Long questionId){
         log.info("Fetching answer options for question {}", questionId);
         return ApiResponse.success(

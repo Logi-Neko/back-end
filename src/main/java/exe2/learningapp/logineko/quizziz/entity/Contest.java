@@ -28,7 +28,7 @@ public class Contest {
 //    private int totalQuestions;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id", nullable = true)
     private Account creator;
 
     @Enumerated(EnumType.STRING)
@@ -50,7 +50,7 @@ public class Contest {
     @Column(name="start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name="end_time", nullable = false)
+    @Column(name="end_time")
     private LocalDateTime endTime;
     @PrePersist
     public void prePersist() {

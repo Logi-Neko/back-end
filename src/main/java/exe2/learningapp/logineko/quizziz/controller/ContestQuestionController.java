@@ -36,23 +36,23 @@ public class ContestQuestionController {
             @io.swagger.v3.oas.annotations.responses.
                     ApiResponse(responseCode = "400", description = "Thông tin không hợp lệ")
     })
-    public ApiResponse<ContestQuestionDTO.Response> addQuestion(
-            @Valid @RequestBody ContestQuestionDTO.Request request) {
-        log.info("Adding question {} to contest {}", request.questionId(), request.contestId());
+    public ApiResponse<ContestQuestionDTO.ContestQuestionResponse> addQuestion(
+            @Valid @RequestBody ContestQuestionDTO.ContestQuestionRequest contestQuestionRequest) {
+        log.info("Adding question {} to contest {}", contestQuestionRequest.questionId(), contestQuestionRequest.contestId());
         return ApiResponse.success(
-                contestQuestionService.addQuestionToContest(request),
+                contestQuestionService.addQuestionToContest(contestQuestionRequest),
                 "Thêm câu hỏi vào contest thành công"
         );
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Cập nhật câu hỏi trong Contest")
-    public ApiResponse<ContestQuestionDTO.Response> update(
+    public ApiResponse<ContestQuestionDTO.ContestQuestionResponse> update(
             @Parameter(description = "ID ContestQuestion") @PathVariable Long id,
-            @Valid @RequestBody ContestQuestionDTO.Request request) {
+            @Valid @RequestBody ContestQuestionDTO.ContestQuestionRequest contestQuestionRequest) {
         log.info("Updating ContestQuestion {}", id);
         return ApiResponse.success(
-                contestQuestionService.update(id, request),
+                contestQuestionService.update(id, contestQuestionRequest),
                 "Cập nhật thành công"
         );
     }
@@ -69,7 +69,7 @@ public class ContestQuestionController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Lấy chi tiết ContestQuestion theo ID")
-    public ApiResponse<ContestQuestionDTO.Response> getById(
+    public ApiResponse<ContestQuestionDTO.ContestQuestionResponse> getById(
             @Parameter(description = "ID ContestQuestion") @PathVariable Long id) {
         log.info("Fetching ContestQuestion {}", id);
         return ApiResponse.success(
@@ -81,7 +81,7 @@ public class ContestQuestionController {
 
     @GetMapping("/contest/{contestId}")
     @Operation(summary = "Lấy danh sách câu hỏi theo Contest (có phân trang)")
-    public ApiResponse<Page<ContestQuestionDTO.Response>> getByContest(
+    public ApiResponse<Page<ContestQuestionDTO.ContestQuestionResponse>> getByContest(
             @Parameter(description = "ID Contest") @PathVariable Long contestId,
             @Parameter(description = "Thông tin phân trang (page, size, sort)") Pageable pageable) {
         log.info("Fetching ContestQuestions for Contest {} with pagination", contestId);

@@ -3,8 +3,11 @@
 
 
 import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
+import exe2.learningapp.logineko.quizziz.service.ContestService;
 import exe2.learningapp.logineko.quizziz.service.kafka.EventProducer;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.List;
@@ -15,12 +18,15 @@ import java.util.List;
 public class GameController {
 
     private final EventProducer producer;
-
+    private final ContestService contestService;
     // Host starts contest -> publish contest.started
     @PostMapping("/{contestId}/start")
-    public void startContest(@PathVariable Long contestId) {
-        GameEventDTO.ContestLifecycleEvent ev = new GameEventDTO.ContestLifecycleEvent("contest.started", contestId, null, Instant.now());
+    public ResponseEntity<String> startContest(@Valid  @PathVariable Long contestId) {
+        GameEventDTO.ContestLifecycleEvent ev =
+                new GameEventDTO.ContestLifecycleEvent("contest.started", contestId, null, Instant.now());
         producer.publishContestLifecycle(contestId, ev);
+        contestService.startContest(contestId);
+        return ResponseEntity.ok("Contest started");
     }
 
     @PostMapping("/{contestId}/reveal/{contestQuestionId}")

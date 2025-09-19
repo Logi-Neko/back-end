@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AnswerOptionService {
-    AnswerOptionDTO.Response create(AnswerOptionDTO.Request request);
-    AnswerOptionDTO.Response update(Long id, AnswerOptionDTO.Request request);
+    AnswerOptionDTO.AnswerOptionResponse create(AnswerOptionDTO.AnswerOptionRequest request);
+    AnswerOptionDTO.AnswerOptionResponse update(Long id, AnswerOptionDTO.AnswerOptionRequest request);
     void delete(Long id);
-    Optional<AnswerOptionDTO.Response> findById(Long id);
-    List<AnswerOptionDTO.Response> findByQuestion(Long questionId);
+    Optional<AnswerOptionDTO.AnswerOptionResponse> findById(Long id);
+    List<AnswerOptionDTO.AnswerOptionResponse> findByQuestion(Long questionId);
 }

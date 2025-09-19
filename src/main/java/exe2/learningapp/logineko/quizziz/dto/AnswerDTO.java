@@ -1,14 +1,14 @@
 package exe2.learningapp.logineko.quizziz.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-
+@Schema(name = "Answer")
 public class AnswerDTO {
 
     @Builder
-    public record CreateRequest(
+    public record AnswerRequest(
             @NotNull(message = "Participant ID must not be null")
             Long participantId,
             @NotNull(message = "Question ID must not be null")
@@ -21,7 +21,7 @@ public class AnswerDTO {
     ) {}
 
     @Builder
-    public record Response(
+    public record AnswerResponse(
             Long id,
             Boolean isCorrect,
             Integer answerTime,

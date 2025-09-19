@@ -3,13 +3,17 @@ package exe2.learningapp.logineko.quizziz.service;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
+import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
 import exe2.learningapp.logineko.quizziz.entity.Contest;
 import exe2.learningapp.logineko.quizziz.repository.ContestRepository;
+import exe2.learningapp.logineko.quizziz.service.kafka.EventProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
@@ -18,15 +22,16 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class ContestServiceImpl implements ContestService {
     private final ContestRepository contestRepository;
+    private final EventProducer eventProducer;
 
 
     @Override
-    public ContestDTO.Response create(ContestDTO.Request create) {
+    public ContestDTO.ContestResponse create(ContestDTO.ContestRequest create) {
         Contest room = new Contest();
         room.setTitle(create.title());
         room.setDescription(create.description());
         room.setStartTime(LocalDateTime.now());
-
+        room.setEndTime(LocalDateTime.now().plusHours(1));
         String generatedCode;
         do {
             generatedCode = generateUniqueRoomCode();
@@ -37,7 +42,7 @@ public class ContestServiceImpl implements ContestService {
 
         Contest saved = contestRepository.save(room);
 
-        return new ContestDTO.Response(
+        return new ContestDTO.ContestResponse(
                 saved.getId(),
                 saved.getCode(),
                 saved.getTitle(),
@@ -73,9 +78,9 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
-    public Optional<ContestDTO.Response> findById(Long id) {
+    public Optional<ContestDTO.ContestResponse> findById(Long id) {
         return contestRepository.findById(id)
-                .map(r -> new ContestDTO.Response(
+                .map(r -> new ContestDTO.ContestResponse(
                         r.getId(),
                         r.getCode(),
                         r.getTitle(),
@@ -86,7 +91,7 @@ public class ContestServiceImpl implements ContestService {
     }
 
     @Override
-    public Page<ContestDTO.Response> findAll(String keyword, Pageable pageable) {
+    public Page<ContestDTO.ContestResponse> findAll(String keyword, Pageable pageable) {
         Page<Contest> rooms;
         if (keyword == null || keyword.isBlank()) {
             rooms = contestRepository.findAll(pageable);
@@ -96,7 +101,7 @@ public class ContestServiceImpl implements ContestService {
             );
         }
 
-        return rooms.map(r -> new ContestDTO.Response(
+        return rooms.map(r -> new ContestDTO.ContestResponse(
                 r.getId(),
                 r.getCode(),
                 r.getTitle(),
@@ -123,5 +128,27 @@ public class ContestServiceImpl implements ContestService {
         return codeBuilder.toString();
     }
 
+    @Override
+    @Transactional
+    public void startContest(Long id) {
+        Contest contest = contestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contest not found"));
+
+        if (contest.getStatus() != Contest.Status.OPEN) {
+            throw new IllegalStateException("Contest is not in OPEN state");
+        }
+
+        contest.setStatus(Contest.Status.RUNNING);
+        contest.setStartTime(LocalDateTime.now());
+        contestRepository.save(contest);
+
+        // publish event
+        GameEventDTO.ContestLifecycleEvent ev = GameEventDTO.ContestLifecycleEvent.builder()
+                .eventType("contest.started")
+                .contestId(id)
+                .timestamp(Instant.now())
+                .build();
+        eventProducer.publishContestLifecycle(id,ev);
+    }
 
 }
