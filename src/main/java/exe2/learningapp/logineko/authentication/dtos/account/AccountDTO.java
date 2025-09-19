@@ -19,13 +19,9 @@ public class AccountDTO {
             @Email(message = "Email không hợp lệ")
             String email,
 
-            @NotBlank(message = "Họ không được để trống")
+            @NotBlank(message = "Họ và tên không được để trống")
             @Size(max = 50, message = "Không quá 50 ký tự")
-            String firstName,
-
-            @NotBlank(message = "Tên không được để trống")
-            @Size(max = 50, message = "Không quá 50 ký tự")
-            String lastName
+            String fullName
     ) {}
 
         public record AccountResponse(

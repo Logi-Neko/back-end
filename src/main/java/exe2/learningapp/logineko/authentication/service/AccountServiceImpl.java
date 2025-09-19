@@ -65,8 +65,8 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                     UserCreationParams.builder()
                             .username(request.username())
                             .email(request.email())
-                            .firstName(request.firstName())
-                            .lastName(request.lastName())
+                            .firstName("System")
+                            .lastName(request.fullName())
                             .enabled(true)
                             .emailVerified(false)
                             .credentials(List.of(Credentials.builder()
@@ -83,9 +83,9 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
             // Lưu account trong DB
             var account = Account.builder()
                     .email(request.email())
-                    .firstName(request.firstName())
+                    .firstName("System")
                     .userId(userId)
-                    .lastName(request.lastName())
+                    .lastName(request.fullName())
                     .username(request.username())
                     .password(request.password()) // TODO: hash password
                     .roles(Collections.singleton(Role.USER))
