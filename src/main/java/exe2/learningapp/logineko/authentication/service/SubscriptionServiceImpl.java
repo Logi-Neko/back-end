@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.payos.PayOS;
+import vn.payos.type.Webhook;
+import vn.payos.type.WebhookData;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -31,6 +34,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final AccountRepository accountRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final PayOS payOS;
 
     @Override
     public SubscriptionDto createSubscription(SubscriptionCreateDto subscriptionCreateDto) {
@@ -51,8 +55,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .startDate(subscriptionCreateDto.startDate())
                 .endDate(subscriptionCreateDto.endDate())
                 .price(subscriptionCreateDto.price())
-                .subscriptionStatus(subscriptionCreateDto.subscriptionStatus() != null
-                        ? subscriptionCreateDto.subscriptionStatus() : SubscriptionStatus.ACTIVE)
+                .subscriptionStatus(SubscriptionStatus.INACTIVE)
                 .build();
 
         subscription = subscriptionRepository.save(subscription);
@@ -204,6 +207,27 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         log.info("Getting subscription statistics for year: {}", year);
 
         return null;
+    }
+
+    @Override
+    @Transactional
+    public Boolean handleSuccessfulPayment(Webhook webhook) throws Exception {
+        WebhookData webhookData = payOS.verifyPaymentWebhookData(webhook);
+
+        if ("00".equals(webhookData.getCode()) || "success".equals(webhookData.getDesc())) {
+            Subscription subscription = subscriptionRepository.findById(webhookData.getOrderCode())
+                    .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
+            subscription.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
+            subscriptionRepository.save(subscription);
+
+            Account account = currentUserProvider.getCurrentUser();
+            account.setPremium(true);
+            accountRepository.save(account);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private SubscriptionDto mapToDto(Subscription subscription) {

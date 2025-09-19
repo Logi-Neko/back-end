@@ -42,6 +42,9 @@ public class Account implements UserDetails {
     @Column(name = "user_id")
     String userId;
 
+    @Column(name = "is_premium")
+    Boolean premium = false;
+
     @Column(name = "is_active")
     Boolean active = true;
 
