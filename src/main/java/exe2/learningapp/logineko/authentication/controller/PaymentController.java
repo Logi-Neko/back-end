@@ -1,6 +1,7 @@
 package exe2.learningapp.logineko.authentication.controller;
 
 import exe2.learningapp.logineko.authentication.service.PaymentService;
+import exe2.learningapp.logineko.common.dto.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,11 +17,12 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public String createPayment(
+    public ApiResponse<String> createPayment(
             @RequestParam long orderCode,
             @RequestParam int amount,
             @RequestParam String description
     ) throws Exception {
-        return paymentService.createPaymentLink(orderCode, amount, description);
+        String paymentLink = paymentService.createPaymentLink(orderCode, amount, description);
+        return ApiResponse.success(paymentLink);
     }
 }
