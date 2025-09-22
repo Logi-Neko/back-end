@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import vn.payos.type.Webhook;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -213,4 +214,9 @@ public class  SubscriptionController {
         return ApiResponse.success(isActive, "Kiểm tra trạng thái đăng ký thành công");
     }
 
+    @PostMapping("/webhook/success")
+    public ApiResponse<Boolean> handleWebhook(@RequestBody Webhook webhook) throws Exception {
+        boolean data = subscriptionService.handleSuccessfulPayment(webhook);
+        return ApiResponse.success(data);
+    }
 }
