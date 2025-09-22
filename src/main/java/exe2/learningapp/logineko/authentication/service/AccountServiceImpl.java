@@ -241,7 +241,6 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
         return new AccountDTO.AccountResponse(
                 account.getId(),
                 account.getEmail(),
-                account.getFirstName(),
                 account.getLastName(),
                 account.getUsername()
         );

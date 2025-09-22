@@ -53,7 +53,6 @@ public class ErrorNormalizer {
                 return new AppException(errorCodeMap.get(response.getError_description()));
             }
 
-
         } catch (JsonProcessingException ex) {
             log.error("không thể đọc lỗi",ex);
         }

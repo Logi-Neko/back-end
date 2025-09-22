@@ -28,8 +28,7 @@ public class AccountDTO {
             Long id,
             String username,
             String email,
-            String firstName,
-            String lastName
+            String fullName
         ) {}
     public record LoginRequest(
             @NotBlank(message = "Tên đăng nhập không được để trống")
