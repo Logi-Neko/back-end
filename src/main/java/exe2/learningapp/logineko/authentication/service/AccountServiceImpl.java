@@ -121,6 +121,12 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
     }
 
     @Override
+    public AccountDTO.AccountResponse getUserInfo() {
+        Account currentUser = currentUserProvider.getCurrentUser();
+        return mapToDTO(currentUser);
+    }
+
+    @Override
     public TokenExchangeResponse login(AccountDTO.LoginRequest loginRequest) {
         try {
             MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();

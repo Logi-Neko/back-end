@@ -189,10 +189,21 @@ public class AuthenticationController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Lấy tất cả user")
     public ResponseEntity<ApiResponse<?>> getAllUsers() {
-        Authentication authentication =  org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+//        Authentication authentication =  org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(ApiResponse.success(
                 accountService.getAllUsers(),
                 "Lấy danh sách user thành công"
+        ));
+    }
+
+    @GetMapping("/userinfo")
+//    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Lấy thông tin về user đang login")
+    public ResponseEntity<ApiResponse<?>> getUserInfo() {
+//        Authentication authentication =  org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        return ResponseEntity.ok(ApiResponse.success(
+                accountService.getUserInfo(),
+                "Lấy thông tin user thành công"
         ));
     }
 
