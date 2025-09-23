@@ -151,4 +151,9 @@ public class ContestServiceImpl implements ContestService {
         eventProducer.publishContestLifecycle(id,ev);
     }
 
+    @Override
+    public void endContest(Long id) {
+
+    }
+
 }
