@@ -19,21 +19,16 @@ public class AccountDTO {
             @Email(message = "Email không hợp lệ")
             String email,
 
-            @NotBlank(message = "Họ không được để trống")
+            @NotBlank(message = "Họ và tên không được để trống")
             @Size(max = 50, message = "Không quá 50 ký tự")
-            String firstName,
-
-            @NotBlank(message = "Tên không được để trống")
-            @Size(max = 50, message = "Không quá 50 ký tự")
-            String lastName
+            String fullName
     ) {}
 
         public record AccountResponse(
             Long id,
             String username,
             String email,
-            String firstName,
-            String lastName
+            String fullName
         ) {}
     public record LoginRequest(
             @NotBlank(message = "Tên đăng nhập không được để trống")

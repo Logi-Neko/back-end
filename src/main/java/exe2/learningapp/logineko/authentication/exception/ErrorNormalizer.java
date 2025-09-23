@@ -20,7 +20,18 @@ public class ErrorNormalizer {
     private final Map<String, ErrorCode> errorCodeMap = Map.of(
             "User exists with same username", ErrorCode.USER_EXISTED,
             "User exists with same email", ErrorCode.EMAIL_EXISTED,
-            "User name is missing", ErrorCode.USERNAME_IS_MISSING
+            "User name is missing", ErrorCode.USERNAME_IS_MISSING,
+            "unauthorized", ErrorCode.UNAUTHORIZED,
+            "Account disabled", ErrorCode.AUTH_ACCOUNT_LOCKED
+    );
+
+    private final Map<Integer, ErrorCode> statusCodeMap = Map.of(
+            401, ErrorCode.AUTH_INVALID_CREDENTIALS,
+            403, ErrorCode.ERR_FORBIDDEN,
+            404, ErrorCode.ERR_NOT_FOUND,
+            409, ErrorCode.ERR_EXISTS,
+            500, ErrorCode.ERR_SERVER_ERROR,
+            503, ErrorCode.ERR_SERVER_ERROR
     );
     public AppException handleKeycloakError(FeignException e) {
         try {
@@ -34,4 +45,19 @@ public class ErrorNormalizer {
         }
         return new AppException(ErrorCode.ERR_SERVER_ERROR);
     }
+
+    public AppException handleLoginKeycloakError(FeignException e) {
+        try {
+            var response= objectMapper.readValue(e.contentUTF8(),LoginKeycloakError.class);
+            if(Objects.nonNull(response.getError()) && Objects.nonNull(errorCodeMap.get(response.getError_description()))) {
+                return new AppException(errorCodeMap.get(response.getError_description()));
+            }
+
+        } catch (JsonProcessingException ex) {
+            log.error("không thể đọc lỗi",ex);
+        }
+        return new AppException(ErrorCode.ERR_SERVER_ERROR);
+    }
+
+
 }

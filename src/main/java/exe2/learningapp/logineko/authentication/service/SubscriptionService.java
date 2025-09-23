@@ -8,6 +8,7 @@ import exe2.learningapp.logineko.authentication.entity.enums.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import vn.payos.type.Webhook;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,4 +46,6 @@ public interface SubscriptionService {
 
     // Lấy thống kê đăng ký theo tháng
     List<Object[]> getSubscriptionStatsByMonth(int year);
+
+    Boolean handleSuccessfulPayment(Webhook webhook) throws Exception;
 }
