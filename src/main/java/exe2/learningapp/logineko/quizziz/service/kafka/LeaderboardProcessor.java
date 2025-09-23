@@ -26,10 +26,10 @@ public class LeaderboardProcessor {
         
         try {
             // Update leaderboard in database
-            leaderBoardService.updateLeaderboard(event.contestId(), event.participantId(), event.newScore());
+            leaderBoardService.updateScore(event.contestId(), event.participantId(), event.newScore());
             
             // Get updated leaderboard
-            List<LeaderBoardDTO.LeaderBoardResponse> leaderboard = leaderBoardService.getLeaderboardByContest(event.contestId());
+            List<LeaderBoardDTO.LeaderBoardResponse> leaderboard = leaderBoardService.finalizeLeaderboard(event.contestId());
             
             // Publish leaderboard update event
             LeaderBoardDTO.LeaderBoardUpdateEvent leaderboardEvent = new LeaderBoardDTO.LeaderBoardUpdateEvent(
@@ -45,17 +45,17 @@ public class LeaderboardProcessor {
             log.error("Error processing score update for leaderboard: {}", e.getMessage(), e);
         }
     }
-
-    @KafkaListener(topics = "contest.started", groupId = "leaderboard-processor", containerFactory = "kafkaListenerContainerFactory")
-    public void onContestStarted(GameEventDTO.ContestLifecycleEvent event) {
-        log.info("Initializing leaderboard for contest: {}", event.contestId());
-        
-        try {
-            // Initialize leaderboard for the contest
-            leaderBoardService.initializeLeaderboard(event.contestId());
-            
-        } catch (Exception e) {
-            log.error("Error initializing leaderboard for contest {}: {}", event.contestId(), e.getMessage(), e);
-        }
-    }
+//
+//    @KafkaListener(topics = "contest.started", groupId = "leaderboard-processor", containerFactory = "kafkaListenerContainerFactory")
+//    public void onContestStarted(GameEventDTO.ContestLifecycleEvent event) {
+//        log.info("Initializing leaderboard for contest: {}", event.contestId());
+//
+//        try {
+//            // Initialize leaderboard for the contest
+//            leaderBoardService.initializeLeaderboard(event.contestId());
+//
+//        } catch (Exception e) {
+//            log.error("Error initializing leaderboard for contest {}: {}", event.contestId(), e.getMessage(), e);
+//        }
+//    }
 }

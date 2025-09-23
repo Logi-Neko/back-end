@@ -12,6 +12,7 @@ import org.springframework.kafka.core.*;
 import org.springframework.kafka.config.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,8 +57,8 @@ import java.util.Map;
             f.setConsumerFactory(consumerFactory());
             f.setConcurrency(3); // Set concurrency for better performance
             f.getContainerProperties().setAckMode(org.springframework.kafka.listener.ContainerProperties.AckMode.BATCH);
-            f.setErrorHandler(new org.springframework.kafka.listener.DefaultErrorHandler(
-                    new org.springframework.kafka.listener.FixedBackOff(1000L, 3L)
+            f.setCommonErrorHandler(new org.springframework.kafka.listener.DefaultErrorHandler(
+                    new org.springframework.util.backoff.FixedBackOff(1000L, 3L)
             ));
             return f;
         }

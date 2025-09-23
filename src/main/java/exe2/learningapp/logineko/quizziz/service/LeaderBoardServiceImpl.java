@@ -38,12 +38,22 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
     }
     @Transactional
     @Override
-    public void finalizeLeaderboard(Long contestId) {
+    public List<LeaderBoardDTO.LeaderBoardResponse> finalizeLeaderboard(Long contestId) {
         List<LeaderBoard> boards = leaderboardRepository.findByContest_IdOrderByScoreDesc(contestId);
         for (int i = 0; i < boards.size(); i++) {
             boards.get(i).setFinalRank(i + 1);
         }
         leaderboardRepository.saveAll(boards);
+        return IntStream.range(0, boards.size())
+                .mapToObj(i -> {
+                    LeaderBoard lb = boards.get(i);
+                    return LeaderBoardDTO.LeaderBoardResponse.builder()
+                            .participantId(lb.getParticipant().getId())
+                            .score(lb.getScore())
+                            .rank(lb.getFinalRank())
+                            .build();
+                })
+                .toList();
     }
     @Override
     public List<LeaderBoardDTO.LeaderBoardResponse> getLeaderboard(Long contestId) {

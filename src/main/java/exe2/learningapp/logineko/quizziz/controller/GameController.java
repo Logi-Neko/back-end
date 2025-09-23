@@ -40,32 +40,43 @@ public class GameController {
     public ResponseEntity<String> revealQuestion(@PathVariable Long contestId, @PathVariable Long contestQuestionId) {
         log.info("Revealing question {} for contest {}", contestQuestionId, contestId);
         
-        // Get contest question details
-        var contestQuestion = contestQuestionService.findById(contestQuestionId)
-                .orElseThrow(() -> new RuntimeException("Contest question not found"));
-        
-        // Get question details
-        var question = questionService.findById(contestQuestion.questionId())
-                .orElseThrow(() -> new RuntimeException("Question not found"));
-        
-        // Create question revealed event
-        GameEventDTO.QuestionRevealedEvent ev = new GameEventDTO.QuestionRevealedEvent(
-                "question.revealed",
-                contestId,
-                contestQuestionId,
-                contestQuestion.index(),
-                question,
-                Instant.now()
-        );
-        
-        producer.publishQuestionRevealed(contestId, ev);
-        return ResponseEntity.ok("Question revealed successfully");
+        try {
+            // Get contest question details
+            var contestQuestion = contestQuestionService.findById(contestQuestionId)
+                    .orElseThrow(() -> new RuntimeException("Contest question not found"));
+            
+            // Get question details
+            var question = questionService.findById(contestQuestion.questionId());
+
+            // Create question revealed event
+            GameEventDTO.QuestionRevealedEvent ev = new GameEventDTO.QuestionRevealedEvent(
+                    "question.revealed",
+                    contestId,
+                    contestQuestionId,
+                    contestQuestion.index(),
+                    question,
+                    Instant.now()
+            );
+            
+            producer.publishQuestionRevealed(contestId, ev);
+            return ResponseEntity.ok("Question revealed successfully");
+        } catch (Exception e) {
+            log.error("Error revealing question: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("Error revealing question: " + e.getMessage());
+        }
     }
 
     @PostMapping("/{contestId}/submit")
-    public void submitAnswer(@PathVariable Long contestId, @RequestBody GameEventDTO.AnswerSubmittedEvent request) {
-        // request should contain submissionUuid for idempotency
-        producer.publishAnswerSubmitted(contestId, request);
+    public ResponseEntity<String> submitAnswer(@PathVariable Long contestId, @RequestBody GameEventDTO.AnswerSubmittedEvent request) {
+        try {
+            log.info("Submitting answer for contest {} by participant {}", contestId, request.participantId());
+            // request should contain submissionUuid for idempotency
+            producer.publishAnswerSubmitted(contestId, request);
+            return ResponseEntity.ok("Answer submitted successfully");
+        } catch (Exception e) {
+            log.error("Error submitting answer: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("Error submitting answer: " + e.getMessage());
+        }
     }
 
     // End contest
