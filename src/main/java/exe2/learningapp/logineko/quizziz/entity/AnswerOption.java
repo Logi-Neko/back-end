@@ -21,9 +21,7 @@ public class AnswerOption {
     @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="answer_id", nullable = false)
-    private Answer answer;
+
 //
 //    @Column(name = "option_label", nullable = false)
 //    private String optionLabel;
