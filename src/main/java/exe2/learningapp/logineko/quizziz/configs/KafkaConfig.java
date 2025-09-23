@@ -12,6 +12,7 @@ import org.springframework.kafka.core.*;
 import org.springframework.kafka.config.*;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,13 +45,21 @@ import java.util.Map;
             cfg.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
             cfg.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
             cfg.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-            return new DefaultKafkaConsumerFactory<>(cfg, new StringDeserializer(), new JsonDeserializer<>(Object.class, false));
+            cfg.put(JsonDeserializer.VALUE_DEFAULT_TYPE, Object.class);
+            cfg.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+            cfg.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
+            return new DefaultKafkaConsumerFactory<>(cfg);
         }
 
         @Bean
         public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
             ConcurrentKafkaListenerContainerFactory<String, Object> f = new ConcurrentKafkaListenerContainerFactory<>();
             f.setConsumerFactory(consumerFactory());
+            f.setConcurrency(3); // Set concurrency for better performance
+            f.getContainerProperties().setAckMode(org.springframework.kafka.listener.ContainerProperties.AckMode.BATCH);
+            f.setCommonErrorHandler(new org.springframework.kafka.listener.DefaultErrorHandler(
+                    new org.springframework.util.backoff.FixedBackOff(1000L, 3L)
+            ));
             return f;
         }
 

@@ -13,4 +13,5 @@ public interface ContestService {
  Optional<ContestDTO.ContestResponse> findById(Long id);
  Page<ContestDTO.ContestResponse> findAll(String keyword , Pageable pageable);
  void startContest(Long id);
+ void endContest(Long id);
 }

@@ -2,7 +2,9 @@ package exe2.learningapp.logineko.quizziz.service.kafka;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventsConsumer {
     private final ObjectMapper objectMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
@@ -36,4 +39,31 @@ public class EventsConsumer {
         }
     }
 
+    @KafkaListener(topics = "answer.submitted", groupId = "events-consumer", containerFactory = "kafkaListenerContainerFactory")
+    public void consumeAnswerSubmitted(GameEventDTO.AnswerSubmittedEvent event) {
+        log.info("Received answer submitted event: {}", event);
+        String destination = "/topic/contest." + event.contestId();
+        simpMessagingTemplate.convertAndSend(destination, event);
+    }
+
+    @KafkaListener(topics = "question.revealed", groupId = "events-consumer", containerFactory = "kafkaListenerContainerFactory")
+    public void consumeQuestionRevealed(GameEventDTO.QuestionRevealedEvent event) {
+        log.info("Received question revealed event: {}", event);
+        String destination = "/topic/contest." + event.contestId();
+        simpMessagingTemplate.convertAndSend(destination, event);
+    }
+
+    @KafkaListener(topics = "score.updated", groupId = "events-consumer", containerFactory = "kafkaListenerContainerFactory")
+    public void consumeScoreUpdated(GameEventDTO.ScoreUpdatedEvent event) {
+        log.info("Received score updated event: {}", event);
+        String destination = "/topic/contest." + event.contestId();
+        simpMessagingTemplate.convertAndSend(destination, event);
+    }
+
+    @KafkaListener(topics = "contest.lifecycle", groupId = "events-consumer", containerFactory = "kafkaListenerContainerFactory")
+    public void consumeContestLifecycle(GameEventDTO.ContestLifecycleEvent event) {
+        log.info("Received contest lifecycle event: {}", event);
+        String destination = "/topic/contest." + event.contestId();
+        simpMessagingTemplate.convertAndSend(destination, event);
+    }
 }
