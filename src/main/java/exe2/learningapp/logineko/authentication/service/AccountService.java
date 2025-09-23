@@ -14,4 +14,5 @@ public interface AccountService {
     TokenExchangeResponse refreshToken(String refreshToken);
     void logout(String refreshToken);
     void resetPassword(String oldPassword ,String newPassword);
+    TokenExchangeResponse loginGoogle(String idToken);
 }

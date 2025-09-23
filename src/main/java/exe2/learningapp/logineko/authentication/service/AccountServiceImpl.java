@@ -157,7 +157,7 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                     .search(username);
 
             if (users.isEmpty()) {
-                throw new AppException(ErrorCode.ERR_NOT_FOUND);
+                throw new AppException(ErrorCode.NOT_FOUND_USERNAME);
             }
             String userId = users.getFirst().getId();
             keycloak.realm(realm)
@@ -240,6 +240,28 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
             throw e;
         } catch (Exception e) {
             throw new AppException(ErrorCode.ERR_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public TokenExchangeResponse loginGoogle(String idToken) {
+        try {
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("grant_type", "urn:ietf:params:oauth:grant-type:token-exchange");
+            params.add("subject_token_type", "urn:ietf:params:oauth:token-type:id_token");
+            params.add("subject_token", idToken);
+            params.add("client_id", clientId);
+            params.add("client_secret", clientSecret);
+            params.add("scope", "openid profile email");
+            return identityClient.exchangeToken(params);
+        } catch (FeignException e) {
+            log.info("Failed to login with Google ID token: {}", e.getMessage());
+            if (e.status() == 401) {
+                throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS);
+            } else if (e.status() == 400) {
+                throw new AppException(ErrorCode.ERR_BAD_REQUEST);
+            }
+            throw errorNormalizer.handleKeycloakError(e);
         }
     }
 

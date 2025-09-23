@@ -143,8 +143,10 @@ public enum ErrorCode {
                     "Tuổi của bé từ 0 đến 18 tuổi"),
     ERR_INVALID_GENDER(HttpStatus.BAD_REQUEST.value(),
             "INVALID_GENDER",
-            "Giới tính không hợp lệ")
-
+            "Giới tính không hợp lệ"),
+    NOT_FOUND_USERNAME(HttpStatus.BAD_REQUEST.value(),
+            "NOT_FOUND_USERNAME",
+                    "Tài khoản không tồn tại")
     ;
 
 

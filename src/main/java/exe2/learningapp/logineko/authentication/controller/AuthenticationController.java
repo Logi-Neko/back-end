@@ -93,88 +93,13 @@ public class AuthenticationController {
 //        }
 //    }
 
-    @GetMapping("/login/google")
-    public ResponseEntity<?> loginWithGoogle(
-            @RequestParam(value = "device_id", required = false) String deviceId,
-            @RequestParam(value = "device_name", required = false) String deviceName) {
-
-        try {
-            log.info("Starting Google login flow with device_id: {}, device_name: {}", deviceId, deviceName);
-
-            // Generate state for CSRF protection
-            String state = UUID.randomUUID().toString();
-
-            // Build redirect URL với tất cả parameters cần thiết
-            StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append(keycloakUrlWeb)
-                    .append("/realms/").append(realm)
-                    .append("/protocol/openid-connect/auth")
-                    .append("?client_id=").append(URLEncoder.encode(clientId, StandardCharsets.UTF_8))
-                    .append("&redirect_uri=").append(URLEncoder.encode(redirectUriWeb, StandardCharsets.UTF_8))
-                    .append("&response_type=code")
-                    .append("&scope=").append(URLEncoder.encode("openid email profile", StandardCharsets.UTF_8))
-                    .append("&kc_idp_hint=google")
-                    .append("&state=").append(state);
-
-            // Thêm device info nếu có
-            if (deviceId != null && !deviceId.trim().isEmpty()) {
-                urlBuilder.append("&device_id=").append(URLEncoder.encode(deviceId, StandardCharsets.UTF_8));
-            }
-            if (deviceName != null && !deviceName.trim().isEmpty()) {
-                urlBuilder.append("&device_name=").append(URLEncoder.encode(deviceName, StandardCharsets.UTF_8));
-            }
-
-            String redirectUrl = urlBuilder.toString();
-            log.info("Generated redirect URL: {}", redirectUrl);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create(redirectUrl));
-
-            return new ResponseEntity<>(headers, HttpStatus.FOUND);
-
-        } catch (Exception e) {
-            log.error("Error generating login URL", e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "Failed to generate login URL: " + e.getMessage()));
-        }
-    }
-
-    @GetMapping("/login/google/url")
-    public ResponseEntity<ApiResponse<?>> getGoogleLoginUrl(
-            @RequestParam(value = "device_id", required = false) String deviceId,
-            @RequestParam(value = "device_name", required = false) String deviceName) {
-
-        try {
-            String state = UUID.randomUUID().toString();
-
-            StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.append(keycloakUrl)
-                    .append("/realms/").append(realm)
-                    .append("/protocol/openid-connect/auth")
-                    .append("?client_id=").append(URLEncoder.encode(clientId, StandardCharsets.UTF_8))
-                    .append("&redirect_uri=").append(URLEncoder.encode(redirectUri, StandardCharsets.UTF_8))
-                    .append("&response_type=code")
-                    .append("&scope=").append(URLEncoder.encode("openid email profile", StandardCharsets.UTF_8))
-                    .append("&kc_idp_hint=google")
-                    .append("&state=").append(state);
-
-            if (deviceId != null && !deviceId.trim().isEmpty()) {
-                urlBuilder.append("&device_id=").append(URLEncoder.encode(deviceId, StandardCharsets.UTF_8));
-            }
-            if (deviceName != null && !deviceName.trim().isEmpty()) {
-                urlBuilder.append("&device_name=").append(URLEncoder.encode(deviceName, StandardCharsets.UTF_8));
-            }
-
-            return ResponseEntity.ok(ApiResponse.success(
-                    Map.of("redirectUrl", urlBuilder.toString(), "state", state),
-                    "Login URL generated successfully"
-            ));
-
-        } catch (Exception e) {
-            log.error("Error generating login URL", e);
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "Failed to generate login URL: " + e.getMessage()));
-        }
+    @PostMapping("/login/google")
+    @Operation(summary = "Login với Google ID token")
+    public ResponseEntity<ApiResponse<?>> loginWithGoogle(@RequestParam("id_token") String idToken) {
+        return ResponseEntity.ok(ApiResponse.success(
+                accountService.loginGoogle(idToken),
+                "Đăng nhập Google thành công"
+        ));
     }
 
     @PostMapping("/register")
