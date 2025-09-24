@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,6 +45,9 @@ public class Account implements UserDetails {
 
     @Column(name = "is_premium")
     Boolean premium = false;
+
+    @Column(name = "premium_until")
+    LocalDate premiumUntil;
 
     @Column(name = "is_active")
     Boolean active = true;
