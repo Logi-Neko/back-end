@@ -21,6 +21,7 @@ import vn.payos.type.Webhook;
 import vn.payos.type.WebhookData;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -216,15 +217,19 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         if ("00".equals(webhookData.getCode()) || "success".equals(webhookData.getDesc())) {
             Subscription subscription = subscriptionRepository.findById(webhookData.getOrderCode())
-                    .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+                    .orElse(null);
+            if (subscription != null) {
+                subscription.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
+                subscriptionRepository.save(subscription);
 
-            subscription.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
-            subscriptionRepository.save(subscription);
-
-            Account account = currentUserProvider.getCurrentUser();
-            account.setPremium(true);
-            accountRepository.save(account);
-            return true;
+                Account account = currentUserProvider.getCurrentUser();
+                account.setPremium(true);
+                account.setPremiumUntil(subscription.getEndDate());
+                accountRepository.save(account);
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }

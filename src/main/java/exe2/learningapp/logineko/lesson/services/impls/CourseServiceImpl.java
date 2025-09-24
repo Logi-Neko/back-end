@@ -1,13 +1,17 @@
 package exe2.learningapp.logineko.lesson.services.impls;
 
+import exe2.learningapp.logineko.authentication.component.CurrentUserProvider;
+import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.lesson.dtos.requests.CourseRequest;
 import exe2.learningapp.logineko.lesson.dtos.responses.CourseDTO;
+import exe2.learningapp.logineko.lesson.dtos.responses.LessonDTO;
 import exe2.learningapp.logineko.lesson.entities.Course;
 import exe2.learningapp.logineko.lesson.repositories.CourseRepository;
 import exe2.learningapp.logineko.lesson.services.CourseService;
 import exe2.learningapp.logineko.lesson.services.FileService;
+import exe2.learningapp.logineko.lesson.services.LessonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +29,8 @@ import java.util.List;
 public class CourseServiceImpl implements CourseService {
     CourseRepository courseRepository;
     FileService fileService;
+    CurrentUserProvider currentUserProvider;
+    LessonService lessonService;
 
     @Override
     @Transactional
@@ -108,6 +114,15 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDTO convertToCourseDTO(Course course) {
+        Account account = currentUserProvider.getCurrentUser2();
+        long star = 0L;
+        if (account != null) {
+            List<LessonDTO> lessons = lessonService.findAll();
+            star = lessons.stream()
+                    .mapToLong(LessonDTO::getStar)
+                    .sum();
+        }
+
         return CourseDTO.builder()
                 .id(course.getId())
                 .name(course.getName())
@@ -118,6 +133,7 @@ public class CourseServiceImpl implements CourseService {
                 .isPremium(course.getIsPremium())
                 .isActive(course.getIsActive())
                 .price(course.getPrice())
+                .star(star)
                 .createdAt(course.getCreatedAt())
                 .updatedAt(course.getUpdatedAt())
                 .build();
