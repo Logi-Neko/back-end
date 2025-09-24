@@ -4,10 +4,14 @@
 
 import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
 import exe2.learningapp.logineko.quizziz.dto.QuestionDTO;
+import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
 import exe2.learningapp.logineko.quizziz.service.ContestQuestionService;
 import exe2.learningapp.logineko.quizziz.service.QuestionService;
 import exe2.learningapp.logineko.quizziz.service.kafka.EventProducer;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +24,46 @@ import java.util.List;
 @RequestMapping("/api/game")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Game Management", description = "API quản lý game và contest cho người chơi")
 public class GameController {
 
     private final EventProducer producer;
     private final ContestService contestService;
     private final ContestQuestionService contestQuestionService;
     private final QuestionService questionService;
+    
+    // Create contest for users to join as participants
+    @PostMapping("/create")
+    @Operation(
+            summary = "Tạo contest mới cho người chơi tham gia",
+            description = "Tạo một contest mới với tiêu đề và mô tả. Hệ thống sẽ tự động tạo mã code duy nhất và publish event contest.created."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tạo contest thành công"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Thông tin contest không hợp lệ"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Lỗi server khi tạo contest")
+    })
+    public ResponseEntity<ContestDTO.ContestResponse> createContest(@Valid @RequestBody ContestDTO.ContestRequest request) {
+        try {
+            log.info("Creating new contest with title: {}", request.title());
+            ContestDTO.ContestResponse contest = contestService.create(request);
+            
+            // Publish contest created event
+            GameEventDTO.ContestLifecycleEvent ev = new GameEventDTO.ContestLifecycleEvent(
+                    "contest.created", 
+                    contest.id(), 
+                    null, 
+                    Instant.now()
+            );
+            producer.publishContestLifecycle(contest.id(), ev);
+            
+            return ResponseEntity.ok(contest);
+        } catch (Exception e) {
+            log.error("Error creating contest: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+    
     // Host starts contest -> publish contest.started
     @PostMapping("/{contestId}/start")
     public ResponseEntity<String> startContest(@Valid  @PathVariable Long contestId) {
