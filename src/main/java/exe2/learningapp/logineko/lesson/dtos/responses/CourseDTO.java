@@ -20,6 +20,7 @@ public class CourseDTO {
     Boolean isPremium;
     Boolean isActive;
     Long price;
+    Long star;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }
