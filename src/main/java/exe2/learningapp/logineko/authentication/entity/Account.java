@@ -33,7 +33,7 @@ public class Account implements UserDetails {
     @Column(name = "last_name")
     String lastName;
 
-    @Column(name = "username" )
+    @Column(name = "username")
     String username;
 
     @Column(name = "password")
@@ -47,6 +47,10 @@ public class Account implements UserDetails {
 
     @Column(name = "is_active")
     Boolean active = true;
+
+    @Column(name = "total_star")
+    @Builder.Default
+    Long totalStar = 0L;
 
     // Roles and permissions
     @ElementCollection(fetch = FetchType.EAGER)
