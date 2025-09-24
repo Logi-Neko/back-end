@@ -2,6 +2,11 @@ spring:
   application:
     name: LogiNeko
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
   messages:
     basename: messages
     encoding: UTF-8
