@@ -53,14 +53,21 @@ public class VideoQuestionServiceImpl implements VideoQuestionService {
 
         AccountLessonProgress lessonProgress = accountLessonProgressRepository.findByLessonAndAccount(lesson, account);
 
+        long newStar = (long) (completePercentage * 5);
+
         if (lessonProgress == null) {
             lessonProgress = AccountLessonProgress.builder()
                     .account(account)
                     .lesson(lesson)
                     .star((long) (completePercentage * 5))
                     .build();
-
+            account.setTotalStar(account.getTotalStar() + newStar);
         } else {
+            long oldStar = lessonProgress.getStar();
+            if (newStar > oldStar) {
+                long diff = newStar - oldStar;
+                account.setTotalStar(account.getTotalStar() + diff);
+            }
             lessonProgress.setStar((long) (completePercentage * 5));
         }
         accountLessonProgressRepository.save(lessonProgress);
