@@ -65,6 +65,8 @@ payos:
   api-key: ${PAYOS_API_KEY}
   checksum-key: ${PAYOS_CHECKSUM_KEY}
   base-url: ${PAYOS_BASE_URL}
+  success-page: ${PAYOS_SUCCESS_PAGE}
+  failure-page: ${PAYOS_FAILURE_PAGE}
 
 
 
