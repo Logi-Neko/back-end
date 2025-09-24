@@ -48,7 +48,7 @@ services:
       KC_FEATURES: preview
 
     ports:
-      - "8080:8080"
+      - "8888:8080"
     restart: unless-stopped
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
