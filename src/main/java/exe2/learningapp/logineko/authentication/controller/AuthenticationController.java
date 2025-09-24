@@ -2,6 +2,7 @@ package exe2.learningapp.logineko.authentication.controller;
 
 import exe2.learningapp.logineko.authentication.dtos.account.AccountDTO;
 import exe2.learningapp.logineko.authentication.dtos.account.ForgotPasswordRequest;
+import exe2.learningapp.logineko.authentication.dtos.account.TokenExchangeResponse;
 import exe2.learningapp.logineko.authentication.service.AccountService;
 import exe2.learningapp.logineko.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -93,13 +94,68 @@ public class AuthenticationController {
 //        }
 //    }
 
+    @GetMapping("/login/google")
+    public ResponseEntity<?> loginWithGoogle(
+            @RequestParam(value = "device_id", required = false) String deviceId,
+            @RequestParam(value = "device_name", required = false) String deviceName) {
+
+        try {
+            log.info("Starting Google login flow with device_id: {}, device_name: {}", deviceId, deviceName);
+
+            // Generate state for CSRF protection
+            String state = UUID.randomUUID().toString();
+
+            // Build redirect URL với tất cả parameters cần thiết
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.append(keycloakUrlWeb)
+                    .append("/realms/").append(realm)
+                    .append("/protocol/openid-connect/auth")
+                    .append("?client_id=").append(URLEncoder.encode(clientId, StandardCharsets.UTF_8))
+                    .append("&redirect_uri=").append(URLEncoder.encode(redirectUriWeb, StandardCharsets.UTF_8))
+                    .append("&response_type=code")
+                    .append("&scope=").append(URLEncoder.encode("openid email profile", StandardCharsets.UTF_8))
+                    .append("&kc_idp_hint=google")
+                    .append("&state=").append(state);
+
+            // Thêm device info nếu có
+            if (deviceId != null && !deviceId.trim().isEmpty()) {
+                urlBuilder.append("&device_id=").append(URLEncoder.encode(deviceId, StandardCharsets.UTF_8));
+            }
+            if (deviceName != null && !deviceName.trim().isEmpty()) {
+                urlBuilder.append("&device_name=").append(URLEncoder.encode(deviceName, StandardCharsets.UTF_8));
+            }
+
+            String redirectUrl = urlBuilder.toString();
+            log.info("Generated redirect URL: {}", redirectUrl);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create(redirectUrl));
+
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
+
+        } catch (Exception e) {
+            log.error("Error generating Google login URL", e);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(400, "Failed to generate login URL: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/login/google")
     @Operation(summary = "Login với Google ID token")
-    public ResponseEntity<ApiResponse<?>> loginWithGoogle(@RequestParam("id_token") String idToken) {
-        return ResponseEntity.ok(ApiResponse.success(
-                accountService.loginGoogle(idToken),
-                "Đăng nhập Google thành công"
-        ));
+    public ResponseEntity<ApiResponse<?>> loginWithGoogleToken(@RequestParam("id_token") String idToken) {
+        try {
+            log.info("Received Google ID token for authentication");
+            TokenExchangeResponse response = accountService.loginGoogle(idToken);
+            log.info("response{}", response.accessToken());
+            return ResponseEntity.ok(ApiResponse.success(
+                    response,
+                    "Đăng nhập Google thành công"
+            ));
+        } catch (Exception e) {
+            log.error("Google login failed: {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(400, "Google login failed: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/register")

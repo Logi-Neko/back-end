@@ -21,9 +21,9 @@ services:
       retries: 5
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0
+    image: quay.io/keycloak/keycloak:26.2
     container_name: logineko_keycloak
-    command: start-dev --db=postgres --verbose
+    command: start-dev --db=postgres --verbose --features=token-exchange
     environment:
       # Admin account
       KEYCLOAK_ADMIN: admin
@@ -31,8 +31,8 @@ services:
 
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://ep-royal-sky-a1wya79r-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
-      KC_DB_USERNAME: ${POSTGRES_USER}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD_KEYCLOAK}
+      KC_DB_USERNAME: neondb_owner
+      KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
       # Hostname config
       KC_HOSTNAME: localhost
@@ -44,6 +44,8 @@ services:
       KC_DB_POOL_INITIAL_SIZE: 2
       KC_DB_POOL_MIN_SIZE: 1
       KC_DB_POOL_MAX_SIZE: 5
+
+      KC_FEATURES: preview
 
     ports:
       - "8080:8080"
