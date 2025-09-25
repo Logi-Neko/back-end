@@ -305,7 +305,8 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                 account.getLastName(),
                 account.getPremiumUntil(),
                 account.getPremium(),
-                account.getTotalStar()
+                account.getTotalStar(),
+                account.getDateOfBirth()
         );
     }
 
