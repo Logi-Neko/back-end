@@ -2,7 +2,10 @@ package exe2.learningapp.logineko.authentication.dtos.account;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
 
 public class AccountDTO {
 
@@ -22,13 +25,17 @@ public class AccountDTO {
             @NotBlank(message = "Họ và tên không được để trống")
             @Size(max = 50, message = "Không quá 50 ký tự")
             String fullName
+
     ) {}
 
         public record AccountResponse(
-            Long id,
-            String username,
-            String email,
-            String fullName
+                Long id,
+                String username,
+                String email,
+                String fullName,
+                LocalDate premiumUntil,
+                Boolean premium,
+                Long totalStar
         ) {}
     public record LoginRequest(
             @NotBlank(message = "Tên đăng nhập không được để trống")

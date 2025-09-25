@@ -37,8 +37,8 @@ public class Account implements UserDetails {
     @Column(name = "username")
     String username;
 
-    @Column(name = "password")
-    String password;
+    @Column(name = "date_of_birth")
+    LocalDate dateOfBirth;
 
     @Column(name = "user_id")
     String userId;

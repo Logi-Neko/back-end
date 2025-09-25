@@ -98,6 +98,8 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                     .userId(userId)
                     .lastName(request.fullName())
                     .username(request.username())
+                    .premium(false)
+                    .totalStar(0L)
 //                    .roles(Collections.singleton(Role.USER))
                     .active(true)
                     .build();
@@ -300,7 +302,10 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                 account.getId(),
                 account.getUsername(),
                 account.getEmail(),
-                account.getLastName()
+                account.getLastName(),
+                account.getPremiumUntil(),
+                account.getPremium(),
+                account.getTotalStar()
         );
     }
 
