@@ -28,7 +28,7 @@ public class AccountCharacterController {
 
     private final AccountCharacterService accountCharacterService;
 
-    @PostMapping
+    @PostMapping("/unlocked")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
             summary = "Tạo nhân vật cho tài khoản",
@@ -95,7 +95,7 @@ public class AccountCharacterController {
         return ApiResponse.success(favoriteCharacters, "Lấy danh sách nhân vật yêu thích thành công");
     }
 
-    @GetMapping("unlocked")
+    @GetMapping("/unlocked/all")
     @Operation(
             summary = "Lấy nhân vật đã mở khóa của tài khoản",
             description = "Lấy danh sách tất cả các nhân vật mà tài khoản đã mở khóa"

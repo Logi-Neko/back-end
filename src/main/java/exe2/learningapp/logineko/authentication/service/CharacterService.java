@@ -5,11 +5,13 @@ import exe2.learningapp.logineko.authentication.dtos.character.CharacterDto;
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterSearchRequest;
 import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import exe2.learningapp.logineko.common.dto.PaginatedResponse;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface CharacterService {
-    CharacterDto createCharacter(CharacterCreateDto characterCreateDto);
+    CharacterDto createCharacter(CharacterCreateDto characterCreateDto, MultipartFile thumbnail) throws IOException;
     void deleteCharacter(Long characterId);
     CharacterDto updateCharacter(Long id, CharacterCreateDto characterCreateDto);
     CharacterDto getCharacter(Long characterId);

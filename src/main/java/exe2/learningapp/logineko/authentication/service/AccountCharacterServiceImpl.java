@@ -62,7 +62,12 @@ public class AccountCharacterServiceImpl implements AccountCharacterService {
         if (existing.isPresent()) {
             throw new AppException(ErrorCode.ERR_EXISTS);
         }
-
+        if(character.isPremium() && !currentUser.getPremium()){
+            throw new AppException(ErrorCode.ERR_PREMIUM_CHARACTER);
+        }
+        if(currentUser.getTotalStar() < character.getStarRequired()){
+            throw new AppException(ErrorCode.ERR_INSUFFICIENT_STARS);
+        }
         AccountCharacter accountCharacter = AccountCharacter.builder()
                 .account(currentUser)
                 .character(character)

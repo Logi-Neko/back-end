@@ -1,5 +1,7 @@
 package exe2.learningapp.logineko.lesson.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import exe2.learningapp.logineko.common.dto.ApiResponse;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonFilterRequest;
 import exe2.learningapp.logineko.lesson.dtos.requests.LessonRequest;

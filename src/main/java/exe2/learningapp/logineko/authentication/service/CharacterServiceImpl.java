@@ -11,16 +11,20 @@ import exe2.learningapp.logineko.authentication.repository.specification.Charact
 import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
+import exe2.learningapp.logineko.lesson.services.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -31,17 +35,20 @@ public class CharacterServiceImpl implements CharacterService {
 
     private final CharacterRepository characterRepository;
     private final CharacterMapper characterMapper;
+    private final FileService fileService;
 
     @Override
-    public CharacterDto createCharacter(CharacterCreateDto characterCreateDto) {
+    public CharacterDto createCharacter(CharacterCreateDto characterCreateDto, MultipartFile thumbnail) throws IOException {
         log.info("Creating character with name: {}", characterCreateDto.name());
-
         // Check if character name already exists
         if (characterRepository.existsByName(characterCreateDto.name())) {
             throw new AppException(ErrorCode.ERR_EXISTS);
         }
 
         Character character = characterMapper.toEntity(characterCreateDto);
+        Pair<String,String> fileData = fileService.uploadFile(thumbnail, "/character" );
+        character.setImageUrl(fileData.getFirst());
+
         Character saved = characterRepository.save(character);
 
         log.info("Created character with ID: {} and name: {}", saved.getId(), saved.getName());
@@ -64,7 +71,7 @@ public class CharacterServiceImpl implements CharacterService {
         // Update character fields
         character.setName(characterCreateDto.name());
         character.setDescription(characterCreateDto.description());
-        character.setImageUrl(characterCreateDto.imageUrl());
+//        character.setImageUrl(characterCreateDto.imageUrl());
         character.setRarity(characterCreateDto.rarity());
         character.setPremium(characterCreateDto.isPremium());
         character.setStarRequired(characterCreateDto.starRequired());

@@ -15,10 +15,10 @@ public record CharacterCreateDto(
         @NotNull(message = "Độ hiếm của nhân vật phải được chỉ định")
         CharacterRarity rarity,
 
-        @NotBlank(message = "URL hình ảnh không được để trống")
-        @Pattern(regexp = "^(http|https)://.*\\.(jpg|jpeg|png|gif|webp)$",
-                message = "URL hình ảnh phải là đường dẫn HTTP/HTTPS hợp lệ và kết thúc bằng định dạng ảnh")
-        String imageUrl,
+//        @NotBlank(message = "URL hình ảnh không được để trống")
+//        @Pattern(regexp = "^(http|https)://.*\\.(jpg|jpeg|png|gif|webp)$",
+//                message = "URL hình ảnh phải là đường dẫn HTTP/HTTPS hợp lệ và kết thúc bằng định dạng ảnh")
+//        String imageUrl,
 
         @Min(value = 0, message = "Số sao yêu cầu phải từ 0 trở lên")
         @Max(value = 1000, message = "Số sao yêu cầu không được vượt quá 1000")

@@ -146,7 +146,13 @@ public enum ErrorCode {
             "Giới tính không hợp lệ"),
     NOT_FOUND_USERNAME(HttpStatus.BAD_REQUEST.value(),
             "NOT_FOUND_USERNAME",
-                    "Tài khoản không tồn tại")
+                    "Tài khoản không tồn tại"),
+    ERR_PREMIUM_CHARACTER(HttpStatus.BAD_REQUEST.value(),
+            "ERR_PREMIUM_CHARACTER",
+            "Nhân vật cao cấp chỉ dành cho tài khoản Premium"),
+    ERR_INSUFFICIENT_STARS(HttpStatus.BAD_REQUEST.value(),
+            "ERR_INSUFFICIENT_STARS",
+            "Số sao không đủ để mở khóa nhân vật")
     ;
 
 

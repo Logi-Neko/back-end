@@ -37,7 +37,7 @@ public class CharacterMapper {
         return Character.builder()
                 .name(dto.name())
                 .description(dto.description())
-                .imageUrl(dto.imageUrl())
+//                .imageUrl(dto.imageUrl())
                 .starRequired(dto.starRequired())
                 .rarity(dto.rarity())
                 .isPremium(dto.isPremium())
