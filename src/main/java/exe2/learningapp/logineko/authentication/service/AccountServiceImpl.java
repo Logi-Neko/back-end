@@ -39,6 +39,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -790,8 +791,8 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
             if (existingAccount.isEmpty()) {
                 Account account = Account.builder()
                         .email(email)
-                        .firstName(firstName != null ? firstName : "")
-                        .lastName(lastName != null ? lastName : "")
+                        .firstName("Google")
+                        .lastName(firstName+" "+lastName)
                         .username(email)
                         .userId(userId)
                         .roles(Collections.singleton(Role.USER))
@@ -812,6 +813,45 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
         } catch (Exception e) {
             log.error("❌ Error saving user to database: {}", e.getMessage());
             // Don't throw exception here as Keycloak user is already created
+        }
+    }
+
+    @Override
+    public AccountDTO.AccountResponse updateAge(AccountDTO.UpdateAgeRequest request) {
+        try {
+            // Lấy current user từ security context
+            Account currentUser = currentUserProvider.getCurrentUser();
+            log.info("🔄 Updating date of birth for user: {}", currentUser.getEmail());
+
+            // Validate date of birth (không được trong tương lai)
+            if (request.dateOfBirth().isAfter(LocalDate.now())) {
+                throw new AppException(ErrorCode.ERR_BAD_REQUEST);
+            }
+
+            // Cập nhật ngày sinh
+            currentUser.setDateOfBirth(request.dateOfBirth());
+            Account savedAccount = accountRepository.saveAndFlush(currentUser);
+
+            log.info("✅ Successfully updated date of birth for user: {}", currentUser.getEmail());
+
+            // Trả về AccountResponse
+            return new AccountDTO.AccountResponse(
+                    savedAccount.getId(),
+                    savedAccount.getUsername(),
+                    savedAccount.getEmail(),
+                    (savedAccount.getFirstName() != null ? savedAccount.getFirstName() : "") +
+                    " " + (savedAccount.getLastName() != null ? savedAccount.getLastName() : ""),
+                    savedAccount.getPremiumUntil(),
+                    savedAccount.getPremium(),
+                    savedAccount.getTotalStar(),
+                    savedAccount.getDateOfBirth()
+            );
+
+        } catch (AppException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("❌ Error updating date of birth: {}", e.getMessage());
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
         }
     }
 }

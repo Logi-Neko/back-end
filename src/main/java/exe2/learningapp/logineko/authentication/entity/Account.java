@@ -56,6 +56,9 @@ public class Account implements UserDetails {
     @Builder.Default
     Long totalStar = 0L;
 
+    @Column(name = "avatar_url")
+    String avatarUrl;
+
     // Roles and permissions
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)

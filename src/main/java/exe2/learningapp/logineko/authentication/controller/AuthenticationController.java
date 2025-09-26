@@ -152,9 +152,9 @@ public class AuthenticationController {
                     "Đăng nhập Google thành công"
             ));
         } catch (Exception e) {
-            log.error("Google login failed: {}", e.getMessage());
+            log.error("Error during Google login", e);
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error(400, "Google login failed: " + e.getMessage()));
+                    .body(ApiResponse.error(400, "Đăng nhập Google thất bại: " + e.getMessage()));
         }
     }
 
@@ -229,4 +229,16 @@ public class AuthenticationController {
         return ResponseEntity.ok(ApiResponse.success("Đặt lại mật khẩu thành công"));
     }
 
+    @PutMapping("/user/update-age")
+//    @PreAuthorize("hasRole('')")
+    @Operation(summary = "Cập nhật tuổi của user hiện tại")
+    public ResponseEntity<ApiResponse<AccountDTO.AccountResponse>> updateUserAge(
+            @Valid @RequestBody AccountDTO.UpdateAgeRequest request) {
+            log.info("Updating user age with date of birth: {}", request.dateOfBirth());
+            AccountDTO.AccountResponse response = accountService.updateAge(request);
+            return ResponseEntity.ok(ApiResponse.success(
+                    response,
+                    "Cập nhật ngày sinh thành công"
+            ));
+    }
 }
