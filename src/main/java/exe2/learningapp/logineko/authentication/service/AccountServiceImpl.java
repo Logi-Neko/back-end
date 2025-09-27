@@ -307,7 +307,8 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                 account.getPremiumUntil(),
                 account.getPremium(),
                 account.getTotalStar(),
-                account.getDateOfBirth()
+                account.getDateOfBirth(),
+                account.getAvatarUrl()
         );
     }
 
@@ -844,13 +845,31 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                     savedAccount.getPremiumUntil(),
                     savedAccount.getPremium(),
                     savedAccount.getTotalStar(),
-                    savedAccount.getDateOfBirth()
+                    savedAccount.getDateOfBirth(),
+                    savedAccount.getAvatarUrl()
             );
 
         } catch (AppException e) {
             throw e;
         } catch (Exception e) {
             log.error("❌ Error updating date of birth: {}", e.getMessage());
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public void changeAvatar(String avatarUrl) {
+        try {
+            Account currentUser = currentUserProvider.getCurrentUser();
+            log.info("🔄 Changing avatar for user: {}", currentUser.getEmail());
+
+            // Cập nhật avatar URL
+            currentUser.setAvatarUrl(avatarUrl);
+            accountRepository.saveAndFlush(currentUser);
+
+            log.info("✅ Successfully changed avatar for user: {}", currentUser.getEmail());
+        } catch (Exception e) {
+            log.error("❌ Error changing avatar: {}", e.getMessage());
             throw new AppException(ErrorCode.ERR_SERVER_ERROR);
         }
     }

@@ -16,4 +16,5 @@ public interface AccountService {
     void resetPassword(String oldPassword ,String newPassword);
     TokenExchangeResponse loginGoogle(String accessToken);
     AccountDTO.AccountResponse updateAge(AccountDTO.UpdateAgeRequest request);
+    void changeAvatar(String avatarUrl);
 }

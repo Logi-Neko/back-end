@@ -27,4 +27,6 @@ public interface AccountCharacterService {
     AccountCharacterDto setFavoriteCharacter( Long id, boolean isFavorite);
 
     PaginatedResponse<AccountCharacterDto> searchAccountCharacters(AccountCharacterSearchRequest searchTerm );
+
+    void chooseCharacter(Long accountCharacterId);
 }

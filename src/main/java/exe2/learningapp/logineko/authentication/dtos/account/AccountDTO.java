@@ -38,7 +38,8 @@ public class AccountDTO {
             LocalDate premiumUntil,
             Boolean premium,
             Long totalStar,
-            LocalDate dateOfBirth
+            LocalDate dateOfBirth,
+            String avatarUrl
     ) {}
     public record LoginRequest(
             @NotBlank(message = "Tên đăng nhập không được để trống")

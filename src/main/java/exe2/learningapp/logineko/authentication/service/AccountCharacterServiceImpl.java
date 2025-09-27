@@ -191,4 +191,26 @@ public class AccountCharacterServiceImpl implements AccountCharacterService {
 
         return new PaginatedResponse<>(responsePage);
     }
+
+    @Override
+    public void chooseCharacter(Long accountCharacterId) {
+        try {
+            Account currentUser = currentUserProvider.getCurrentUser();
+            Long accountId = currentUser.getId();
+
+            AccountCharacter accountCharacter = accountCharacterRepository
+                    .findById(accountCharacterId)
+                    .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+
+            if (!accountCharacter.getAccount().getId().equals(accountId)) {
+                throw new AppException(ErrorCode.ERR_FORBIDDEN);
+            }
+
+            currentUser.setAvatarUrl(accountCharacter.getCharacter().getImageUrl());
+            accountRepository.save(currentUser);
+        } catch (Exception e) {
+            log.error("Error choosing character: {}", e.getMessage());
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
+        }
+    }
 }

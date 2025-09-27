@@ -87,7 +87,7 @@ public class AccountCharacterController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách nhân vật yêu thích thành công"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy tài khoản")
     })
-    public ApiResponse<List<AccountCharacterDto>> getFavoriteCharactersByAccountId(
+    public ApiResponse<List<AccountCharacterDto>> getFavoriteCharacters(
             ) {
 
         List<AccountCharacterDto> favoriteCharacters = accountCharacterService.getFavoriteCharactersByAccountId();
@@ -108,7 +108,7 @@ public class AccountCharacterController {
         return ApiResponse.success(unlockedCharacters, "Lấy danh sách nhân vật đã mở khóa thành công");
     }
 
-    @PatchMapping("/character/{id}/favorite")
+    @PutMapping("/character/{id}/favorite")
     @Operation(
             summary = "Đặt trạng thái yêu thích cho nhân vật",
             description = "Đặt hoặc bỏ trạng thái yêu thích cho một nhân vật cụ thể"
@@ -157,6 +157,25 @@ public class AccountCharacterController {
         PaginatedResponse<AccountCharacterDto> result = accountCharacterService.searchAccountCharacters(request);
 
         return ApiResponse.success(result, "Tìm kiếm nhân vật thành công");
+    }
+
+    @PostMapping("/{accountCharacterId}/choose")
+    @Operation(
+            summary = "Chọn nhân vật làm avatar",
+            description = "Chọn một nhân vật đã mở khóa làm avatar cho tài khoản người dùng"
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Chọn nhân vật thành công"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy nhân vật"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Không có quyền truy cập nhân vật này"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Lỗi máy chủ")
+    })
+    public ApiResponse<Void> chooseCharacter(
+            @Parameter(description = "ID của nhân vật tài khoản") @PathVariable Long accountCharacterId) {
+        log.info("User choosing character with account character ID: {}", accountCharacterId);
+
+        accountCharacterService.chooseCharacter(accountCharacterId);
+        return ApiResponse.success(null, "Chọn nhân vật thành công");
     }
 
     @DeleteMapping("/{id}")
