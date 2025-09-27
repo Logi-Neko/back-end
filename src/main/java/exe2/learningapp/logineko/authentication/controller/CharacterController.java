@@ -183,6 +183,22 @@ public class CharacterController {
         return ApiResponse.success(character, "Vô hiệu hóa nhân vật thành công");
     }
 
+    @GetMapping("/locked")
+    @Operation(
+            summary = "Lấy nhân vật chưa mở khóa của user hiện tại",
+            description = "Lấy danh sách tất cả các nhân vật mà user hiện tại chưa mở khóa"
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lấy danh sách nhân vật chưa mở khóa thành công"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Chưa đăng nhập")
+    })
+    public ApiResponse<List<CharacterDto>> getLockedCharactersForCurrentUser() {
+        log.info("Getting locked characters for current user");
+        
+        List<CharacterDto> lockedCharacters = characterService.getLockedCharactersForCurrentUser();
+        return ApiResponse.success(lockedCharacters, "Lấy danh sách nhân vật chưa mở khóa thành công");
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(

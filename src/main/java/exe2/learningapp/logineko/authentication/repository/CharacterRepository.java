@@ -4,6 +4,8 @@ import exe2.learningapp.logineko.authentication.entity.Character;
 import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +19,8 @@ public interface CharacterRepository extends JpaRepository<Character, Long>, Jpa
 
     List<Character> findByNameContainingIgnoreCase(String keyword);
 
+    @Query("SELECT c FROM Character c WHERE c.id NOT IN " +
+           "(SELECT ac.character.id FROM AccountCharacter ac WHERE ac.account.id = :accountId) " +
+           "AND c.isActive = true")
+    List<Character> findLockedCharactersByAccountId(@Param("accountId") Long accountId);
 }

@@ -19,4 +19,5 @@ public interface CharacterService {
     CharacterDto deactivateCharacter(Long characterId);
     List<CharacterDto> getCharactersByRarity(CharacterRarity rarity);
     PaginatedResponse<CharacterDto> searchCharacters(CharacterSearchRequest request);
+    List<CharacterDto> getLockedCharactersForCurrentUser();
 }

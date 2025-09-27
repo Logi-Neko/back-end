@@ -1,8 +1,10 @@
 package exe2.learningapp.logineko.authentication.service;
 
+import exe2.learningapp.logineko.authentication.component.CurrentUserProvider;
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterCreateDto;
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterDto;
 import exe2.learningapp.logineko.authentication.dtos.character.CharacterSearchRequest;
+import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.entity.Character;
 import exe2.learningapp.logineko.authentication.entity.enums.CharacterRarity;
 import exe2.learningapp.logineko.authentication.repository.CharacterRepository;
@@ -36,6 +38,7 @@ public class CharacterServiceImpl implements CharacterService {
     private final CharacterRepository characterRepository;
     private final CharacterMapper characterMapper;
     private final FileService fileService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Override
     public CharacterDto createCharacter(CharacterCreateDto characterCreateDto, MultipartFile thumbnail) throws IOException {
@@ -168,5 +171,19 @@ public class CharacterServiceImpl implements CharacterService {
 
         characterRepository.deleteById(characterId);
         log.info("Deleted character with ID: {}", characterId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CharacterDto> getLockedCharactersForCurrentUser() {
+        log.info("Getting locked (not unlocked) characters for current user");
+
+        Account currentUser = currentUserProvider.getCurrentUser();
+        Long accountId = currentUser.getId();
+
+        List<Character> lockedCharacters = characterRepository.findLockedCharactersByAccountId(accountId);
+        return lockedCharacters.stream()
+                .map(characterMapper::toDto)
+                .toList();
     }
 }

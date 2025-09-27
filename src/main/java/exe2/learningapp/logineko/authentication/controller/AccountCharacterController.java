@@ -58,7 +58,6 @@ public class AccountCharacterController {
     public ApiResponse<AccountCharacterDto> getAccountCharacterById(
             @Parameter(description = "ID của nhân vật tài khoản") @PathVariable Long id) {
         log.info("Getting account character by ID: {}", id);
-
         AccountCharacterDto accountCharacter = accountCharacterService.getAccountCharacterById(id);
         return ApiResponse.success(accountCharacter, "Lấy thông tin nhân vật thành công");
     }
