@@ -19,26 +19,6 @@ public class AnswerOptionServiceImpl implements AnswerOptionService {
     private final AnswerOptionRepository answerOptionRepository;
     private final QuestionRepository questionRepository;
 
-    @Override
-    public AnswerOptionDTO.AnswerOptionResponse create(AnswerOptionDTO.AnswerOptionRequest request) {
-        Question question = questionRepository.findById(request.questionId())
-                .orElseThrow(() -> new RuntimeException("Question not found"));
-
-        AnswerOption option = AnswerOption.builder()
-                .question(question)
-                .optionText(request.optionText())
-                .isCorrect(request.isCorrect())
-                .build();
-
-        AnswerOption saved = answerOptionRepository.save(option);
-
-        return AnswerOptionDTO.AnswerOptionResponse.builder()
-                .id(saved.getId())
-                .optionText(saved.getOptionText())
-                .isCorrect(saved.getIsCorrect())
-                .questionId(saved.getQuestion().getId())
-                .build();
-    }
 
     @Override
     public AnswerOptionDTO.AnswerOptionResponse update(Long id, AnswerOptionDTO.AnswerOptionRequest request) {
