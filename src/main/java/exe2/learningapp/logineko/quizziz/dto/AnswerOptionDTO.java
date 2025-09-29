@@ -9,8 +9,8 @@ public class AnswerOptionDTO {
 
     @Builder
     public record AnswerOptionRequest(
-            @NotNull(message = "Question ID must not be null")
-            Long questionId,
+//            @NotNull(message = "Question ID must not be null")
+//            Long questionId,
             @NotBlank(message = "Option text must not be blank")
             String optionText,
             @NotNull(message = "isCorrect must not be null")

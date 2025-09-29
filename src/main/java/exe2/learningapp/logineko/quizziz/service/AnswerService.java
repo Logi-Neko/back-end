@@ -23,4 +23,5 @@ public interface AnswerService {
             int score,
             int answerTime
     );
+    void saveAnswer(AnswerDTO.AnswerResponse answerResponse);
 }
