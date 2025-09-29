@@ -20,6 +20,5 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
     @Query("SELECT f FROM FriendShip f WHERE (f.fromAccount = :account OR f.toAccount = :account) AND f.status = 'ACCEPTED'")
     List<FriendShip> findAcceptedFriendshipsByAccount(@Param("account") Account account);
 
-    // Get pending friend requests sent to an account
     List<FriendShip> findByToAccountAndStatus(Account toAccount, FriendShip.StatusFriendShip status);
 }
