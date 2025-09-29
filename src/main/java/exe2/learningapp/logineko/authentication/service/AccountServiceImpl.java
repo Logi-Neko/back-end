@@ -101,7 +101,7 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                     .username(request.username())
                     .premium(false)
                     .totalStar(0L)
-//                    .roles(Collections.singleton(Role.USER))
+                    .roles(Collections.singleton(Role.USER))
                     .active(true)
                     .build();
 
@@ -870,6 +870,43 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
             log.info("✅ Successfully changed avatar for user: {}", currentUser.getEmail());
         } catch (Exception e) {
             log.error("❌ Error changing avatar: {}", e.getMessage());
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<AccountDTO.AccountShowResponse> showAllUsers() {
+        try {
+            List<Account> accounts = accountRepository.findAll();
+            return accounts.stream()
+                    .map(account -> AccountDTO.AccountShowResponse.builder()
+                            .id(account.getId())
+                            .fullName(account.getLastName())
+                            .avatarUrl(account.getAvatarUrl())
+                            .totalStar(account.getTotalStar())
+                            .build())
+                    .toList();
+        } catch (Exception e) {
+            log.error("Error getting all users: {}", e.getMessage());
+            throw new AppException(ErrorCode.ERR_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<AccountDTO.AccountShowResponse> getAllUsersWithUserRole() {
+        try {
+            List<Account> usersWithUserRole = accountRepository.findByRolesContaining(Role.USER);
+            return usersWithUserRole.stream()
+                    .map(account -> AccountDTO.AccountShowResponse.builder()
+                            .id(account.getId())
+                            .fullName(account.getLastName())
+                            .avatarUrl(account.getAvatarUrl())
+                            .premium(account.getPremium())
+                            .totalStar(account.getTotalStar())
+                            .build())
+                    .toList();
+        } catch (Exception e) {
+            log.error("Error getting users with USER role: {}", e.getMessage());
             throw new AppException(ErrorCode.ERR_SERVER_ERROR);
         }
     }

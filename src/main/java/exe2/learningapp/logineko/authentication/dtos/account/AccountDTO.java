@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
+import lombok.Builder;
 
 import java.time.LocalDate;
 
@@ -39,6 +40,14 @@ public class AccountDTO {
             Boolean premium,
             Long totalStar,
             LocalDate dateOfBirth,
+            String avatarUrl
+    ) {}
+    @Builder
+    public record AccountShowResponse(
+            Long id,
+            String fullName,
+            Boolean premium,
+            Long totalStar,
             String avatarUrl
     ) {}
     public record LoginRequest(
