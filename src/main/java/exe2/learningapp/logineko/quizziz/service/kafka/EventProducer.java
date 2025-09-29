@@ -7,10 +7,12 @@ import exe2.learningapp.logineko.quizziz.entity.Contest;
 import exe2.learningapp.logineko.quizziz.entity.Participant;
 import exe2.learningapp.logineko.quizziz.repository.ContestRepository;
 import exe2.learningapp.logineko.quizziz.repository.ParticipantRepository;
+import exe2.learningapp.logineko.quizziz.service.ParticipantService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,11 +20,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Component
 public class EventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final AccountRepository accountRepository;
-    private final ContestRepository contestRepository;
-    private final ParticipantRepository participantRepository;
+    private final ParticipantService participantService;
 
     private CompletableFuture<SendResult<String, Object>> sendEvent(Long contestId, Object event) {
         log.info("Publishing event {} for contest {}", event.getClass().getSimpleName(), contestId);
@@ -140,22 +141,14 @@ public class EventProducer {
     }
 
     public CompletableFuture<SendResult<String, Object>> publishParticipantCreated(Long contestId, Long accountId) {
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Account not found: " + accountId));
-        Contest contest = contestRepository.findById(contestId)
-                .orElseThrow(() -> new IllegalArgumentException("Contest not found: " + contestId));
-        // 2. Tạo participant
-        Participant participant = new Participant();
-        participant.setContest(contest);
-        participant.setAccount(account);
-        participant = participantRepository.save(participant);
 
-        // 3. Publish event
+            Participant participant = participantService.createParticipant(contestId,accountId);
+
         GameEventDTO.ParticipantCreatedEvent event = GameEventDTO.ParticipantCreatedEvent.builder()
                 .eventType("participant.created")
                 .contestId(contestId)
                 .participantId(participant.getId())
-                .name(account.getFirstName()) // hoặc account.getUsername()
+                .name(participant.getAccount().getFirstName()) // hoặc account.getUsername()
                 .timestamp(java.time.Instant.now())
                 .build();
 

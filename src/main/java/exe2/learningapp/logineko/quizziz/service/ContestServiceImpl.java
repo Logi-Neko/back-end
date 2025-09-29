@@ -25,12 +25,13 @@ public class ContestServiceImpl implements ContestService {
     private final EventProducer eventProducer;
 
 
+
     @Override
     public ContestDTO.ContestResponse create(ContestDTO.ContestRequest create) {
         Contest room = new Contest();
         room.setTitle(create.title());
         room.setDescription(create.description());
-        room.setStartTime(LocalDateTime.now());
+        room.setStartTime(create.startTime() != null ? create.startTime() : LocalDateTime.now() );
         room.setEndTime(LocalDateTime.now().plusHours(1));
         String generatedCode;
         do {

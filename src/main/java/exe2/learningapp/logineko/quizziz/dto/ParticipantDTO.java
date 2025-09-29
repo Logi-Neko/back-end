@@ -19,4 +19,12 @@ public class ParticipantDTO {
             Integer score,
             LocalDateTime joinAt
     ){}
+
+    @Builder
+    public record Participant(
+             Long id,
+             String accountName,
+             int score,
+             LocalDateTime joinAt    ){}
+
 }

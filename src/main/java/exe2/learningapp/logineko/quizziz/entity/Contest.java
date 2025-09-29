@@ -1,5 +1,6 @@
 package exe2.learningapp.logineko.quizziz.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import exe2.learningapp.logineko.authentication.entity.Account;
 import jakarta.persistence.*;
 import lombok.*;

@@ -16,8 +16,9 @@ public class ContestDTO {
             String title,
             @NotBlank(message = "Description cannot be empty")
             @Size(min = 2, max = 100, message = "description must be between 2 and 100 characters")
-            String description
-    )
+            String description,
+            LocalDateTime startTime
+     )
     { }
     @Builder
     public record ContestResponse(

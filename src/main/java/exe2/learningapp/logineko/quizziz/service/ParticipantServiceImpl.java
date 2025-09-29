@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -69,4 +70,18 @@ public class ParticipantServiceImpl implements ParticipantService{
         return participantRepository.findById(id);
     }
 
+    @Override
+    public List<ParticipantDTO.Participant> getParticipantsByContestId(Long contestId) {
+        if(!contestRepository.existsById(contestId)) {
+            throw new RuntimeException("Contest not found: " + contestId);
+        }
+
+        return participantRepository.findByContest_Id(contestId).stream()
+                .map(p -> new ParticipantDTO.Participant(
+                        p.getId(),
+                        p.getAccount().getFirstName(),
+                        p.getScore(),
+                        p.getJoinAt()
+                ))
+                .toList();}
 }
