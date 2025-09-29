@@ -12,4 +12,5 @@ public interface QuestionService {
     Page<QuestionDTO.QuestionResponse> search(String textQuestion, Pageable pageable);
     Page<QuestionDTO.QuestionResponse> findAll(Pageable pageable);
    // void startQuestion(Integer questionNo);
+    void revealQuestion(Long contestId,Long contestQuestionId);
 }

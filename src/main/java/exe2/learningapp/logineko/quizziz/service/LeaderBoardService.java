@@ -9,5 +9,5 @@ public interface LeaderBoardService {
     List<LeaderBoardDTO.LeaderBoardResponse> finalizeLeaderboard(Long contestId);
     List<LeaderBoardDTO.LeaderBoardResponse> getLeaderboard(Long contestId);
     int computeRank(Long contestId, Long participantId);
-
+    void initializeLeaderboard(Long contestId);
 }

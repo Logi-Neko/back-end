@@ -134,4 +134,9 @@ public class AnswerServiceImpl implements AnswerService {
         answerRepository.save(answer);
         // Note: do not update participant score here — caller (GameProcessor) will call participantService.incrementScore
     }
+
+    @Override
+    public void saveAnswer(AnswerDTO.AnswerResponse answerResponse) {
+
+    }
 }

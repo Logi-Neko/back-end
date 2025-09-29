@@ -1,106 +1,89 @@
 package exe2.learningapp.logineko.quizziz.dto;
 
-import lombok.Builder;
 
+import lombok.*;
 import java.time.Instant;
-import java.util.List;
 
-public class GameEventDTO
-{
+public class GameEventDTO {
+
+        @Data
         @Builder
-        public record QuestionRevealedEvent(
-                String eventType, // "question.revealed"
-                Long contestId,
-                Long contestQuestionId,
-                Integer orderIndex,
-                QuestionDTO.QuestionResponse question,
-                Instant timestamp
-        ) {
-              //  public record QuestionPayload(Long questionId, String content, List<Option> options, Integer timeLimitSeconds) {}
-                public record Option(String optionId, String text) {}
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class ContestLifecycleEvent {
+                private String eventType; // contest.created, contest.started, contest.ended
+                private Long contestId;
+                private Instant timestamp;
         }
-        
+
+        @Data
         @Builder
-        public record QuestionEndedEvent(
-                String eventType, // "question.ended"
-                Long contestId,
-                Long contestQuestionId,
-                Integer orderIndex,
-                Instant timestamp
-        ) {}
-        
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class QuestionRevealedEvent {
+                private String eventType; // question.revealed
+                private Long contestId;
+                private Long contestQuestionId;
+                private Integer orderIndex;
+                private Object question;
+                private Instant timestamp;
+        }
+
+        @Data
         @Builder
-        public record AnswerSubmittedEvent(
-                String eventType, // "answer.submitted"
-                Long contestId,
-                Long contestQuestionId,
-                Long participantId,
-                Long answerOptionId,
-                Instant answeredAt,
-                Long timeTakenMs,
-                Long submissionUuid // client-generated or server-generated unique id for idempotency
-        ) {}
-        
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class AnswerSubmittedEvent {
+                private String eventType; // answer.submitted
+                private Long contestId;
+                private Long participantId;
+                private Long contestQuestionId;
+                private String answer;
+                private Instant timestamp;
+        }
+
+        @Data
         @Builder
-        public record ScoreUpdatedEvent(
-                String eventType, // "score.updated"
-                Long contestId,
-                Long participantId,
-                Integer newScore,
-                Integer rank,
-                Instant timestamp
-        ) {}
-        
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class ScoreUpdatedEvent {
+                private String eventType; // score.updated
+                private Long contestId;
+                private Long participantId;
+                private Integer score;
+                private Instant timestamp;
+        }
+
+        @Data
         @Builder
-        public record ContestLifecycleEvent(
-                String eventType, // "contest.created", "contest.started", "contest.ended", "participant.joined", "participant.left"
-                Long contestId,
-                Long participantId, // optional
-                Instant timestamp
-        ) {}
-        
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class LeaderboardUpdatedEvent {
+                private String eventType; // leaderboard.updated
+                private Long contestId;
+                private Object leaderboard;
+                private Instant timestamp;
+        }
+
+        @Data
         @Builder
-        public record LeaderboardUpdatedEvent(
-                String eventType, // "leaderboard.updated"
-                Long contestId,
-                List<LeaderBoardDTO.LeaderBoardResponse> leaderboard,
-                Instant timestamp
-        ) {}
-        
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class LeaderboardRefreshEvent {
+                private String eventType; // leaderboard.refresh
+                private Long contestId;
+                private Instant timestamp;
+        }
+
+        @Data
         @Builder
-        public record GameStateChangedEvent(
-                String eventType, // "game.state.changed"
-                Long contestId,
-                String state, // "waiting", "question_active", "question_ended", "showing_results", "finished"
-                Integer currentQuestionIndex,
-                Integer totalQuestions,
-                Instant timestamp
-        ) {}
-        
-        @Builder
-        public record NotificationEvent(
-                String eventType, // "notification"
-                Long contestId,
-                Long participantId, // optional, null for broadcast
-                String message,
-                String type, // "info", "warning", "error", "success"
-                Instant timestamp
-        ) {}
-        
-        @Builder
-        public record TimeWarningEvent(
-                String eventType, // "time.warning"
-                Long contestId,
-                Long contestQuestionId,
-                Integer remainingSeconds,
-                Instant timestamp
-        ) {}
-        
-        @Builder
-        public record ContestResultsEvent(
-                String eventType, // "contest.results"
-                Long contestId,
-                List<LeaderBoardDTO.LeaderBoardResponse> finalLeaderboard,
-                Instant timestamp
-        ) {}
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class ParticipantCreatedEvent {
+                private String eventType; // participant.created
+                private Long contestId;
+                private Long participantId;
+                private String name;
+                private Instant timestamp;
+        }
 }
