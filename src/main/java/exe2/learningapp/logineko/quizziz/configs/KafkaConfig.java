@@ -29,6 +29,7 @@ import java.util.Map;
             cfg.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
             cfg.put(ProducerConfig.ACKS_CONFIG, "all");
             cfg.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+            cfg.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
             return new DefaultKafkaProducerFactory<>(cfg);
         }
 

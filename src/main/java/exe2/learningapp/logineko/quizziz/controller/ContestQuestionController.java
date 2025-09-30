@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/contest-questions")
 @RequiredArgsConstructor
@@ -81,12 +83,11 @@ public class ContestQuestionController {
 
     @GetMapping("/contest/{contestId}")
     @Operation(summary = "Lấy danh sách câu hỏi theo Contest (có phân trang)")
-    public ApiResponse<Page<ContestQuestionDTO.ContestQuestionResponse>> getByContest(
-            @Parameter(description = "ID Contest") @PathVariable Long contestId,
-            @Parameter(description = "Thông tin phân trang (page, size, sort)") Pageable pageable) {
+    public ApiResponse<List<ContestQuestionDTO.ContestQuestionResponse>> getByContest(
+            @Parameter(description = "ID Contest") @PathVariable Long contestId){
         log.info("Fetching ContestQuestions for Contest {} with pagination", contestId);
         return ApiResponse.success(
-                contestQuestionService.findByContest(contestId, pageable),
+                contestQuestionService.findByContest(contestId),
                 "Lấy danh sách thành công"
         );
     }

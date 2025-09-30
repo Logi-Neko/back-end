@@ -128,7 +128,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .questionText(q.getQuestionText())
                 .points(q.getPoints())
                 .timeLimit(q.getTimeLimit())
-                .answerOptions(q.getOptions() != null
+                .options(q.getOptions() != null
                         ? q.getOptions().stream()
                         .map(opt -> AnswerOptionDTO.AnswerOptionResponse.builder()
                                 .id(opt.getId())

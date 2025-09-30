@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ContestQuestionRepository  extends JpaRepository<ContestQuestion, Long> {
-    Page<ContestQuestion> findByContest_Id(Long contestId, Pageable pageable);
+    List<ContestQuestion> findByContest_Id(Long contestId);
 }

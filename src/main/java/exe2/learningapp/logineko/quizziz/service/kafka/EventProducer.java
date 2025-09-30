@@ -2,9 +2,12 @@ package exe2.learningapp.logineko.quizziz.service.kafka;
 
 import exe2.learningapp.logineko.authentication.entity.Account;
 import exe2.learningapp.logineko.authentication.repository.AccountRepository;
+import exe2.learningapp.logineko.quizziz.dto.AnswerOptionDTO;
+import exe2.learningapp.logineko.quizziz.dto.ContestQuestionDTO;
 import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
-import exe2.learningapp.logineko.quizziz.entity.Contest;
-import exe2.learningapp.logineko.quizziz.entity.Participant;
+import exe2.learningapp.logineko.quizziz.dto.QuestionDTO;
+import exe2.learningapp.logineko.quizziz.entity.*;
+import exe2.learningapp.logineko.quizziz.repository.ContestQuestionRepository;
 import exe2.learningapp.logineko.quizziz.repository.ContestRepository;
 import exe2.learningapp.logineko.quizziz.repository.ParticipantRepository;
 import exe2.learningapp.logineko.quizziz.service.ParticipantService;
@@ -24,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 public class EventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final ParticipantService participantService;
+    private final ContestQuestionRepository contestQuestionRepository;
 
     private CompletableFuture<SendResult<String, Object>> sendEvent(Long contestId, Object event) {
         log.info("Publishing event {} for contest {}", event.getClass().getSimpleName(), contestId);
@@ -105,16 +109,20 @@ public class EventProducer {
         return publishContestLifecycle(contestId, event);
     }
 
-    public CompletableFuture<SendResult<String, Object>> publishQuestionRevealed(Long contestId, Long contestQuestionId, Integer orderIndex, Object question) {
+    public CompletableFuture<SendResult<String, Object>> publishQuestionRevealed(Long contestQuestionId) {
+        ContestQuestion cq = contestQuestionRepository.findById(contestQuestionId)
+                .orElseThrow(() -> new RuntimeException("ContestQuestion not found"));
+            QuestionDTO.QuestionResponse dto = toResponse(cq.getQuestion());
+
         GameEventDTO.QuestionRevealedEvent event = GameEventDTO.QuestionRevealedEvent.builder()
                 .eventType("question.revealed")
-                .contestId(contestId)
+                .contestId(cq.getContest().getId())
                 .contestQuestionId(contestQuestionId)
-                .orderIndex(orderIndex)
-                .question(question)
+                .orderIndex(cq.getIndex())
+                .question(dto)
                 .timestamp(java.time.Instant.now())
                 .build();
-        return publishQuestionRevealed(contestId, event);
+        return publishQuestionRevealed(cq.getContest().getId(), event);
     }
 
     public CompletableFuture<SendResult<String, Object>> publishAnswerSubmitted(Long contestId, Long participantId, Long contestQuestionId, String answer) {
@@ -161,5 +169,26 @@ public class EventProducer {
                 .timestamp(java.time.Instant.now())
                 .build();
         return publishLeaderboardRefresh(contestId, event);
+    }
+
+
+    public static QuestionDTO.QuestionResponse toResponse(Question question) {
+        return new QuestionDTO.QuestionResponse(
+                question.getId(),
+                question.getQuestionText(),
+                question.getOptions().stream()
+                        .map(EventProducer::answerToResponse)
+                        .toList(),
+                question.getPoints(),
+                question.getTimeLimit()
+        );
+    }
+    public static AnswerOptionDTO.AnswerOptionResponse answerToResponse(AnswerOption entity) {
+        return new AnswerOptionDTO.AnswerOptionResponse(
+                entity.getId(),
+                entity.getOptionText(),
+                entity.getIsCorrect(),
+                entity.getQuestion() != null ? entity.getQuestion().getId() : null
+        );
     }
 }
