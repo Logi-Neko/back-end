@@ -180,6 +180,7 @@ public class CharacterServiceImpl implements CharacterService {
 
         Account currentUser = currentUserProvider.getCurrentUser();
         Long accountId = currentUser.getId();
+        log.info("Getting locked characters for account with ID: {}", accountId);
 
         List<Character> lockedCharacters = characterRepository.findLockedCharactersByAccountId(accountId);
         return lockedCharacters.stream()
