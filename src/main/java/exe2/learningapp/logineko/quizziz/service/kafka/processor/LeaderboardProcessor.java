@@ -1,5 +1,6 @@
 package exe2.learningapp.logineko.quizziz.service.kafka.processor;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
 import exe2.learningapp.logineko.quizziz.dto.LeaderBoardDTO;
 import exe2.learningapp.logineko.quizziz.service.LeaderBoardService;
@@ -22,50 +23,46 @@ public class LeaderboardProcessor {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void handleScoreUpdated(Object event, Long contestId) {
-        log.info("Processing score update for leaderboard: {}", event);
+        log.info("📊 Processing score update for leaderboard in contest {}", contestId);
         
         try {
-            if (event instanceof GameEventDTO.ScoreUpdatedEvent) {
-                GameEventDTO.ScoreUpdatedEvent scoreEvent = (GameEventDTO.ScoreUpdatedEvent) event;
+            JsonNode jsonEvent = (JsonNode) event;
+            
+            if (jsonEvent.has("participantId") && jsonEvent.has("score")) {
+                Long participantId = jsonEvent.get("participantId").asLong();
+                Integer newScore = jsonEvent.get("score").asInt();
                 
-                // Calculate score delta (difference from previous score)
-                int currentScore = getCurrentParticipantScore(scoreEvent.getContestId(), scoreEvent.getParticipantId());
-                int scoreDelta = scoreEvent.getScore() - currentScore;
+                // Get updated leaderboard (score update already handled in EventProducer)
+                List<LeaderBoardDTO.LeaderBoardResponse> leaderboard = leaderBoardService.getLeaderboard(contestId);
                 
-                // Update leaderboard in database with delta
-                leaderBoardService.updateScore(scoreEvent.getContestId(), scoreEvent.getParticipantId(), scoreDelta);
-                
-                // Calculate new rank for the participant
-                int newRank = leaderBoardService.computeRank(scoreEvent.getContestId(), scoreEvent.getParticipantId());
-                
-                // Get updated leaderboard
-                List<LeaderBoardDTO.LeaderBoardResponse> leaderboard = leaderBoardService.getLeaderboard(scoreEvent.getContestId());
+                // Find participant rank
+                int participantRank = leaderboard.stream()
+                    .filter(lb -> lb.participantId().equals(participantId))
+                    .mapToInt(lb -> leaderboard.indexOf(lb) + 1)
+                    .findFirst()
+                    .orElse(-1);
                 
                 // Publish leaderboard update event
                 GameEventDTO.LeaderboardUpdatedEvent leaderboardEvent = GameEventDTO.LeaderboardUpdatedEvent.builder()
                         .eventType("leaderboard.updated")
-                        .contestId(scoreEvent.getContestId())
+                        .contestId(contestId)
                         .leaderboard(leaderboard)
                         .timestamp(Instant.now())
                         .build();
                 
-                // Send to Kafka for other services to consume
-                kafkaTemplate.send("game-events", String.valueOf(scoreEvent.getContestId()), leaderboardEvent);
-                
-                // Also broadcast directly via WebSocket for immediate real-time updates
-                String destination = "/topic/contest." + scoreEvent.getContestId() + ".leaderboard";
+                // Broadcast directly via WebSocket for immediate real-time updates
+                String destination = "/topic/contest." + contestId + ".leaderboard";
                 messagingTemplate.convertAndSend(destination, leaderboardEvent);
                 
                 // Also send to main contest topic for general updates
-                String mainDestination = "/topic/contest." + scoreEvent.getContestId();
+                String mainDestination = "/topic/contest." + contestId;
                 messagingTemplate.convertAndSend(mainDestination, leaderboardEvent);
                 
-                log.info("Leaderboard updated for contest {} - Participant {}: Score {} (+{}), Rank {}", 
-                    scoreEvent.getContestId(), scoreEvent.getParticipantId(), 
-                    scoreEvent.getScore(), scoreDelta, newRank);
+                log.info("✅ Leaderboard updated for contest {} - Participant {}: Score {}, Rank {} ({} total participants)", 
+                    contestId, participantId, newScore, participantRank, leaderboard.size());
             }
         } catch (Exception e) {
-            log.error("Error processing score update for leaderboard: {}", e.getMessage(), e);
+            log.error("❌ Error processing score update for leaderboard: {}", e.getMessage(), e);
         }
     }
 
@@ -156,20 +153,5 @@ public class LeaderboardProcessor {
         }
     }
 
-    private int getCurrentParticipantScore(Long contestId, Long participantId) {
-        try {
-            // Get current leaderboard to find participant's current score
-            List<LeaderBoardDTO.LeaderBoardResponse> leaderboard = leaderBoardService.getLeaderboard(contestId);
-            
-            return leaderboard.stream()
-                    .filter(entry -> entry.participantId().equals(participantId))
-                    .mapToInt(LeaderBoardDTO.LeaderBoardResponse::score)
-                    .findFirst()
-                    .orElse(0); // Default to 0 if participant not found
-                    
-        } catch (Exception e) {
-            log.error("Error getting current participant score: {}", e.getMessage(), e);
-            return 0;
-        }
-    }
+    // Removed getCurrentParticipantScore method as it's no longer needed
 }

@@ -51,6 +51,7 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
                     LeaderBoard lb = boards.get(i);
                     return LeaderBoardDTO.LeaderBoardResponse.builder()
                             .participantId(lb.getParticipant().getId())
+                            .participantName(lb.getParticipant().getAccount().getFirstName())
                             .score(lb.getScore())
                             .rank(lb.getFinalRank())
                             .build();
@@ -65,6 +66,7 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
                     LeaderBoard lb = boards.get(i);
                     return LeaderBoardDTO.LeaderBoardResponse.builder()
                             .participantId(lb.getParticipant().getId())
+                            .participantName(lb.getParticipant().getAccount().getFirstName())
                             .score(lb.getScore())
                             .rank(i + 1)
                             .build();

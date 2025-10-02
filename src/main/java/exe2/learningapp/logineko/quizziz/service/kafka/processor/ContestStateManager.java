@@ -1,6 +1,5 @@
 package exe2.learningapp.logineko.quizziz.service.kafka.processor;
 
-import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,29 +24,25 @@ public class ContestStateManager {
         log.info("Processing contest lifecycle event: {} for contest {}", eventType, contestId);
         
         try {
-            if (event instanceof GameEventDTO.ContestLifecycleEvent) {
-                GameEventDTO.ContestLifecycleEvent lifecycleEvent = (GameEventDTO.ContestLifecycleEvent) event;
-                
-                switch (eventType) {
-                    case "contest.created":
-                        handleContestCreated(lifecycleEvent, contestId);
-                        break;
-                    case "contest.started":
-                        handleContestStarted(lifecycleEvent, contestId);
-                        break;
-                    case "contest.ended":
-                        handleContestEnded(lifecycleEvent, contestId);
-                        break;
-                    default:
-                        log.warn("Unknown contest lifecycle event type: {}", eventType);
-                }
+            switch (eventType) {
+                case "contest.created":
+                    handleContestCreated(event, contestId);
+                    break;
+                case "contest.started":
+                    handleContestStarted(event, contestId);
+                    break;
+                case "contest.ended":
+                    handleContestEnded(event, contestId);
+                    break;
+                default:
+                    log.warn("Unknown contest lifecycle event type: {}", eventType);
             }
         } catch (Exception e) {
             log.error("Error processing contest lifecycle event: {}", e.getMessage(), e);
         }
     }
 
-    private void handleContestCreated(GameEventDTO.ContestLifecycleEvent event, Long contestId) {
+    private void handleContestCreated(Object event, Long contestId) {
         log.info("Handling contest created for contest {}", contestId);
         
         try {
@@ -62,7 +57,7 @@ public class ContestStateManager {
             // Initialize contest state
             ContestState state = new ContestState();
             state.setContestId(contestId);
-            state.setStatus("created");
+            state.setStatus("OPEN");
             state.setCreatedAt(Instant.now());
             contestStates.put(contestId, state);
             
@@ -72,7 +67,7 @@ public class ContestStateManager {
         }
     }
 
-    private void handleContestStarted(GameEventDTO.ContestLifecycleEvent event, Long contestId) {
+    private void handleContestStarted(Object event, Long contestId) {
         log.info("Handling contest started for contest {}", contestId);
         
         try {
@@ -86,17 +81,17 @@ public class ContestStateManager {
             // Update contest state
             ContestState state = contestStates.get(contestId);
             if (state != null) {
-                if ("started".equals(state.getStatus())) {
+                if ("OPEN".equals(state.getStatus())) {
                     log.warn("Contest {} is already started", contestId);
                     return;
                 }
-                state.setStatus("started");
+                state.setStatus("RUNNING");
                 state.setStartedAt(Instant.now());
             } else {
                 // Create new state if not exists
                 state = new ContestState();
                 state.setContestId(contestId);
-                state.setStatus("started");
+                state.setStatus("RUNNING");
                 state.setStartedAt(Instant.now());
                 contestStates.put(contestId, state);
             }
@@ -113,7 +108,7 @@ public class ContestStateManager {
         }
     }
 
-    private void handleContestEnded(GameEventDTO.ContestLifecycleEvent event, Long contestId) {
+    private void handleContestEnded(Object event, Long contestId) {
         log.info("Handling contest ended for contest {}", contestId);
         
         try {
@@ -160,7 +155,7 @@ public class ContestStateManager {
 
     public boolean isContestActive(Long contestId) {
         ContestState state = contestStates.get(contestId);
-        return state != null && "started".equals(state.getStatus());
+        return state != null && "RUNNING".equals(state.getStatus());
     }
 
     public boolean isContestEnded(Long contestId) {

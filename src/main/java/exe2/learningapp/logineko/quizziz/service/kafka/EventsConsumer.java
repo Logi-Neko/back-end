@@ -2,7 +2,6 @@ package exe2.learningapp.logineko.quizziz.service.kafka;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
 import exe2.learningapp.logineko.quizziz.service.kafka.processor.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
