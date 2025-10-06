@@ -15,6 +15,8 @@ public class CorsConfiguration {
         // Allow React.js frontend running on port 3000
         corsConfiguration.addAllowedOrigin("http://localhost:3000");
         corsConfiguration.addAllowedOrigin("http://127.0.0.1:3000");
+        corsConfiguration.addAllowedOrigin("http://localhost:5173");
+        corsConfiguration.addAllowedOrigin("http://127.0.0.1:5173");
 
         // Allow device connections from 192.168.101.3 (both HTTP and HTTPS)
         corsConfiguration.addAllowedOrigin("http://192.168.101.3:3000");
