@@ -89,7 +89,7 @@ public class LessonController {
         return ResponseEntity.ok(ApiResponse.success(lessons));
     }
 
-    @GetMapping("/course/{courseId}")
+    @GetMapping("/courses/{courseId}")
     @Operation(
             summary = "Tìm tất cả bài học theo khóa học",
             description = "Tìm tất cả bài học trong khóa học cụ thể"
