@@ -110,7 +110,7 @@ public class StatisticServiceImpl implements StatisticService {
                 .filter(s -> s.getCreatedAt().getYear() == (year - 1))
                 .mapToDouble(Subscription::getPrice)
                 .sum();
-        Double yearOverYearGrowth = (double) (totalRevenueInYear - totalRevenueInYearBefore) / totalRevenueInYearBefore;
+        Double yearOverYearGrowth = totalRevenueInYearBefore != 0 ? (double) (totalRevenueInYear - totalRevenueInYearBefore) / totalRevenueInYearBefore : 0;
         List<AdminStatDTO.MonthData> monthData = new ArrayList<>();
         LongStream.rangeClosed(1, 12).forEach(i -> {
             Predicate<Object> filterByMonthAndYear = s -> {
@@ -131,7 +131,7 @@ public class StatisticServiceImpl implements StatisticService {
                     .filter(filterByMonthAndYear)
                     .mapToDouble(Subscription::getPrice)
                     .sum();
-            Double monthOverMonthGrowth = null;
+            Double monthOverMonthGrowth = 0.0;
             if (!monthData.isEmpty()) {
                 long prevRevenue = monthData.getLast().getRevenue();
                 monthOverMonthGrowth = (prevRevenue == 0)
@@ -147,7 +147,10 @@ public class StatisticServiceImpl implements StatisticService {
                     .build());
         });
         Long monthWithHighestRevenue = monthData.stream()
-                .max(Comparator.comparingLong(AdminStatDTO.MonthData::getRevenue))
+                .max(Comparator.
+                        comparingLong(AdminStatDTO.MonthData::getRevenue)
+                        .thenComparingLong(AdminStatDTO.MonthData::getNewUsers)
+                )
                 .map(AdminStatDTO.MonthData::getMonth)
                 .orElse(-1L);
         return AdminStatDTO.builder()
