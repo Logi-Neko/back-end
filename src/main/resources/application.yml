@@ -49,6 +49,7 @@ spring:
 
 server:
   port: 8081
+  address: 0.0.0.0
 
 idp:
   url: ${KEYCLOAK_URL_WEB}
@@ -78,7 +79,3 @@ payos:
   base-url: ${PAYOS_BASE_URL}
   success-page: ${PAYOS_SUCCESS_PAGE}
   failure-page: ${PAYOS_FAILURE_PAGE}
-
-
-
-

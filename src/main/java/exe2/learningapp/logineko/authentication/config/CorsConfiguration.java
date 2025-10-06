@@ -16,6 +16,21 @@ public class CorsConfiguration {
         corsConfiguration.addAllowedOrigin("http://localhost:3000");
         corsConfiguration.addAllowedOrigin("http://127.0.0.1:3000");
 
+        // Allow device connections from 192.168.101.3 (both HTTP and HTTPS)
+        corsConfiguration.addAllowedOrigin("http://192.168.101.3:3000");
+        corsConfiguration.addAllowedOrigin("http://192.168.101.3:8081");
+        corsConfiguration.addAllowedOrigin("https://192.168.101.3:3000");
+        corsConfiguration.addAllowedOrigin("https://192.168.101.3:8081");
+
+        // Allow any origin from the local network (for Android and other devices)
+        corsConfiguration.addAllowedOriginPattern("http://192.168.*.*:*");
+        corsConfiguration.addAllowedOriginPattern("https://192.168.*.*:*");
+
+        // For Android development/testing, you might need to allow localhost on different ports
+        corsConfiguration.addAllowedOriginPattern("http://localhost:*");
+        corsConfiguration.addAllowedOriginPattern("http://127.0.0.1:*");
+        corsConfiguration.addAllowedOriginPattern("http://10.0.2.2:*"); // Android emulator localhost
+
         // Allow common HTTP methods
         corsConfiguration.addAllowedMethod("GET");
         corsConfiguration.addAllowedMethod("POST");
