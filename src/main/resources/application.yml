@@ -32,10 +32,10 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/realms/${keycloak.realm}
+          issuer-uri: http://${KEYCLOAK_URL_WEB}/realms/${keycloak.realm}
 
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${kafka_server}
     producer:
         key-serializer: org.apache.kafka.common.serialization.StringSerializer
         value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

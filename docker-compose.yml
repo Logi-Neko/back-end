@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.2
+    image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
     command: start-dev --db=postgres --verbose --features=token-exchange
     environment:
@@ -57,5 +57,17 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     restart: unless-stopped
+
+  logineko-be:
+    build: .
+    container_name: logineko_be
+    depends_on:
+      - keycloak
+      - kafka
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    restart: always
 volumes:
   postgres-data:
