@@ -32,13 +32,25 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8080/realms/${keycloak.realm}
+          issuer-uri: http://localhost:8888/realms/${keycloak.realm}
 
   kafka:
     bootstrap-servers: localhost:29092
+    producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
     consumer:
-      group-id: quiz-consumer-group
-      auto-offset-reset: earliest
+        group-id: quiz-consumer-group
+        auto-offset-reset: earliest
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        properties:
+          spring.json.trusted.packages: "exe2.learningapp.logineko.quizziz.dto"
+          spring.json.value.default.type: java.lang.Object
+
+    listener:
+        missing-topics-fatal: false
 
 
 server:

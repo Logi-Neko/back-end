@@ -1,24 +1,6 @@
 version: '3.8'
 
 services:
-  postgres-db:
-    image: postgres:15
-    container_name: logineko_postgres
-    environment:
-      POSTGRES_DB: logineko_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./create-db.sh:/docker-entrypoint-initdb.d/create-db.sh
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.2

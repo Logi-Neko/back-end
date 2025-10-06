@@ -6,6 +6,7 @@ import exe2.learningapp.logineko.quizziz.entity.Participant;
 import exe2.learningapp.logineko.quizziz.repository.LeaderBoardRepository;
 import exe2.learningapp.logineko.quizziz.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LeaderBoardServiceImpl implements  LeaderBoardService{
     private final LeaderBoardRepository leaderboardRepository;
     private final ParticipantRepository participantRepository;
@@ -83,5 +85,29 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
             }
         }
         return -1;
+    }
+
+    @Override
+    @Transactional
+    public void initializeLeaderboard(Long contestId) {
+        // Get all participants for the contest
+        List<Participant> participants = participantRepository.findByContest_Id(contestId);
+        
+        // Create leaderboard entries for each participant
+        for (Participant participant : participants) {
+            LeaderBoard existingEntry = leaderboardRepository
+                    .findByContest_IdAndParticipant_Id(contestId, participant.getId());
+            
+            if (existingEntry == null) {
+                LeaderBoard leaderBoard = LeaderBoard.builder()
+                        .contest(participant.getContest())
+                        .participant(participant)
+                        .score(participant.getScore())
+                        .build();
+                leaderboardRepository.save(leaderBoard);
+            }
+        }
+        
+        log.info("Initialized leaderboard for contest {} with {} participants", contestId, participants.size());
     }
 }

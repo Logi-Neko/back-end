@@ -177,6 +177,15 @@ public class AuthenticationController {
         ));
     }
 
+    @GetMapping("/users/board")
+    @Operation(summary = "Lấy tất cả user có role USER")
+    public ResponseEntity<ApiResponse<?>> getAllUsersWithUserRole() {
+        return ResponseEntity.ok(ApiResponse.success(
+                accountService.getAllUsersWithUserRole(),
+                "Lấy danh sách user có role USER thành công"
+        ));
+    }
+
     @GetMapping("/userinfo")
 //    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Lấy thông tin về user đang login")

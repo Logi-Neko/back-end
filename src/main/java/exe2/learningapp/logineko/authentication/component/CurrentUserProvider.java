@@ -20,14 +20,14 @@ public class CurrentUserProvider {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new AppException(ErrorCode.ERR_UNAUTHORIZED); // Hoặc một lỗi phù hợp
+            throw new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS); // Hoặc một lỗi phù hợp
         }
 
         String keycloakUserId = authentication.getName();
 
         // Gợi ý: Bạn nên đổi tên phương thức này thành findByKeycloakId cho rõ nghĩa
         return accountRepository.findByUserId(keycloakUserId)
-                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS));
 
     }
 
@@ -41,7 +41,7 @@ public class CurrentUserProvider {
         String keycloakUserId = authentication.getName();
 
         return accountRepository.findByUserId(keycloakUserId)
-                .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.AUTH_INVALID_CREDENTIALS));
 
     }
 }
