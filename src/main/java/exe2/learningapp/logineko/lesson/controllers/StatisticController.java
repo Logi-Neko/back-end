@@ -1,6 +1,7 @@
 package exe2.learningapp.logineko.lesson.controllers;
 
 import exe2.learningapp.logineko.common.dto.ApiResponse;
+import exe2.learningapp.logineko.lesson.dtos.responses.AdminStatDTO;
 import exe2.learningapp.logineko.lesson.dtos.responses.StatisticDTO;
 import exe2.learningapp.logineko.lesson.services.StatisticService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +29,13 @@ public class StatisticController {
             ) {
         return ResponseEntity.ok(
                 ApiResponse.success(statisticService.getStatistic(accountId, from, to))
+        );
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<ApiResponse<AdminStatDTO>> findStatisticAdmin(@RequestParam(defaultValue = "2025") Long year) {
+        return ResponseEntity.ok(
+                ApiResponse.success(statisticService.getAdminStat(year))
         );
     }
 }
