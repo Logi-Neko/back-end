@@ -1,0 +1,93 @@
+name: Build and Deploy LogiNeko
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 🧩 1. Lấy code từ branch main
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ☕ 2. Cài Java 21 (Temurin)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # ⚙️ 3. Build project bằng Maven
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # 🔐 4. Tạo file .env từ secrets GitHub
+      - name: Create .env file
+        run: |
+          cat > .env <<EOF
+          KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+          KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+          KEYCLOAK_URL_WEB=${{ secrets.KEYCLOAK_URL_WEB }}
+          KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }}
+          KEYCLOAK_REALM=${{ secrets.KEYCLOAK_REALM }}
+          kafka_server=${{ secrets.KAFKA_SERVER }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          REDIRECT_URI=${{ secrets.REDIRECT_URI }}
+          REDIRECT_URI_WEB=${{ secrets.REDIRECT_URI_WEB }}
+          POSTGRES_PASSWORD_KEYCLOAK=${{ secrets.POSTGRES_PASSWORD_KEYCLOAK }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }}
+          PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }}
+          PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }}
+          PAYOS_BASE_URL=${{ secrets.PAYOS_BASE_URL }}
+          PAYOS_SUCCESS_PAGE=${{ secrets.PAYOS_SUCCESS_PAGE }}
+          PAYOS_FAILURE_PAGE=${{ secrets.PAYOS_FAILURE_PAGE }}
+          EOF
+
+      # 📤 5. Upload file jar, .env, docker-compose.yml lên VPS
+      - name: Upload build files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "target/*.jar,.env,docker-compose.yml"
+          target: "/home/${{ secrets.VPS_USER }}/logineko"
+
+      # 🧠 6. SSH vào VPS, đảm bảo Docker hoạt động & restart app
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "🚀 Bắt đầu deploy trên VPS..."
+            cd /home/${{ secrets.VPS_USER }}/logineko
+
+            # Đảm bảo Docker & Compose sẵn sàng
+            if ! command -v docker &> /dev/null
+            then
+              echo "⚠️ Docker chưa được cài, đang tiến hành cài đặt..."
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io docker-compose
+              sudo systemctl enable docker
+              sudo systemctl start docker
+            fi
+
+            # Đảm bảo thư mục tồn tại
+            mkdir -p /home/${{ secrets.VPS_USER }}/logineko
+
+            # Restart Docker container
+            echo "🧱 Đang build & restart container..."
+            docker compose down || true
+            docker compose up -d --build
+
+            echo "✅ Deploy thành công!"

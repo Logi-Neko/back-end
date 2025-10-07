@@ -14,10 +14,14 @@ spring:
   datasource:
     url: jdbc:postgresql://ep-noisy-wave-a1gc5pap-pooler.ap-southeast-1.aws.neon.tech/neondb?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}&sslmode=require&channelBinding=require
     hikari:
-      data-source-properties:
-        cachePrepStmts: false
-        useServerPrepStmts: false
-        prepareThreshold: 0
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 10000
+      max-lifetime: 30000
+      connection-timeout: 30000
+      keepalive-time: 15000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -32,7 +36,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://${KEYCLOAK_URL_WEB}/realms/${keycloak.realm}
+          issuer-uri: ${KEYCLOAK_URL_WEB}/realms/${keycloak.realm}
 
   kafka:
     bootstrap-servers: kafka:9092
