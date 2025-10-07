@@ -69,7 +69,7 @@ jobs:
 
       # 📤 Upload files với retry logic
       - name: Upload build files to VPS
-        uses: appleboy/scp-action@v0.1.8
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
