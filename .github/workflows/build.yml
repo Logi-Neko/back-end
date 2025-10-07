@@ -1,4 +1,4 @@
-name: Test SSH Connection
+name: Build and Deploy LogiNeko
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 🧩 1. Lấy code từ branch main
+      # 🧩 1. Lấy code từ branch
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -51,58 +51,93 @@ jobs:
           PAYOS_FAILURE_PAGE=${{ secrets.PAYOS_FAILURE_PAGE }}
           EOF
 
-      # 🛑 THÊM DELAY - Đợi server SSH rest
-      - name: Wait before SCP
-        run: sleep 5
-
-      # 📤 5. Upload file jar, .env, docker-compose.yml lên VPS
-      - name: Upload build files to VPS
-        uses: appleboy/scp-action@v0.1.7
+      # 🧪 Test SSH connection first
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 2222
-          timeout: 120s                    # Tăng timeout
-          command_timeout: 60s             # Tăng command timeout
-          rm: false                        # Không xóa file cũ trước
-          debug: false                     # Tắt debug để giảm output
+          timeout: 30s
+          command_timeout: 10s
+          script: |
+            echo "✅ SSH connection successful!"
+            whoami
+            pwd
+            df -h
+
+      # 📤 Upload files với retry logic
+      - name: Upload build files to VPS
+        uses: appleboy/scp-action@v0.1.8
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 2222
+          timeout: 300s
+          command_timeout: 120s
+          use_insecure_cipher: false
+          rm: true
+          debug: true
+          overwrite: true
           source: "target/*.jar,.env,docker-compose.yml"
           target: "/home/${{ secrets.VPS_USER }}/logineko"
 
-      # 🛑 THÊM DELAY - Đợi giữa SCP và SSH
+      # 🛑 Wait before deployment
       - name: Wait before deploy
-        run: sleep 5
+        run: sleep 10
 
-      # 🧠 6. SSH vào VPS, đảm bảo Docker hoạt động & restart app
+      # 🚀 Deploy with better error handling
       - name: Deploy on VPS
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 2222
-          command_timeout: 10m             # Tăng timeout cho docker commands
+          timeout: 600s
+          command_timeout: 15m
           script: |
-            echo "🚀 Bắt đầu deploy trên VPS..."
-            cd /home/${{ secrets.VPS_USER }}/logineko
-
-            # Đảm bảo Docker & Compose sẵn sàng
-            if ! command -v docker &> /dev/null
-            then
-              echo "⚠️ Docker chưa được cài, đang tiến hành cài đặt..."
-              sudo apt-get update -y
-              sudo apt-get install -y docker.io docker-compose
-              sudo systemctl enable docker
+            set -e
+            echo "🚀 Starting deployment on VPS..."
+            
+            # Navigate to project directory
+            cd /home/${{ secrets.VPS_USER }}/logineko || exit 1
+            
+            # Check if files were uploaded successfully
+            echo "📁 Checking uploaded files..."
+            ls -la
+            
+            # Ensure Docker is running
+            if ! systemctl is-active --quiet docker; then
+              echo "🔧 Starting Docker service..."
               sudo systemctl start docker
+              sleep 5
             fi
-
-            # Đảm bảo thư mục tồn tại
-            mkdir -p /home/${{ secrets.VPS_USER }}/logineko
-
-            # Restart Docker container
-            echo "🧱 Đang build & restart container..."
-            docker compose down || true
-            docker compose up -d --build
-
-            echo "✅ Deploy thành công!"
+            
+            # Stop existing containers gracefully
+            echo "🛑 Stopping existing containers..."
+            docker compose down --timeout 30 || true
+            
+            # Clean up old images to free space
+            echo "🧹 Cleaning up Docker resources..."
+            docker system prune -f || true
+            
+            # Build and start new containers
+            echo "🏗️ Building and starting containers..."
+            docker compose up -d --build --force-recreate
+            
+            # Wait for containers to be ready
+            echo "⏳ Waiting for containers to start..."
+            sleep 30
+            
+            # Check container status
+            echo "📊 Container status:"
+            docker compose ps
+            
+            # Check logs for any immediate errors
+            echo "📋 Recent logs:"
+            docker compose logs --tail=20
+            
+            echo "✅ Deployment completed successfully!"
