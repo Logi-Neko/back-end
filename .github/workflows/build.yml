@@ -3,7 +3,7 @@ name: Test SSH Connection
 on:
   push:
     branches:
-      - main
+      - cicd
 
 jobs:
   build-and-deploy:
