@@ -133,10 +133,12 @@ public class StatisticServiceImpl implements StatisticService {
                     .sum();
             Double monthOverMonthGrowth = 0.0;
             if (!monthData.isEmpty()) {
-                long prevRevenue = monthData.getLast().getRevenue();
-                monthOverMonthGrowth = (prevRevenue == 0)
-                        ? 0
-                        : ((double) (revenue - prevRevenue) / prevRevenue) * 100;
+                if (LocalDate.now().getYear() == year && i < LocalDate.now().getMonthValue()) {
+                    long prevRevenue = monthData.getLast().getRevenue();
+                    monthOverMonthGrowth = (prevRevenue == 0)
+                            ? 0
+                            : ((double) (revenue - prevRevenue) / prevRevenue) * 100;
+                }
             }
             monthData.add(AdminStatDTO.MonthData.builder()
                     .month(i)
