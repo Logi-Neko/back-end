@@ -1,159 +1,108 @@
-name: Test SSH Connection
+name: Build and Deploy LogiNeko
 
 on:
-  workflow_dispatch:  # Chạy thủ công từ GitHub UI
   push:
     branches:
-      - test-ssh  # Hoặc tạo branch test riêng
+      - main
 
 jobs:
-  test-connection:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Test cơ bản - Ping server
-      - name: Test 1 - Check if server is reachable
-        run: |
-          echo "🔍 Testing connection to ${{ secrets.VPS_IP }}:2222"
-          nc -zv ${{ secrets.VPS_IP }} 2222 || echo "❌ Port 2222 không truy cập được"
+      # 🧩 1. Lấy code từ branch main
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 2️⃣ Test SSH key format
-      - name: Test 2 - Verify SSH key format
-        run: |
-          echo "🔑 Checking SSH key format..."
-          echo "${{ secrets.VPS_SSH_KEY }}" > /tmp/test_key
-          
-          # Kiểm tra key có đúng format không
-          if grep -q "BEGIN.*PRIVATE KEY" /tmp/test_key; then
-            echo "✅ SSH key có header hợp lệ"
-          else
-            echo "❌ SSH key thiếu header!"
-          fi
-          
-          if grep -q "END.*PRIVATE KEY" /tmp/test_key; then
-            echo "✅ SSH key có footer hợp lệ"
-          else
-            echo "❌ SSH key thiếu footer!"
-          fi
-          
-          # Đếm số dòng
-          LINES=$(wc -l < /tmp/test_key)
-          echo "📊 SSH key có $LINES dòng"
-          
-          rm /tmp/test_key
-
-      # 3️⃣ Test SSH connection với verbose mode
-      - name: Test 3 - SSH connection with verbose output
-        continue-on-error: true
-        run: |
-          echo "🔐 Testing SSH connection với verbose mode..."
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Thêm host vào known_hosts
-          ssh-keyscan -p 2222 ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts 2>&1 || echo "⚠️ ssh-keyscan failed"
-          
-          # Test kết nối với verbose
-          ssh -vvv -p 2222 -i ~/.ssh/id_rsa \
-            -o StrictHostKeyChecking=no \
-            -o ConnectTimeout=30 \
-            -o ServerAliveInterval=10 \
-            ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} \
-            "echo '✅ SSH connection successful!'; whoami; pwd" 2>&1 | tee ssh_debug.log
-          
-          echo "📋 SSH debug log saved"
-
-      # 4️⃣ Test với appleboy/ssh-action (action bạn đang dùng)
-      - name: Test 4 - Using appleboy/ssh-action
-        uses: appleboy/ssh-action@v1.2.0
-        continue-on-error: true
+      # ☕ 2. Cài Java 21 (Temurin)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 2222
-          debug: true
-          command_timeout: 30s
-          script: |
-            echo "✅ SSH via appleboy/ssh-action thành công!"
-            echo "User: $(whoami)"
-            echo "Home: $HOME"
-            echo "Current dir: $(pwd)"
-            echo "Disk space:"
-            df -h | head -5
-            echo "Docker status:"
-            docker --version || echo "Docker chưa cài"
+          java-version: '21'
+          distribution: 'temurin'
 
-      # 5️⃣ Test SCP action
-      - name: Test 5 - Create test file
+      # ⚙️ 3. Build project bằng Maven
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      # 🔐 4. Tạo file .env từ secrets GitHub
+      - name: Create .env file
         run: |
-          echo "Test file from GitHub Actions" > test-file.txt
-          date >> test-file.txt
+          cat > .env <<EOF
+          KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+          KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
+          KEYCLOAK_URL_WEB=${{ secrets.KEYCLOAK_URL_WEB }}
+          KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }}
+          KEYCLOAK_REALM=${{ secrets.KEYCLOAK_REALM }}
+          kafka_server=${{ secrets.KAFKA_SERVER }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          REDIRECT_URI=${{ secrets.REDIRECT_URI }}
+          REDIRECT_URI_WEB=${{ secrets.REDIRECT_URI_WEB }}
+          POSTGRES_PASSWORD_KEYCLOAK=${{ secrets.POSTGRES_PASSWORD_KEYCLOAK }}
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          PAYOS_CLIENT_ID=${{ secrets.PAYOS_CLIENT_ID }}
+          PAYOS_API_KEY=${{ secrets.PAYOS_API_KEY }}
+          PAYOS_CHECKSUM_KEY=${{ secrets.PAYOS_CHECKSUM_KEY }}
+          PAYOS_BASE_URL=${{ secrets.PAYOS_BASE_URL }}
+          PAYOS_SUCCESS_PAGE=${{ secrets.PAYOS_SUCCESS_PAGE }}
+          PAYOS_FAILURE_PAGE=${{ secrets.PAYOS_FAILURE_PAGE }}
+          EOF
 
-      - name: Test 6 - Using appleboy/scp-action
+      # 🛑 THÊM DELAY - Đợi server SSH rest
+      - name: Wait before SCP
+        run: sleep 5
+
+      # 📤 5. Upload file jar, .env, docker-compose.yml lên VPS
+      - name: Upload build files to VPS
         uses: appleboy/scp-action@v0.1.7
-        continue-on-error: true
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 2222
-          debug: true
-          timeout: 60s
-          command_timeout: 30s
-          source: "test-file.txt"
-          target: "/home/${{ secrets.VPS_USER }}/test-upload"
+          timeout: 120s                    # Tăng timeout
+          command_timeout: 60s             # Tăng command timeout
+          rm: false                        # Không xóa file cũ trước
+          debug: false                     # Tắt debug để giảm output
+          source: "target/*.jar,.env,docker-compose.yml"
+          target: "/home/${{ secrets.VPS_USER }}/logineko"
 
-      # 6️⃣ Verify file uploaded
-      - name: Test 7 - Verify uploaded file
+      # 🛑 THÊM DELAY - Đợi giữa SCP và SSH
+      - name: Wait before deploy
+        run: sleep 5
+
+      # 🧠 6. SSH vào VPS, đảm bảo Docker hoạt động & restart app
+      - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.2.0
-        continue-on-error: true
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 2222
+          command_timeout: 10m             # Tăng timeout cho docker commands
           script: |
-            echo "📁 Checking uploaded file..."
-            if [ -f "/home/${{ secrets.VPS_USER }}/test-upload/test-file.txt" ]; then
-              echo "✅ File uploaded successfully!"
-              cat "/home/${{ secrets.VPS_USER }}/test-upload/test-file.txt"
-            else
-              echo "❌ File upload failed"
-              ls -la /home/${{ secrets.VPS_USER }}/
+            echo "🚀 Bắt đầu deploy trên VPS..."
+            cd /home/${{ secrets.VPS_USER }}/logineko
+
+            # Đảm bảo Docker & Compose sẵn sàng
+            if ! command -v docker &> /dev/null
+            then
+              echo "⚠️ Docker chưa được cài, đang tiến hành cài đặt..."
+              sudo apt-get update -y
+              sudo apt-get install -y docker.io docker-compose
+              sudo systemctl enable docker
+              sudo systemctl start docker
             fi
 
-      # 7️⃣ Test multiple connections (giả lập real scenario)
-      - name: Test 8 - Multiple sequential connections
-        run: |
-          echo "🔄 Testing multiple connections..."
-          mkdir -p ~/.ssh
-          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p 2222 ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts 2>&1
-          
-          for i in {1..3}; do
-            echo "🔗 Connection attempt $i/3"
-            ssh -p 2222 -i ~/.ssh/id_rsa \
-              -o StrictHostKeyChecking=no \
-              -o ConnectTimeout=30 \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} \
-              "echo 'Connection $i successful'" || echo "❌ Connection $i failed"
-            sleep 2
-          done
+            # Đảm bảo thư mục tồn tại
+            mkdir -p /home/${{ secrets.VPS_USER }}/logineko
 
-      # 8️⃣ Summary
-      - name: Test Summary
-        if: always()
-        run: |
-          echo "=================================="
-          echo "📊 TEST SUMMARY"
-          echo "=================================="
-          echo "Host: ${{ secrets.VPS_IP }}"
-          echo "Port: 2222"
-          echo "User: ${{ secrets.VPS_USER }}"
-          echo ""
-          echo "✅ Nếu tất cả test pass = SSH hoạt động tốt"
-          echo "❌ Nếu có test fail = cần check log chi tiết"
-          echo "=================================="
+            # Restart Docker container
+            echo "🧱 Đang build & restart container..."
+            docker compose down || true
+            docker compose up -d --build
+
+            echo "✅ Deploy thành công!"
