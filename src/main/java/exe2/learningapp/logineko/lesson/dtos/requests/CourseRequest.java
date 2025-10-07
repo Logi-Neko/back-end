@@ -26,6 +26,5 @@ public class CourseRequest {
 
     Boolean isActive = true;
 
-    @Min(value = 1000, message = "Giá phải lớn hơn 1000")
     Long price;
 }
