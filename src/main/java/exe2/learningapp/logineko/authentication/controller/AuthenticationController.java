@@ -206,7 +206,7 @@ public class AuthenticationController {
         ));
     }
 
-    @PostMapping("/test-cicd")
+    @PostMapping("/test-cicd-part2")
     @Operation(summary = "Test CI/CD deployment")
     public ResponseEntity<ApiResponse<String>> testCicd() {
         return ResponseEntity.ok(ApiResponse.success(
