@@ -24,6 +24,12 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
     public void updateScore(Long contestId, Long participantId, int delta) {
         Participant participant = participantRepository.findById(participantId)
                 .orElseThrow(() -> new RuntimeException("Participant not found"));
+        
+        // Calculate total score from all answers for this participant
+        int totalScore = participant.getSubmissions().stream()
+                .mapToInt(answer -> answer.getScore())
+                .sum();
+        
         LeaderBoard lb = leaderboardRepository
                 .findByContest_IdAndParticipant_Id(contestId, participant.getId());
 
@@ -31,12 +37,19 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
             lb = LeaderBoard.builder()
                     .contest(participant.getContest())
                     .participant(participant)
-                    .score(delta)
+                    .score(totalScore)
                     .build();
         } else {
-            lb.setScore(lb.getScore() + delta);
+            lb.setScore(totalScore);
         }
         leaderboardRepository.save(lb);
+        
+        // Also update participant's total score
+        participant.setScore(totalScore);
+        participantRepository.save(participant);
+        
+        log.info("📊 Updated leaderboard for participant {} in contest {}: {} points", 
+            participantId, contestId, totalScore);
     }
     @Transactional
     @Override

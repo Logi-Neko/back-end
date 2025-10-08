@@ -176,6 +176,47 @@ public class GameController {
         }
     }
 
+    @PostMapping("/end-question/{contestQuestionId}")
+    @Operation(summary = "Kết thúc câu hỏi", description = "Kết thúc câu hỏi, hiển thị đáp án đúng và tính điểm")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Kết thúc câu hỏi thành công"),
+        @ApiResponse(responseCode = "404", description = "Câu hỏi không tồn tại"),
+        @ApiResponse(responseCode = "500", description = "Lỗi server")
+    })
+    public ResponseEntity<?> endQuestion(@PathVariable Long contestQuestionId) {
+        log.info("⏰ Ending question {}", contestQuestionId);
+        
+        try {
+            // Validate contest question exists
+            var contestQuestionOpt = contestQuestionService.findById(contestQuestionId);
+            if (contestQuestionOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Contest question not found"));
+            }
+            
+            var contestQuestion = contestQuestionOpt.get();
+            Long contestId = contestQuestion.contestId();
+            
+            // Publish question ended event (this will calculate scores)
+            eventProducer.publishQuestionEnded(contestQuestionId);
+            
+            log.info("✅ Question {} ended successfully for contest {}", contestQuestionId, contestId);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Question ended successfully",
+                "data", Map.of(
+                    "contestQuestionId", contestQuestionId,
+                    "contestId", contestId
+                )
+            ));
+            
+        } catch (Exception e) {
+            log.error("❌ Error ending question {}: {}", contestQuestionId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error ending question: " + e.getMessage()));
+        }
+    }
+
     // ==================== ANSWER SUBMISSION ====================
     
     @PostMapping("/{contestId}/submit/{participantId}/{contestQuestionId}")
@@ -190,7 +231,8 @@ public class GameController {
             @PathVariable Long contestId, 
             @PathVariable Long participantId,
             @PathVariable Long contestQuestionId, 
-            @RequestParam String answer) {
+            @RequestParam String answer,
+            @RequestParam(required = false) Integer timeSpent) {
         
         log.info("📤 Submitting answer for participant {} in contest {} for question {}", 
             participantId, contestId, contestQuestionId);
@@ -223,8 +265,8 @@ public class GameController {
                     .body(Map.of("success", false, "message", "Answer cannot be empty"));
             }
             
-            // Publish answer submitted event
-            eventProducer.publishAnswerSubmitted(contestId, participantId, contestQuestionId, answer.trim());
+            // Publish answer submitted event with timeSpent (but don't calculate score yet)
+            eventProducer.publishAnswerSubmitted(contestId, participantId, contestQuestionId, answer.trim(), timeSpent);
             
             log.info("✅ Answer submitted successfully for participant {} in contest {}", participantId, contestId);
             return ResponseEntity.ok(Map.of(

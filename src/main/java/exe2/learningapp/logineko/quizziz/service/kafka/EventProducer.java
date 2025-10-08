@@ -225,7 +225,7 @@ public class EventProducer {
     }
 
     @Transactional
-    public CompletableFuture<SendResult<String, Object>> publishAnswerSubmitted(Long contestId, Long participantId, Long contestQuestionId, String answer) {
+    public CompletableFuture<SendResult<String, Object>> publishAnswerSubmitted(Long contestId, Long participantId, Long contestQuestionId, String answer, Integer timeSpent) {
         log.info("📤 Publishing answer submitted event for participant {} in contest {}", participantId, contestId);
         
         try {
@@ -265,22 +265,19 @@ public class EventProducer {
                 throw new IllegalStateException("Duplicate answer submission detected");
             }
             
-            // Calculate score and save answer
-            ScoreCalculationResult scoreResult = calculateAnswerScore(contestQuestionId, answer.trim());
-            
-            // Save answer to database
+            // Save answer to database WITHOUT calculating score yet
+            // Score will be calculated when question time expires
             answerService.saveFromEvent(
                 submissionUuid,
                 participantId,
                 contestQuestionId,
-                parseAnswerOptionId(answer.trim()),
-                scoreResult.isCorrect(),
-                scoreResult.getScore(),
-                scoreResult.getAnswerTime()
+                findAnswerOptionId(contestQuestionId, answer.trim()),
+                false, // Will be updated later when scoring
+                0, // Score will be calculated later
+                timeSpent != null ? timeSpent * 1000 : 0 // Convert to milliseconds
             );
             
-            // Update leaderboard
-            leaderBoardService.updateScore(contestId, participantId, scoreResult.getScore());
+            // Don't update leaderboard yet - wait for question to end
             
             // Create and publish answer submitted event
             GameEventDTO.AnswerSubmittedEvent event = GameEventDTO.AnswerSubmittedEvent.builder()
@@ -292,11 +289,10 @@ public class EventProducer {
                     .timestamp(Instant.now())
                     .build();
             
-            // Also publish score updated event
-            publishScoreUpdatedInternal(contestId, participantId, scoreResult);
+            // Don't publish score updated event yet - wait for question to end
             
-            log.info("✅ Answer submitted and processed for participant {} in contest {} - Score: {} (Correct: {})", 
-                participantId, contestId, scoreResult.getScore(), scoreResult.isCorrect());
+            log.info("✅ Answer submitted and saved for participant {} in contest {} - Score will be calculated when question ends", 
+                participantId, contestId);
             
             return publishAnswerSubmitted(contestId, event);
             
@@ -385,6 +381,59 @@ public class EventProducer {
         }
     }
 
+    /**
+     * Calculate and update scores for a specific question when time expires
+     */
+    @Transactional
+    public CompletableFuture<SendResult<String, Object>> publishQuestionEnded(Long contestQuestionId) {
+        log.info("⏰ Publishing question ended event for contest question {}", contestQuestionId);
+        
+        try {
+            // Get contest question details
+            var contestQuestionOpt = contestQuestionService.findById(contestQuestionId);
+            if (contestQuestionOpt.isEmpty()) {
+                throw new RuntimeException("Contest question not found with ID: " + contestQuestionId);
+            }
+            
+            var contestQuestion = contestQuestionOpt.get();
+            Long contestId = contestQuestion.contestId();
+            
+            // Get question details to find correct answer
+            var question = questionService.findById(contestQuestion.questionId());
+            if (question == null) {
+                throw new RuntimeException("Question not found with ID: " + contestQuestion.questionId());
+            }
+            
+            // Find correct answer
+            String correctAnswer = question.options().stream()
+                .filter(option -> option.isCorrect())
+                .map(option -> option.optionText())
+                .findFirst()
+                .orElse("");
+            
+            // Calculate scores for all submitted answers
+            calculateAndUpdateScoresForQuestion(contestQuestionId, correctAnswer);
+            
+            // Create question ended event with correct answer
+            GameEventDTO.QuestionEndedEvent event = GameEventDTO.QuestionEndedEvent.builder()
+                    .eventType("question.ended")
+                    .contestId(contestId)
+                    .contestQuestionId(contestQuestionId)
+                    .correctAnswer(correctAnswer)
+                    .timestamp(Instant.now())
+                    .build();
+            
+            log.info("✅ Question {} ended for contest {} - Correct answer: {}", 
+                contestQuestionId, contestId, correctAnswer);
+            
+            return sendEvent(contestId, event);
+            
+        } catch (Exception e) {
+            log.error("❌ Error ending question {}: {}", contestQuestionId, e.getMessage(), e);
+            throw new RuntimeException("Failed to end question: " + e.getMessage(), e);
+        }
+    }
+
 
     public static QuestionDTO.QuestionResponse toResponse(Question question) {
         return new QuestionDTO.QuestionResponse(
@@ -442,68 +491,7 @@ public class EventProducer {
         }
     }
     
-    /**
-     * Publish score updated event internally
-     */
-    private void publishScoreUpdatedInternal(Long contestId, Long participantId, ScoreCalculationResult scoreResult) {
-        try {
-            // Get current total score
-            List<LeaderBoardDTO.LeaderBoardResponse> leaderboard = leaderBoardService.getLeaderboard(contestId);
-            int currentScore = leaderboard.stream()
-                .filter(lb -> lb.participantId().equals(participantId))
-                .mapToInt(LeaderBoardDTO.LeaderBoardResponse::score)
-                .findFirst()
-                .orElse(0);
-            
-            publishScoreUpdated(contestId, participantId, currentScore);
-            
-        } catch (Exception e) {
-            log.error("❌ Error publishing score update for participant {} in contest {}: {}", 
-                participantId, contestId, e.getMessage(), e);
-        }
-    }
     
-    /**
-     * Calculate score for an answer
-     */
-    private ScoreCalculationResult calculateAnswerScore(Long contestQuestionId, String answer) {
-        try {
-            // Get contest question
-            var contestQuestionOpt = contestQuestionService.findById(contestQuestionId);
-            if (contestQuestionOpt.isEmpty()) {
-                return new ScoreCalculationResult(false, 0, 0);
-            }
-            
-            // Get question details
-            var question = questionService.findById(contestQuestionOpt.get().questionId());
-            if (question == null) {
-                return new ScoreCalculationResult(false, 0, 0);
-            }
-            
-            // Check if answer is correct by finding the correct option
-            Long answerOptionId = parseAnswerOptionId(answer);
-            boolean isCorrect = checkAnswerCorrectness(question, answerOptionId);
-            
-            // Calculate score based on correctness and question points
-            int baseScore = isCorrect ? question.points() : 0;
-            int timeBonus = calculateTimeBonus(3000); // Default 3 seconds
-            int totalScore = baseScore + timeBonus;
-            
-            return new ScoreCalculationResult(isCorrect, totalScore, 3000);
-            
-        } catch (Exception e) {
-            log.error("❌ Error calculating score for contest question {}: {}", contestQuestionId, e.getMessage(), e);
-            return new ScoreCalculationResult(false, 0, 0);
-        }
-    }
-    
-    /**
-     * Check if the selected answer option is correct
-     */
-    private boolean checkAnswerCorrectness(QuestionDTO.QuestionResponse question, Long answerOptionId) {
-        return question.options().stream()
-            .anyMatch(option -> option.id().equals(answerOptionId) && option.isCorrect());
-    }
     
     /**
      * Calculate time bonus based on answer speed
@@ -520,17 +508,109 @@ public class EventProducer {
     }
     
     /**
-     * Parse answer string to get answer option ID
+     * Find answer option ID by matching answer text
      */
-    private Long parseAnswerOptionId(String answer) {
+    private Long findAnswerOptionId(Long contestQuestionId, String answer) {
         try {
-            return Long.parseLong(answer);
-        } catch (NumberFormatException e) {
-            // If answer is not a number, generate hash-based ID
-            return (long) Math.abs(answer.hashCode());
+            // Get contest question
+            var contestQuestionOpt = contestQuestionService.findById(contestQuestionId);
+            if (contestQuestionOpt.isEmpty()) {
+                return 0L;
+            }
+            
+            // Get question details
+            var question = questionService.findById(contestQuestionOpt.get().questionId());
+            if (question == null) {
+                return 0L;
+            }
+            
+            // Find matching option
+            return question.options().stream()
+                .filter(option -> option.optionText().equals(answer))
+                .map(option -> option.id())
+                .findFirst()
+                .orElse(0L);
+                
+        } catch (Exception e) {
+            log.error("❌ Error finding answer option ID for answer '{}': {}", answer, e.getMessage());
+            return 0L;
         }
     }
     
+    /**
+     * Calculate and update scores for all answers of a specific question
+     */
+    private void calculateAndUpdateScoresForQuestion(Long contestQuestionId, String correctAnswer) {
+        try {
+            // Get all answers for this question (using Pageable.unpaged() to get all)
+            var answersPage = answerService.findByContestQuestion(contestQuestionId, org.springframework.data.domain.Pageable.unpaged());
+            var answers = answersPage.getContent();
+            
+            // Get contest question details
+            var contestQuestionOpt = contestQuestionService.findById(contestQuestionId);
+            if (contestQuestionOpt.isEmpty()) {
+                log.error("❌ Contest question not found for ID: {}", contestQuestionId);
+                return;
+            }
+            
+            var contestQuestion = contestQuestionOpt.get();
+            Long contestId = contestQuestion.contestId();
+            
+            // Get question details
+            var question = questionService.findById(contestQuestion.questionId());
+            if (question == null) {
+                log.error("❌ Question not found for ID: {}", contestQuestion.questionId());
+                return;
+            }
+            
+            log.info("📊 Calculating scores for question {} - Correct answer: {}", contestQuestionId, correctAnswer);
+            
+            for (var answer : answers) {
+                try {
+                    // Get participant's answer text
+                    String participantAnswer = getAnswerTextFromOptionId(answer.answerOptionId(), question);
+                    
+                    // Calculate score
+                    boolean isCorrect = correctAnswer.equals(participantAnswer);
+                    int baseScore = isCorrect ? question.points() : 0;
+                    int timeBonus = calculateTimeBonus(answer.answerTime());
+                    int totalScore = baseScore + timeBonus;
+                    
+                    // Update answer with correct score
+                    answerService.updateAnswerScore(answer.id(), isCorrect, totalScore);
+                    
+                    // Update leaderboard with delta score (not total score)
+                    leaderBoardService.updateScore(contestId, answer.participantId(), totalScore);
+                    
+                    log.info("✅ Updated score for participant {}: {} points (Correct: {})", 
+                        answer.participantId(), totalScore, isCorrect);
+                        
+                } catch (Exception e) {
+                    log.error("❌ Error calculating score for participant {}: {}", 
+                        answer.participantId(), e.getMessage());
+                }
+            }
+            
+            // Send leaderboard update after all scores are calculated
+            log.info("📊 Sending leaderboard update for contest {}", contestId);
+            publishLeaderboardRefresh(contestId);
+            
+        } catch (Exception e) {
+            log.error("❌ Error calculating scores for question {}: {}", contestQuestionId, e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Get answer text from option ID
+     */
+    private String getAnswerTextFromOptionId(Long optionId, QuestionDTO.QuestionResponse question) {
+        return question.options().stream()
+            .filter(option -> option.id().equals(optionId))
+            .map(option -> option.optionText())
+            .findFirst()
+            .orElse("");
+    }
+
     /**
      * Generate unique submission UUID
      */
@@ -539,22 +619,4 @@ public class EventProducer {
         return (long) Math.abs(uuidString.hashCode());
     }
     
-    /**
-     * Inner class for score calculation result
-     */
-    private static class ScoreCalculationResult {
-        private final boolean correct;
-        private final int score;
-        private final int answerTime;
-        
-        public ScoreCalculationResult(boolean correct, int score, int answerTime) {
-            this.correct = correct;
-            this.score = score;
-            this.answerTime = answerTime;
-        }
-        
-        public boolean isCorrect() { return correct; }
-        public int getScore() { return score; }
-        public int getAnswerTime() { return answerTime; }
-    }
 }

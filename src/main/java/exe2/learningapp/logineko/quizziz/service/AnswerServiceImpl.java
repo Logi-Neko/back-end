@@ -137,6 +137,17 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     public void saveAnswer(AnswerDTO.AnswerResponse answerResponse) {
+        // Implementation not needed for now
+    }
 
+    @Override
+    @Transactional
+    public void updateAnswerScore(Long answerId, boolean isCorrect, int score) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new RuntimeException("Answer not found with ID: " + answerId));
+        
+        answer.setCorrect(isCorrect);
+        answer.setScore(score);
+        answerRepository.save(answer);
     }
 }

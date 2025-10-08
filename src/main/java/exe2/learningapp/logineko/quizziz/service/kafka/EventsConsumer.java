@@ -66,6 +66,9 @@ public class EventsConsumer {
                 case "participant.created":
                     handleParticipantCreatedEvent(json, contestId);
                     break;
+                case "question.ended":
+                    handleQuestionEndedEvent(json, contestId);
+                    break;
                 default:
                     log.warn("⚠️ Unknown event type: {}", eventType);
             }
@@ -135,5 +138,20 @@ public class EventsConsumer {
             Long participantId = event.get("participantId").asLong();
             messagingTemplate.convertAndSend("/topic/contest." + contestId + ".participant." + participantId, event);
         }
+    }
+
+    private void handleQuestionEndedEvent(JsonNode event, Long contestId) {
+        log.info("➡️ Processing question ended event for contest {}", contestId);
+        
+        // Broadcast to all participants in the contest
+        messagingTemplate.convertAndSend("/topic/contest." + contestId, event);
+        
+        // Also send to specific question topic if needed
+        if (event.has("contestQuestionId")) {
+            Long contestQuestionId = event.get("contestQuestionId").asLong();
+            messagingTemplate.convertAndSend("/topic/contest." + contestId + ".question." + contestQuestionId, event);
+        }
+        
+        log.info("✅ Question ended event broadcasted for contest {}", contestId);
     }
 }

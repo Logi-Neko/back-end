@@ -86,4 +86,16 @@ public class GameEventDTO {
                 private String name;
                 private Instant timestamp;
         }
+
+        @Data
+        @Builder
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class QuestionEndedEvent {
+                private String eventType; // question.ended
+                private Long contestId;
+                private Long contestQuestionId;
+                private String correctAnswer;
+                private Instant timestamp;
+        }
 }
