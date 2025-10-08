@@ -16,11 +16,12 @@ jobs:
         uses: actions/checkout@v4
 
       # ☕ 2. Cài Java 21 (Temurin)
-      - name: Set up JDK 21
+      - name: Set up JDK 21 and Maven
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+          maven-version: '3.9.8' # <--- Thêm dòng này
 
       # ⚙️ 3. Build project bằng Maven
       - name: Build with Maven
