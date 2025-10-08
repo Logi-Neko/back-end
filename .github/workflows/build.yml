@@ -1,4 +1,6 @@
-name: Build and Deploy LogiNeko on Windows
+# Tên file: .github/workflows/build.yml
+
+name: Build on GitHub, Deploy on Windows
 
 on:
   push:
@@ -6,32 +8,58 @@ on:
       - cicd # Hoặc nhánh bạn muốn dùng
 
 jobs:
-  build-and-deploy-windows:
-    # 🎯 Yêu cầu job này phải chạy trên runner bạn vừa cài đặt
-    runs-on: self-hosted
-
+  # ----------------------------------------------------------------
+  # JOB 1: BUILD TRÊN MÁY ẢO CỦA GITHUB (UBUNTU)
+  # ----------------------------------------------------------------
+  build-and-push-image:
+    runs-on: ubuntu-latest # Chạy trên máy chủ của GitHub, rất nhanh và mạnh
     steps:
       # 🧩 1. Lấy code từ branch
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ☕ 2. Cài Java 21 (Temurin)
+      # ☕ 2. Cài Java 21 và Maven
       - name: Set up JDK 21 and Maven
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          maven-version: '3.9.8' # <--- Thêm dòng này
+          maven-version: '3.9.8'
 
       # ⚙️ 3. Build project bằng Maven
       - name: Build with Maven
-        # Chạy lệnh Maven bằng PowerShell
         run: mvn clean package -DskipTests
-        shell: powershell
 
-      # 🔐 4. Tạo file .env từ secrets GitHub (cú pháp cho PowerShell)
+      # 🔐 4. Đăng nhập vào Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }} # Cần tạo secret này
+          password: ${{ secrets.DOCKERHUB_TOKEN }}   # Cần tạo secret này
+
+      # 🐳 5. Build và đẩy Docker image lên Docker Hub
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: . # Lấy Dockerfile từ thư mục gốc
+          push: true
+          # 👇 THAY THẾ 'your-username/logineko-be' bằng tên của bạn
+          tags: alfred0324/logineko-be:latest
+
+  # ----------------------------------------------------------------
+  # JOB 2: DEPLOY TRÊN MÁY WINDOWS 11 CỦA BẠN
+  # ----------------------------------------------------------------
+  deploy-on-windows:
+    runs-on: self-hosted # Chạy trên runner bạn đã cài đặt
+    needs: build-and-push-image # Phải chờ job 1 thành công
+    steps:
+      # 🧩 1. Lấy code từ branch (để có file docker-compose.yml)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 🔐 2. Tạo file .env từ secrets (dùng PowerShell có sẵn của Windows)
       - name: Create .env file
-        shell: pwsh
+        shell: powershell # Đổi từ pwsh thành powershell
         run: |
           @"
           KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}
@@ -56,36 +84,18 @@ jobs:
           PAYOS_FAILURE_PAGE=${{ secrets.PAYOS_FAILURE_PAGE }}
           "@ | Out-File -FilePath .env -Encoding utf8
 
-      # 🚀 5. Deploy trực tiếp bằng Docker Compose
-      - name: Deploy with Docker Compose
-        shell: pwsh
+      # 🚀 3. Kéo image mới và khởi động lại container
+      - name: Pull image and restart services
+        shell: powershell # Đổi từ pwsh thành powershell
         run: |
-          # Dừng lại nếu có lỗi xảy ra
-          $ErrorActionPreference = "Stop"
-
-          echo "🚀 Starting deployment directly on Windows host..."
+          echo "🚀 Starting deployment on Windows..."
           
-          # Di chuyển vào thư mục chứa code mà runner đã checkout
-          # Đây là nơi chứa file .jar, .env và docker-compose.yml của bạn
-          cd "${{ github.workspace }}"
+          echo "🐳 Pulling latest image from Docker Hub..."
+          # Lệnh pull sẽ tự động kéo image được định nghĩa trong docker-compose.yml
+          docker compose pull
           
-          echo "📁 Current directory:"
-          ls
+          echo "🏗️ Recreating containers with the new image..."
+          # Lệnh up sẽ chỉ tạo lại các service có image mới
+          docker compose up -d --force-recreate
           
-          # Đảm bảo Docker Desktop đang chạy (bước này bạn cần tự đảm bảo)
-          echo "🛑 Stopping existing containers..."
-          docker compose down --timeout 30
-          
-          echo "🧹 Cleaning up old images..."
-          docker system prune -f
-          
-          echo "🏗️ Building and starting new containers..."
-          docker compose up -d --build --force-recreate
-          
-          echo "⏳ Waiting for containers to stabilize..."
-          Start-Sleep -Seconds 30
-          
-          echo "📊 Final container status:"
-          docker compose ps
-          
-          echo "✅ Deployment on Windows completed successfully!"
+          echo "✅ Deployment completed!"

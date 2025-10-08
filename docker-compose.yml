@@ -60,7 +60,7 @@ services:
     restart: unless-stopped
 
   logineko-be:
-    build: .
+    image: alfred0324/logineko-be:latest
     container_name: logineko_be
     depends_on:
       - keycloak
