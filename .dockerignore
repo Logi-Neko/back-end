@@ -1,6 +1,5 @@
 .git
 .idea
-target/
 build/
 .vscode/
 HELP.md
