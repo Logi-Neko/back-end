@@ -26,7 +26,7 @@ jobs:
       - name: Build with Maven
         # Chạy lệnh Maven bằng PowerShell
         run: mvn clean package -DskipTests
-        shell: pwsh
+        shell: powershell
 
       # 🔐 4. Tạo file .env từ secrets GitHub (cú pháp cho PowerShell)
       - name: Create .env file
