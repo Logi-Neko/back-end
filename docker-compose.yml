@@ -6,6 +6,7 @@ services:
     image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
     command: start-dev --db=postgres --verbose --features=token-exchange
+
     environment:
       # Admin account
       KEYCLOAK_ADMIN: admin
@@ -17,7 +18,7 @@ services:
       KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
       # Hostname config
-      KC_HOSTNAME: localhost
+      KC_HOSTNAME: 103.200.20.205
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true

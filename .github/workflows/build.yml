@@ -1,13 +1,14 @@
-name: Build and Deploy LogiNeko
+name: Build and Deploy LogiNeko on Windows
 
 on:
   push:
     branches:
-      - cicd
+      - cicd # Hoặc nhánh bạn muốn dùng
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  build-and-deploy-windows:
+    # 🎯 Yêu cầu job này phải chạy trên runner bạn vừa cài đặt
+    runs-on: self-hosted
 
     steps:
       # 🧩 1. Lấy code từ branch
@@ -23,12 +24,15 @@ jobs:
 
       # ⚙️ 3. Build project bằng Maven
       - name: Build with Maven
+        # Chạy lệnh Maven bằng PowerShell
         run: mvn clean package -DskipTests
+        shell: pwsh
 
-      # 🔐 4. Tạo file .env từ secrets GitHub
+      # 🔐 4. Tạo file .env từ secrets GitHub (cú pháp cho PowerShell)
       - name: Create .env file
+        shell: pwsh
         run: |
-          cat > .env <<EOF
+          @"
           KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}
           KEYCLOAK_URL=${{ secrets.KEYCLOAK_URL }}
           KEYCLOAK_URL_WEB=${{ secrets.KEYCLOAK_URL_WEB }}
@@ -49,95 +53,38 @@ jobs:
           PAYOS_BASE_URL=${{ secrets.PAYOS_BASE_URL }}
           PAYOS_SUCCESS_PAGE=${{ secrets.PAYOS_SUCCESS_PAGE }}
           PAYOS_FAILURE_PAGE=${{ secrets.PAYOS_FAILURE_PAGE }}
-          EOF
+          "@ | Out-File -FilePath .env -Encoding utf8
 
-      # 🧪 Test SSH connection first
-      - name: Test SSH Connection
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 2222
-          timeout: 30s
-          command_timeout: 10s
-          script: |
-            echo "✅ SSH connection successful!"
-            whoami
-            pwd
-            df -h
+      # 🚀 5. Deploy trực tiếp bằng Docker Compose
+      - name: Deploy with Docker Compose
+        shell: pwsh
+        run: |
+          # Dừng lại nếu có lỗi xảy ra
+          $ErrorActionPreference = "Stop"
 
-      # 📤 Upload files với retry logic
-      - name: Upload build files to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 2222
-          timeout: 300s
-          command_timeout: 120s
-          use_insecure_cipher: false
-          rm: true
-          debug: true
-          overwrite: true
-          source: "target/*.jar,.env,docker-compose.yml"
-          target: "/home/${{ secrets.VPS_USER }}/logineko"
-
-      # 🛑 Wait before deployment
-      - name: Wait before deploy
-        run: sleep 10
-
-      # 🚀 Deploy with better error handling
-      - name: Deploy on VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: 2222
-          timeout: 600s
-          command_timeout: 15m
-          script: |
-            set -e
-            echo "🚀 Starting deployment on VPS..."
-            
-            # Navigate to project directory
-            cd /home/${{ secrets.VPS_USER }}/logineko || exit 1
-            
-            # Check if files were uploaded successfully
-            echo "📁 Checking uploaded files..."
-            ls -la
-            
-            # Ensure Docker is running
-            if ! systemctl is-active --quiet docker; then
-              echo "🔧 Starting Docker service..."
-              sudo systemctl start docker
-              sleep 5
-            fi
-            
-            # Stop existing containers gracefully
-            echo "🛑 Stopping existing containers..."
-            docker compose down --timeout 30 || true
-            
-            # Clean up old images to free space
-            echo "🧹 Cleaning up Docker resources..."
-            docker system prune -f || true
-            
-            # Build and start new containers
-            echo "🏗️ Building and starting containers..."
-            docker compose up -d --build --force-recreate
-            
-            # Wait for containers to be ready
-            echo "⏳ Waiting for containers to start..."
-            sleep 30
-            
-            # Check container status
-            echo "📊 Container status:"
-            docker compose ps
-            
-            # Check logs for any immediate errors
-            echo "📋 Recent logs:"
-            docker compose logs --tail=20
-            
-            echo "✅ Deployment completed successfully!"
+          echo "🚀 Starting deployment directly on Windows host..."
+          
+          # Di chuyển vào thư mục chứa code mà runner đã checkout
+          # Đây là nơi chứa file .jar, .env và docker-compose.yml của bạn
+          cd "${{ github.workspace }}"
+          
+          echo "📁 Current directory:"
+          ls
+          
+          # Đảm bảo Docker Desktop đang chạy (bước này bạn cần tự đảm bảo)
+          echo "🛑 Stopping existing containers..."
+          docker compose down --timeout 30
+          
+          echo "🧹 Cleaning up old images..."
+          docker system prune -f
+          
+          echo "🏗️ Building and starting new containers..."
+          docker compose up -d --build --force-recreate
+          
+          echo "⏳ Waiting for containers to stabilize..."
+          Start-Sleep -Seconds 30
+          
+          echo "📊 Final container status:"
+          docker compose ps
+          
+          echo "✅ Deployment on Windows completed successfully!"
