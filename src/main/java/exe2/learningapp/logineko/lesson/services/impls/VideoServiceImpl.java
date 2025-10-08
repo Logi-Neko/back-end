@@ -79,7 +79,11 @@ public class VideoServiceImpl implements VideoService {
 
             videoEntity.setVideoUrl(videoData.getFirst());
             videoEntity.setVideoPublicId(videoData.getSecond());
-            videoEntity.setDuration(fileUtil.getDurationMp4(video));
+            if (video.getContentType() != null && video.getContentType().equalsIgnoreCase("video/mp4")) {
+                videoEntity.setDuration(fileUtil.getDurationMp4(video));
+            } else {
+                videoEntity.setDuration(0L);
+            }
         } catch (IOException e) {
             throw new AppException(ErrorCode.ERR_SERVER_ERROR);
         }
@@ -139,7 +143,11 @@ public class VideoServiceImpl implements VideoService {
 
                 videoEntity.setVideoUrl(videoData.getFirst());
                 videoEntity.setVideoPublicId(videoData.getSecond());
-                videoEntity.setDuration(fileUtil.getDurationMp4(video));
+                if (video.getContentType() != null && video.getContentType().equalsIgnoreCase("video/mp4")) {
+                    videoEntity.setDuration(fileUtil.getDurationMp4(video));
+                } else {
+                    videoEntity.setDuration(0L);
+                }
             } catch (IOException e) {
                 throw new AppException(ErrorCode.ERR_SERVER_ERROR);
             }
