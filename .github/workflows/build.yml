@@ -5,7 +5,7 @@ name: Build on GitHub, Deploy on Windows
 on:
   push:
     branches:
-      - cicd # Hoặc nhánh bạn muốn dùng
+      - main # Hoặc nhánh bạn muốn dùng
 
 jobs:
   # ----------------------------------------------------------------

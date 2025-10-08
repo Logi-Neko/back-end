@@ -206,6 +206,14 @@ public class AuthenticationController {
         ));
     }
 
+    @PostMapping("/test-cicd")
+    @Operation(summary = "test")
+    public ResponseEntity<ApiResponse<?>> testCicd(@RequestBody @Valid AccountDTO.LoginRequest loginRequest) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Test cicd thành công"
+        ));
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<?>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
             accountService.sendResetPasswordEmail(request.username());
