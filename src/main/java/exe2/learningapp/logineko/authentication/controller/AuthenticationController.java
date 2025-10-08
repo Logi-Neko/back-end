@@ -207,10 +207,11 @@ public class AuthenticationController {
     }
 
     @PostMapping("/test-cicd")
-    @Operation(summary = "test")
-    public ResponseEntity<ApiResponse<?>> testCicd(@RequestBody @Valid AccountDTO.LoginRequest loginRequest) {
+    @Operation(summary = "Test CI/CD deployment")
+    public ResponseEntity<ApiResponse<String>> testCicd() {
         return ResponseEntity.ok(ApiResponse.success(
-                "Test cicd thành công"
+                "Test CI/CD thành công",
+                "CI/CD pipeline đang hoạt động bình thường"
         ));
     }
 
