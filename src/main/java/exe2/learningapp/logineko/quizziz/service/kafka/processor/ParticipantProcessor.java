@@ -1,8 +1,7 @@
 package exe2.learningapp.logineko.quizziz.service.kafka.processor;
 
-import exe2.learningapp.logineko.quizziz.dto.GameEventDTO;
+import com.fasterxml.jackson.databind.JsonNode;
 import exe2.learningapp.logineko.quizziz.service.ParticipantService;
-import exe2.learningapp.logineko.quizziz.service.LeaderBoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,42 +12,25 @@ import org.springframework.stereotype.Service;
 public class ParticipantProcessor {
     
     private final ParticipantService participantService;
-    private final LeaderBoardService leaderBoardService;
 
     public void handleParticipantCreated(Object event, Long contestId) {
-        log.info("Processing participant created for contest {}", contestId);
+        log.info("👤 Processing participant created event for contest {}", contestId);
         
         try {
-            if (event instanceof GameEventDTO.ParticipantCreatedEvent) {
-                GameEventDTO.ParticipantCreatedEvent participantEvent = (GameEventDTO.ParticipantCreatedEvent) event;
+            JsonNode jsonEvent = (JsonNode) event;
+            
+            if (jsonEvent.has("participantId")) {
+                Long participantId = jsonEvent.get("participantId").asLong();
+                String participantName = jsonEvent.has("name") ? jsonEvent.get("name").asText() : "Unknown";
                 
-                // Check if participant already exists
-                var existingParticipant = participantService.findById(participantEvent.getParticipantId());
-                if (existingParticipant.isPresent()) {
-                    log.warn("Participant {} already exists for contest {}", 
-                        participantEvent.getParticipantId(), contestId);
-                    return;
-                }
+                log.info("✅ Participant {} created for contest {} with name: {}", 
+                    participantId, contestId, participantName);
                 
-                // Create participant in database
-                // Note: The actual implementation would need accountId, but we're using participantId as accountId for now
-                var participant = participantService.createParticipant(
-                    participantEvent.getContestId(), 
-                    participantEvent.getParticipantId()
-                );
-                
-                // Initialize participant in leaderboard with 0 score
-                leaderBoardService.updateScore(
-                    participantEvent.getContestId(), 
-                    participantEvent.getParticipantId(), 
-                    0
-                );
-                
-                log.info("Participant {} created for contest {} with name: {} and entity ID: {}", 
-                    participantEvent.getParticipantId(), contestId, participantEvent.getName(), participant.getId());
+                // Note: Participant creation and leaderboard initialization is now handled in EventProducer
+                // This processor just logs the event for monitoring and debugging
             }
         } catch (Exception e) {
-            log.error("Error processing participant created event: {}", e.getMessage(), e);
+            log.error("❌ Error processing participant created event: {}", e.getMessage(), e);
         }
     }
 
@@ -82,14 +64,17 @@ public class ParticipantProcessor {
         log.info("Processing participant score update for contest {}", contestId);
         
         try {
-            if (event instanceof GameEventDTO.ScoreUpdatedEvent) {
-                GameEventDTO.ScoreUpdatedEvent scoreEvent = (GameEventDTO.ScoreUpdatedEvent) event;
+            JsonNode jsonEvent = (JsonNode) event;
+            
+            if (jsonEvent.has("participantId") && jsonEvent.has("score")) {
+                Long participantId = jsonEvent.get("participantId").asLong();
+                Integer score = jsonEvent.get("score").asInt();
                 
                 // Update participant score in database
-                participantService.incrementScore(scoreEvent.getParticipantId(), scoreEvent.getScore());
+                participantService.incrementScore(participantId, score);
                 
                 log.info("Participant {} score updated in contest {} to {}", 
-                    scoreEvent.getParticipantId(), contestId, scoreEvent.getScore());
+                    participantId, contestId, score);
             }
         } catch (Exception e) {
             log.error("Error processing participant score update: {}", e.getMessage(), e);

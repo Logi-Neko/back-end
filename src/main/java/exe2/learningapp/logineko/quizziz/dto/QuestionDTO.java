@@ -18,7 +18,7 @@ public class QuestionDTO {
     public record QuestionResponse(
             Long id,
             String questionText,
-            List<AnswerOptionDTO.AnswerOptionResponse> answerOptions,
+            List<AnswerOptionDTO.AnswerOptionResponse> options,
             Integer points,
             Integer timeLimit
     ){}

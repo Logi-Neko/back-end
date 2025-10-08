@@ -24,4 +24,5 @@ public interface AnswerService {
             int answerTime
     );
     void saveAnswer(AnswerDTO.AnswerResponse answerResponse);
+    void updateAnswerScore(Long answerId, boolean isCorrect, int score);
 }

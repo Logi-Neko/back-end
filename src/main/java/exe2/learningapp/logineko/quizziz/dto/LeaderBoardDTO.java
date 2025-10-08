@@ -11,6 +11,7 @@ public class LeaderBoardDTO{
     @Builder
     public record LeaderBoardResponse(
         Long participantId,
+        String participantName,
         int score,
         Integer  rank
     ){}

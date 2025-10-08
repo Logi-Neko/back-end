@@ -12,5 +12,10 @@ public interface QuestionService {
     Page<QuestionDTO.QuestionResponse> search(String textQuestion, Pageable pageable);
     Page<QuestionDTO.QuestionResponse> findAll(Pageable pageable);
    // void startQuestion(Integer questionNo);
+    
+    /**
+     * @deprecated Use EventProducer.publishQuestionRevealed() instead to avoid circular dependency
+     */
+    @Deprecated
     void revealQuestion(Long contestId,Long contestQuestionId);
 }

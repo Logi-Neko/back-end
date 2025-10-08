@@ -11,5 +11,4 @@ import java.util.List;
 public interface QuestionRepository extends JpaRepository<Question, Long> {
     Question findByQuestionText(String questionText);
     Page<Question> findByQuestionTextContainingIgnoreCase(String keyword, Pageable pageable);
-
 }

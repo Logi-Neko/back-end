@@ -3,7 +3,10 @@ package exe2.learningapp.logineko.quizziz.controller;
 import exe2.learningapp.logineko.common.dto.ApiResponse;
 import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
+import exe2.learningapp.logineko.quizziz.dto.ParticipantDTO;
+import exe2.learningapp.logineko.quizziz.entity.Participant;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
+import exe2.learningapp.logineko.quizziz.service.ParticipantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,6 +21,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/contest")
 @RequiredArgsConstructor
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 public class ContestController {
 
     private final ContestService contestService;
+    private final ParticipantService participantService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -127,5 +133,16 @@ public class ContestController {
         PaginatedResponse<ContestDTO.ContestResponse> result = new PaginatedResponse<>(contests);
 
         return ApiResponse.success(result, "Lấy danh sách contest thành công");
+    }
+
+    @GetMapping("/participant")
+    @Operation(
+            summary = "Lấy danh sách nguời chơi của 1 contest",
+description = "Lấy danh"  )
+    public ApiResponse<List<ParticipantDTO.Participant>> getAllParticipantsInContest(
+            @RequestParam Long contestId) {
+        log.info("Getting all participants in contest with ID: {}", contestId);
+        List<ParticipantDTO.Participant> participants = participantService.getParticipantsByContestId(contestId);
+        return ApiResponse.success(participants, "Lấy danh sách người chơi thành công");
     }
 }

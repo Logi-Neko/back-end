@@ -1,5 +1,7 @@
 package exe2.learningapp.logineko.quizziz.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import exe2.learningapp.logineko.authentication.entity.Account;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,7 @@ public class Participant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contest_id", nullable = false)
+    @JsonIgnore
     private Contest contest;
 
     @ManyToOne(fetch = FetchType.LAZY)

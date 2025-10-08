@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -84,14 +85,15 @@ public class ContestQuestionServiceImpl implements ContestQuestionService{
     }
 
     @Override
-    public Page<ContestQuestionDTO.ContestQuestionResponse> findByContest(Long contestId, Pageable pageable) {
-        return contestQuestionRepository.findByContest_Id(contestId,pageable)
+    public List<ContestQuestionDTO.ContestQuestionResponse> findByContest(Long contestId) {
+        return contestQuestionRepository.findByContest_Id(contestId).stream()
                 .map(entity -> ContestQuestionDTO.ContestQuestionResponse.builder()
                         .id(entity.getId())
                         .contestId(entity.getContest().getId())
                         .questionId(entity.getQuestion().getId())
                         .index(entity.getIndex())
-                        .build());
+                        .build())
+                .toList();
     }
 }
 
