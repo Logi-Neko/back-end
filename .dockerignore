@@ -1,5 +1,9 @@
+# Vẫn bỏ qua thư mục target nói chung
+target/
+# Nhưng tạo ngoại lệ, cho phép các file .jar đi qua
+!target/*.jar
+
+# Các file khác bạn muốn ignore
 .git
 .idea
-build/
-.vscode/
-HELP.md
+.vscode
