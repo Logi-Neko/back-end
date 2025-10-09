@@ -30,6 +30,7 @@ public class CorsConfig {
         // --- Mạng LAN test ---
         config.addAllowedOriginPattern("http://192.168.*.*:*");
         config.addAllowedOriginPattern("http://10.*.*.*:*");
+        //aaaa
 
         // --- Phần chung ---
         config.addAllowedHeader("*");
