@@ -23,7 +23,7 @@ public class CorsConfiguration {
         corsConfiguration.addAllowedOrigin("http://192.168.101.3:8081");
         corsConfiguration.addAllowedOrigin("https://192.168.101.3:3000");
         corsConfiguration.addAllowedOrigin("https://192.168.101.3:8081");
-        corsConfiguration.addAllowedOrigin("https://app.logineko.edu.vn");
+        corsConfiguration.addAllowedOrigin("https://auth.logineko.edu.vn");
         // Allow any origin from the local network (for Android and other devices)
         corsConfiguration.addAllowedOriginPattern("http://192.168.*.*:*");
         corsConfiguration.addAllowedOriginPattern("https://192.168.*.*:*");
