@@ -32,9 +32,8 @@ public class BeanConfig {
     }
     @Bean
     public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "oAuth2";
+        final String securitySchemeName = "bearerAuth";
 
-        // Cấu hình các server API của bạn (giữ nguyên)
         Server productionServer = new Server();
         productionServer.setUrl("https://api.logineko.edu.vn");
         productionServer.setDescription("Production server");
@@ -46,21 +45,19 @@ public class BeanConfig {
         return new OpenAPI()
                 .addServersItem(productionServer)
                 .addServersItem(devServer)
-                .info(new Info().title("LogiNeko").version("1.0"))
+                .info(new Info()
+                        .title("LogiNeko API")
+                        .version("1.0")
+                        .description("Use /api/login/exchange to get JWT token, then paste it here")
+                )
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
-                                .type(SecurityScheme.Type.OAUTH2) // <-- Đổi type thành OAUTH2
-                                .description("OAuth2 flow")
-                                .flows(new OAuthFlows()
-                                        .authorizationCode(new OAuthFlow() // <-- Chọn luồng Authorization Code
-                                                // URL để chuyển hướng người dùng đến trang đăng nhập của Keycloak
-                                                .authorizationUrl("https://auth.logineko.edu.vn/realms/LogiNeko/protocol/openid-connect/auth")
-                                                // URL để Swagger UI đổi code lấy token
-                                                .tokenUrl("https://auth.logineko.edu.vn/realms/LogiNeko/protocol/openid-connect/token")
-                                                .scopes(new Scopes().addString("openid", "profile"))
-                                        )
-                                )
+                                .name(securitySchemeName)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .description("Enter JWT token from /api/login/exchange endpoint")
                         )
                 );
     }
