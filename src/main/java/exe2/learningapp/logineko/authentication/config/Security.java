@@ -25,8 +25,8 @@ public class Security {
             "/v3/api-docs/**", // OpenAPI documentation
             "/swagger-ui/**", // Swagger UI
             "/swagger-ui.html", // Swagger UI HTML
-            "api/login/**",
-            "api/register/**"
+            "/api/login/**",
+            "/api/register/**"
     };
 
     @Bean
