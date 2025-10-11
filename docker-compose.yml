@@ -18,11 +18,11 @@ services:
       KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
       # Hostname config
-      KC_HOSTNAME: auth.logineko.edu.vn
+      KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
-      KC_PROXY: "edge"
+#      KC_PROXY: "edge"
 
       # Connection settings for Neon
       KC_DB_POOL_INITIAL_SIZE: 2
