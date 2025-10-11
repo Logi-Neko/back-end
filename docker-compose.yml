@@ -5,7 +5,12 @@ services:
   keycloak:
     image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
-    command: start --db=postgres  --optimized
+    # Use a custom entrypoint to build first, then start
+    entrypoint: [ "/bin/bash", "-c" ]
+    command:
+      - |
+        /opt/keycloak/bin/kc.sh build --features=token-exchange,preview
+        /opt/keycloak/bin/kc.sh start --optimized
 
     environment:
       # Admin account
@@ -18,14 +23,14 @@ services:
       KC_DB_USERNAME: neondb_owner
       KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
-      # Hostname config for production
+      # Hostname config
       KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
       KC_PROXY: edge
 
-      # Optimized Connection pool settings
+      # Connection pool settings
       KC_DB_POOL_INITIAL_SIZE: 10
       KC_DB_POOL_MIN_SIZE: 5
       KC_DB_POOL_MAX_SIZE: 20
@@ -34,7 +39,6 @@ services:
       # Performance optimizations
       KC_CACHE: ispn
       KC_CACHE_STACK: tcp
-      KC_FEATURES: preview
 
       # Session and token optimizations
       KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_SUCCESS_LEVEL: info
