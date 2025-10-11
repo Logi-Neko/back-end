@@ -24,7 +24,8 @@ services:
       KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
       # Hostname config
-      KC_HOSTNAME: localhost
+      KC_HOSTNAME: keycloak
+      KC_HOSTNAME_URL: http://keycloak:8080
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
@@ -84,8 +85,8 @@ services:
       - logineko_network
 
   logineko-be:
-    image: alfred0324/logineko-be:latest
-#    build: .
+#    image: alfred0324/logineko-be:latest
+    build: .
     container_name: logineko_be
     depends_on:
       - keycloak
@@ -102,5 +103,5 @@ volumes:
   postgres-data:
 
 networks:
-  logineko_network:  # ✅ ĐỊNH NGHĨA NETWORK
+  logineko_network:
     driver: bridge
