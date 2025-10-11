@@ -24,11 +24,12 @@ services:
       KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
       # Hostname config
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_STRICT: false
-      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HOSTNAME: auth.logineko.edu.vn
+      KC_HOSTNAME_STRICT: true
+      KC_HOSTNAME_STRICT_HTTPS: true
       KC_HTTP_ENABLED: true
-#      KC_PROXY: edge
+      KC_PROXY_HEADERS: xforwarded
+      KC_PROXY: edge
 
       # Connection pool settings
       KC_DB_POOL_INITIAL_SIZE: 10
