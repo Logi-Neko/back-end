@@ -72,11 +72,5 @@ SPRING_PROFILES_ACTIVE=dev
 
 Contributions are welcome! Please open issues or pull requests for bug fixes, features, or improvements.
 
-## License
-
-(Add your license here if applicable.)
-
----
-
 **Note:**  
 Some technology details are based on a limited set of code search results. [View more results on GitHub.](https://github.com/Logi-Neko/back-end/search)
