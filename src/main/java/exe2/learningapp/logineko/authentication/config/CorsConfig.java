@@ -26,7 +26,8 @@ public class CorsConfig {
         // --- Domain production ---
         config.addAllowedOrigin("https://auth.logineko.edu.vn");
         config.addAllowedOrigin("https://api.logineko.edu.vn");
-
+        config.addAllowedOrigin("https://logineko.edu.vn");
+        config.addAllowedOrigin("https://www.logineko.edu.vn");
         // --- Mạng LAN test ---
         config.addAllowedOriginPattern("http://192.168.*.*:*");
         config.addAllowedOriginPattern("http://10.*.*.*:*");
