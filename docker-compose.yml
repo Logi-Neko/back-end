@@ -85,8 +85,8 @@ services:
       - logineko_network
 
   logineko-be:
-#    image: alfred0324/logineko-be:latest
-    build: .
+    image: alfred0324/logineko-be:latest
+#    build: .
     container_name: logineko_be
     depends_on:
       - keycloak
