@@ -24,12 +24,12 @@ services:
       KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
       # Hostname config
-      KC_HOSTNAME: auth.logineko.edu.vn
-      KC_HOSTNAME_STRICT: true
-      KC_HOSTNAME_STRICT_HTTPS: true
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
-      KC_PROXY_HEADERS: xforwarded
-      KC_PROXY: edge
+#      KC_PROXY_HEADERS: xforwarded
+#      KC_PROXY: edge
 
       # Connection pool settings
       KC_DB_POOL_INITIAL_SIZE: 10
@@ -48,6 +48,9 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+
+    networks:
+      - logineko_network
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: logineko_zookeeper
@@ -57,6 +60,9 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     restart: unless-stopped
+
+    networks:
+      - logineko_network
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: logineko_kafka
@@ -74,8 +80,12 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     restart: unless-stopped
 
+    networks:
+      - logineko_network
+
   logineko-be:
-    image: alfred0324/logineko-be:latest
+#    image: alfred0324/logineko-be:latest
+    build: .
     container_name: logineko_be
     depends_on:
       - keycloak
@@ -85,5 +95,12 @@ services:
     env_file:
       - .env
     restart: always
+
+    networks:
+      - logineko_network
 volumes:
   postgres-data:
+
+networks:
+  logineko_network:  # ✅ ĐỊNH NGHĨA NETWORK
+    driver: bridge
