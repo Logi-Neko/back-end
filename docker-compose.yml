@@ -5,31 +5,51 @@ services:
   keycloak:
     image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
-    command: start-dev --db=postgres --verbose --features=token-exchange
+    command: start --db=postgres  --optimized
 
     environment:
       # Admin account
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
 
+      # Database config
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://ep-royal-sky-a1wya79r-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
       KC_DB_USERNAME: neondb_owner
       KC_DB_PASSWORD: npg_BqSeuK9wp1iR
 
-      # Hostname config
+      # Hostname config for production
       KC_HOSTNAME: localhost
       KC_HOSTNAME_STRICT: false
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
-#      KC_PROXY: "edge"
+      KC_PROXY: edge
 
-      # Connection settings for Neon
-      KC_DB_POOL_INITIAL_SIZE: 2
-      KC_DB_POOL_MIN_SIZE: 1
-      KC_DB_POOL_MAX_SIZE: 5
+      # Optimized Connection pool settings
+      KC_DB_POOL_INITIAL_SIZE: 10
+      KC_DB_POOL_MIN_SIZE: 5
+      KC_DB_POOL_MAX_SIZE: 20
+      KC_DB_POOL_MAX_LIFETIME: 600000
 
+      # Performance optimizations
+      KC_CACHE: ispn
+      KC_CACHE_STACK: tcp
       KC_FEATURES: preview
+
+      # JVM optimization
+      JAVA_OPTS_APPEND: >-
+        -Xms512m -Xmx2g
+        -XX:+UseG1GC
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+UseCGroupMemoryLimitForHeap
+        -XX:MaxGCPauseMillis=100
+        -Djava.net.preferIPv4Stack=true
+        -Djboss.modules.system.pkgs=org.jboss.byteman
+        -Djava.awt.headless=true
+
+      # Session and token optimizations
+      KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_SUCCESS_LEVEL: info
+      KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_ERROR_LEVEL: warn
 
     ports:
       - "8080:8080"
