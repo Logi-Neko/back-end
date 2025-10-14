@@ -36,7 +36,7 @@ public class Participant {
 
     @Column(name ="join_at", nullable = false)
     private LocalDateTime joinAt;
-
-    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL)
+    @Builder.Default
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Answer> submissions;
 }
