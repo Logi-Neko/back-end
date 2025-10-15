@@ -40,12 +40,12 @@ public class LeaderBoardServiceImpl implements  LeaderBoardService{
                     .score(totalScore)
                     .build();
         } else {
-            lb.setScore(totalScore);
+            lb.setScore(lb.getScore()+totalScore);
         }
         leaderboardRepository.save(lb);
         
         // Also update participant's total score
-        participant.setScore(totalScore);
+        participant.setScore(participant.getScore()+totalScore);
         participantRepository.save(participant);
         
         log.info("📊 Updated leaderboard for participant {} in contest {}: {} points", 
