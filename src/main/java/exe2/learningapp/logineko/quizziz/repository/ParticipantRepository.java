@@ -15,4 +15,5 @@ public interface ParticipantRepository  extends JpaRepository<Participant,Long> 
     
     Optional<Participant> findByContest_IdAndAccount_Id(Long contestId, Long accountId);
     List<Participant> findByContest_Id(Long contestId);
+    List<Participant> findByAccount_Id(Long accountId);
 }

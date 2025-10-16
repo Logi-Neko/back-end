@@ -3,6 +3,7 @@ package exe2.learningapp.logineko.quizziz.controller;
 import exe2.learningapp.logineko.common.dto.ApiResponse;
 import exe2.learningapp.logineko.common.dto.PaginatedResponse;
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
+import exe2.learningapp.logineko.quizziz.dto.ContestHistoryDTO;
 import exe2.learningapp.logineko.quizziz.dto.ParticipantDTO;
 import exe2.learningapp.logineko.quizziz.entity.Participant;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
@@ -145,4 +146,18 @@ description = "Lấy danh"  )
         List<ParticipantDTO.Participant> participants = participantService.getParticipantsByContestId(contestId);
         return ApiResponse.success(participants, "Lấy danh sách người chơi thành công");
     }
+
+    @PostMapping("/{id}/reward-top-5")
+    @Operation(summary = "Thưởng cho top 5 người chơi")
+    public ApiResponse<Void> rewardTopFive(@PathVariable Long id) {
+        contestService.rewardTopFiveParticipants(id);
+        return ApiResponse.success(null, "Đã trao thưởng thành công cho top 5 người chơi");
+    }
+
+    @GetMapping("/history/{accountId}")
+    @Operation(summary = "Lấy lịch sử cuộc thi của một tài khoản")
+    public ApiResponse<List<ContestHistoryDTO>> getContestHistory(@PathVariable Long accountId) {
+        return ApiResponse.success(contestService.getContestHistory(accountId));
+    }
+
 }
