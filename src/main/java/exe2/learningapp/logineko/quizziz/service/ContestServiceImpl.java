@@ -1,24 +1,35 @@
 package exe2.learningapp.logineko.quizziz.service;
 
+import exe2.learningapp.logineko.authentication.entity.Account;
+import exe2.learningapp.logineko.authentication.repository.AccountRepository;
 import exe2.learningapp.logineko.common.exception.AppException;
 import exe2.learningapp.logineko.common.exception.ErrorCode;
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
+import exe2.learningapp.logineko.quizziz.dto.ContestHistoryDTO;
+import exe2.learningapp.logineko.quizziz.dto.LeaderBoardDTO;
 import exe2.learningapp.logineko.quizziz.entity.Contest;
+import exe2.learningapp.logineko.quizziz.entity.Participant;
 import exe2.learningapp.logineko.quizziz.repository.ContestRepository;
+import exe2.learningapp.logineko.quizziz.repository.ParticipantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ContestServiceImpl implements ContestService {
     private final ContestRepository contestRepository;
-
+    private final ParticipantRepository participantRepository;
+    private final LeaderBoardService leaderBoardService;
+    private final AccountRepository accountRepository;
 
 
     @Override
@@ -159,5 +170,39 @@ public class ContestServiceImpl implements ContestService {
         // Note: Event publishing is now handled in EventProducer.publishContestEnded()
         // to avoid circular dependency
     }
+    @Override
+    @Transactional
+    public void rewardTopFiveParticipants(Long contestId) {
+        List<LeaderBoardDTO.LeaderBoardResponse> leaderboard = leaderBoardService.getLeaderboard(contestId);
+        int limit = Math.min(5, leaderboard.size());
+        for (int i = 0; i < limit; i++) {
+            LeaderBoardDTO.LeaderBoardResponse boardResponse = leaderboard.get(i);
+            Participant participant = participantRepository.findById(boardResponse.participantId())
+                    .orElseThrow(() -> new AppException(ErrorCode.ERR_NOT_FOUND));
+            Account account = participant.getAccount();
+            // Example: Add 100 stars for top 5
+            account.setTotalStar(account.getTotalStar() + 100 - i*20);
+            accountRepository.save(account);
+        }
+    }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ContestHistoryDTO> getContestHistory(Long accountId) {
+        List<Participant> participations = participantRepository.findByAccount_Id(accountId);
+        if (participations.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return participations.stream().map(participant -> {
+            Contest contest = participant.getContest();
+            int rank = leaderBoardService.computeRank(contest.getId(), participant.getId());
+            return ContestHistoryDTO.builder()
+                    .contestId(contest.getId())
+                    .contestTitle(contest.getTitle())
+                    .startTime(contest.getStartTime())
+                    .score(participant.getScore())
+                    .rank(rank)
+                    .build();
+        }).collect(Collectors.toList());
+    }
 }
