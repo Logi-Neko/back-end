@@ -496,15 +496,16 @@ public class EventProducer {
     /**
      * Calculate time bonus based on answer speed
      */
-    private int calculateTimeBonus(int answerTimeMs) {
-        // Simple time bonus: faster answers get more points
-        // Max bonus: 100 points, decreases with time
-        int maxBonus = 1000;
-        int maxTime = 30000; // 30 seconds
-        
-        if (answerTimeMs >= maxTime) return 0;
-        
-        return Math.max(0, maxBonus - (answerTimeMs * maxBonus / maxTime));
+    private int calculateScoreByTime(int answerTimeMs, int questionTimeLimitSec, int questionPoints) {
+        double questionTimeMs = questionTimeLimitSec * 1000.0;
+
+        if (answerTimeMs >= questionTimeMs || questionTimeMs <= 0) {
+            return 0;
+        }
+
+        double score = questionPoints * (1.0 - (answerTimeMs / questionTimeMs));
+
+        return Math.max(0, (int) Math.round(score));
     }
     
     /**
@@ -569,13 +570,17 @@ public class EventProducer {
                 try {
                     // Get participant's answer text
                     String participantAnswer = getAnswerTextFromOptionId(answer.answerOptionId(), question);
-                    
+
                     // Calculate score
                     boolean isCorrect = correctAnswer.equals(participantAnswer);
-                    int baseScore = isCorrect ? question.points() : 0;
-                    int timeBonus = calculateTimeBonus(answer.answerTime());
-                    int totalScore = baseScore + timeBonus;
-                    
+                    int totalScore;
+                    if (isCorrect) {
+                        // NẾU ĐÚNG: Tính điểm dựa trên thời gian
+                        totalScore = calculateScoreByTime(answer.answerTime(), question.timeLimit(), question.points());
+                    } else {
+                        // NẾU SAI: Điểm là 0
+                        totalScore = 0;
+                    }
                     // Update answer with correct score
                     answerService.updateAnswerScore(answer.id(), isCorrect, totalScore);
                     

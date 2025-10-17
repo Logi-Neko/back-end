@@ -1,6 +1,5 @@
 package exe2.learningapp.logineko.quizziz.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import exe2.learningapp.logineko.authentication.entity.Account;
 import jakarta.persistence.*;
@@ -10,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -37,6 +37,7 @@ public class Participant {
     @Column(name ="join_at", nullable = false)
     private LocalDateTime joinAt;
 
-    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL)
-    private List<Answer> submissions;
+    @Builder.Default
+    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Answer> submissions = new ArrayList<>();
 }

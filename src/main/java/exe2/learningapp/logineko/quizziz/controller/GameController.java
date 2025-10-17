@@ -2,6 +2,7 @@
 
 import exe2.learningapp.logineko.quizziz.dto.ContestDTO;
 import exe2.learningapp.logineko.quizziz.dto.LeaderBoardDTO;
+import exe2.learningapp.logineko.quizziz.dto.ParticipantDTO;
 import exe2.learningapp.logineko.quizziz.service.ContestService;
 import exe2.learningapp.logineko.quizziz.service.ContestQuestionService;
 import exe2.learningapp.logineko.quizziz.service.LeaderBoardService;
@@ -308,34 +309,40 @@ public class GameController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("success", false, "message", "Contest not found"));
             }
-            
+
             var contest = contestOpt.get();
-            
+
             // Check if contest is still open for joining
             if (!"OPEN".equals(contest.status().toString())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("success", false, "message", "Contest is not open for joining, current state: " + contest.status()));
             }
-            
+
             // Publish participant created event (EventProducer will handle participant creation)
-            eventProducer.publishParticipantCreated(contestId, accountId);
-            
-            log.info("✅ Account {} joined contest {} successfully", accountId, contestId);
+            var participant = participantService.createParticipant(contestId, accountId);
+
+            // SỬA Ở ĐÂY: Chuyển đổi Participant entity thành DTO để trả về cho client
+            var participantResponse = new ParticipantDTO.Participant(
+                    participant.getId(),
+                    participant.getAccount().getFirstName(),
+                    participant.getScore(),
+                    participant.getJoinAt()
+            );
+
+            // Đóng gói DTO vào trong phản hồi JSON
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "Joined contest successfully",
-                "data", Map.of(
-                    "contestId", contestId,
-                    "accountId", accountId,
-                    "contestTitle", contest.title(),
-                    "contestCode", contest.code()
-                )
+                    "success", true,
+                    "message", "Joined contest successfully",
+                    "data", participantResponse // <-- Quan trọng: Trả về đối tượng Participant
             ));
-            
+        } catch (IllegalStateException e) {
+            log.warn("⚠️ Failed to join contest {}: {}", contestId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", e.getMessage()));
         } catch (Exception e) {
-            log.error("❌ Error joining contest {} for account {}: {}", contestId, accountId, e.getMessage(), e);
+            log.error("❌ Error joining contest {}: {}", contestId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error joining contest: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error joining contest: " + e.getMessage()));
         }
     }
 
