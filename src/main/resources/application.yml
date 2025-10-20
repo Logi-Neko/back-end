@@ -12,6 +12,8 @@ spring:
     encoding: UTF-8
 
   datasource:
+#    url: jdbc:postgresql://ep-noisy-wave-a1gc5pap-pooler.ap-southeast-1.aws.neon.tech/neondb?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}&sslmode=require&channelBinding=require
+#    url: jdbc:postgresql://postgres:5432/logineko_be
     url: jdbc:postgresql://ep-twilight-pine-a1iw9jt5-pooler.ap-southeast-1.aws.neon.tech/neondb?user=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}&sslmode=require&channelBinding=require
     hikari:
       maximum-pool-size: 5

@@ -2,10 +2,26 @@ version: '3.8'
 
 services:
 
+  postgres:
+    image: postgres:15
+    container_name: logineko_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - logineko_network
+    restart: unless-stopped
+
   keycloak:
     image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
     # Use a custom entrypoint to build first, then start
+    depends_on:
+      - postgres
     entrypoint: [ "/bin/bash", "-c" ]
     command:
       - |
@@ -19,15 +35,14 @@ services:
 
       # Database config
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://ep-royal-sky-a1wya79r-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channelBinding=require
-      KC_DB_USERNAME: neondb_owner
-      KC_DB_PASSWORD: npg_BqSeuK9wp1iR
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres # Must match the password in
 
       # Hostname config
-      KC_HOSTNAME: keycloak
-      KC_HOSTNAME_URL: http://keycloak:8080
-      KC_HOSTNAME_STRICT: false
-      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HOSTNAME: auth.logineko.edu.vn # Your public domain
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT_HTTPS: true
       KC_HTTP_ENABLED: true
 #      KC_PROXY_HEADERS: xforwarded
 #      KC_PROXY: edge
@@ -81,6 +96,14 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     restart: unless-stopped
 
+    networks:
+      - logineko_network
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: logineko_cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token eyJhIjoiNTk2Y2Q4ZjM1M2ZhMmE3MDgwOTgxMzg4NzU3NWNmYWQiLCJ0IjoiNDRiOTM3NDUtYTBjNi00MTIyLWE3ZmMtZGQ2MjMzMTE5ZGYwIiwicyI6Iit6Z1NJSEEvcFhZUEtjNVc2OVlWVWgrOUdGMyt3TFdrS2dCdndEdjZoUXM9In0=
     networks:
       - logineko_network
 
