@@ -22,9 +22,7 @@ services:
     # Use a custom entrypoint to build first, then start
     depends_on:
       - postgres
-    entrypoint: [ "/bin/bash", "-c" ]
-    command:
-      - start --optimized
+    command: ["start", "--optimized"]
 
     environment:
       # Admin account
