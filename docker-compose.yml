@@ -24,9 +24,7 @@ services:
       - postgres
     entrypoint: [ "/bin/bash", "-c" ]
     command:
-      - |
-        /opt/keycloak/bin/kc.sh build --features=token-exchange,preview
-        /opt/keycloak/bin/kc.sh start --optimized
+      - start --optimized
 
     environment:
       # Admin account
