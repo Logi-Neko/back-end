@@ -19,11 +19,11 @@ services:
   keycloak:
     image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
-    # Use a custom entrypoint to build first, then start
     depends_on:
       - postgres
-    command: ["start", "--optimized"]
-
+    command:
+      - start
+      - --auto-build  # Auto build thay vì optimized
     environment:
       # Admin account
       KEYCLOAK_ADMIN: admin
@@ -38,12 +38,10 @@ services:
       KC_DB_URL_DATABASE: keycloak
 
       # Hostname config
-      KC_HOSTNAME: auth.logineko.edu.vn # Your public domain
+      KC_HOSTNAME: auth.logineko.edu.vn
       KC_PROXY: edge
       KC_HOSTNAME_STRICT_HTTPS: true
       KC_HTTP_ENABLED: true
-#      KC_PROXY_HEADERS: xforwarded
-#      KC_PROXY: edge
 
       # Connection pool settings
       KC_DB_POOL_INITIAL_SIZE: 10
@@ -59,12 +57,10 @@ services:
       KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_SUCCESS_LEVEL: info
       KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_ERROR_LEVEL: warn
 
-#    ports:
-#      - "8080:8080"
     restart: unless-stopped
-
     networks:
       - logineko_network
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     container_name: logineko_zookeeper
