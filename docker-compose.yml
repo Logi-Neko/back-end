@@ -21,9 +21,11 @@ services:
     container_name: logineko_keycloak
     depends_on:
       - postgres
+    entrypoint: [ "/bin/bash", "-c" ]
     command:
-      - start
-      - --auto-build  # Auto build thay vì optimized
+      - |
+        /opt/keycloak/bin/kc.sh build
+        /opt/keycloak/bin/kc.sh start
     environment:
       # Admin account
       KEYCLOAK_ADMIN: admin
