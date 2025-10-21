@@ -31,9 +31,11 @@ services:
 
       # Database config
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: postgres # Must match the password in
+      KC_DB_PASSWORD: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
 
       # Hostname config
       KC_HOSTNAME: auth.logineko.edu.vn # Your public domain
