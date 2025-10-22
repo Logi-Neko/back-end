@@ -1,28 +1,20 @@
 services:
-
   postgres:
     image: postgres:15
     container_name: logineko_postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
       POSTGRES_DB: keycloak
-      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    command:
-      - "postgres"
-      - "-c"
-      - "max_connections=200"
-      - "-c"
-      - "shared_buffers=256MB"
     networks:
       - logineko_network
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,32 +25,21 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    entrypoint: [ "/bin/bash", "-c" ]
-    command:
-      - |
-        /opt/keycloak/bin/kc.sh build
-        /opt/keycloak/bin/kc.sh start
+    command: start --optimized
     environment:
-      # Admin account
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      # Database config
       KC_DB: postgres
-      KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
-      # Hostname config
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
       KC_HOSTNAME: auth.logineko.edu.vn
       KC_PROXY: edge
-      KC_HOSTNAME_STRICT_HTTPS: true
+      KC_HOSTNAME_STRICT: false
       KC_HTTP_ENABLED: true
-      # Connection pool settings
-      KC_DB_POOL_INITIAL_SIZE: 10
-      KC_DB_POOL_MIN_SIZE: 5
-      KC_DB_POOL_MAX_SIZE: 20
-      # Performance optimizations
-      KC_CACHE: ispn
-      KC_CACHE_STACK: tcp
+      KC_HEALTH_ENABLED: true
+    ports:
+      - "8080:8080"
     restart: unless-stopped
     networks:
       - logineko_network
@@ -72,9 +53,9 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     restart: unless-stopped
-
     networks:
       - logineko_network
+
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: logineko_kafka
@@ -91,7 +72,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     restart: unless-stopped
-
     networks:
       - logineko_network
 
@@ -105,7 +85,6 @@ services:
 
   logineko-be:
     image: alfred0324/logineko-be:latest
-#    build: .
     container_name: logineko_be
     depends_on:
       - keycloak
@@ -115,11 +94,11 @@ services:
     env_file:
       - .env
     restart: always
-
     networks:
       - logineko_network
+
 volumes:
-  postgres-data:
+  postgres_data:
     driver: local
 
 networks:
