@@ -13,7 +13,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     command:
       - "postgres"
       - "-c"
@@ -121,7 +121,8 @@ services:
     networks:
       - logineko_network
 volumes:
-  postgres-data: {}
+  postgres-data:
+    driver: local
 
 networks:
   logineko_network:
