@@ -9,6 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: keycloak
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
@@ -26,7 +27,7 @@ services:
     command:
       - |
         /opt/keycloak/bin/kc.sh build
-        /opt/keycloak/bin/kc.sh start
+        /opt/keycloak/bin/kc.sh start --proxy-headers=x-forwarded
     environment:
       # Admin account
       KEYCLOAK_ADMIN: admin
@@ -42,8 +43,8 @@ services:
 
       # Hostname config
       KC_HOSTNAME: auth.logineko.edu.vn
-      KC_PROXY: edge
-      KC_HOSTNAME_STRICT_HTTPS: true
+#      KC_PROXY: edge
+#      KC_HOSTNAME_STRICT_HTTPS: true
       KC_HTTP_ENABLED: true
 
       # Connection pool settings
