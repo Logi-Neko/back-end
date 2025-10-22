@@ -20,8 +20,8 @@ services:
   keycloak:
     image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
-    depends_on:
-      - postgres
+#    depends_on:
+#      - postgres
     entrypoint: [ "/bin/bash", "-c" ]
     command:
       - |
