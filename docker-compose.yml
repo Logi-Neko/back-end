@@ -14,15 +14,27 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
     networks:
       - logineko_network
     restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   keycloak:
     image: keycloak/keycloak:25.0.6
     container_name: logineko_keycloak
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     entrypoint: [ "/bin/bash", "-c" ]
     command:
       - |
@@ -32,35 +44,23 @@ services:
       # Admin account
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-
       # Database config
       KC_DB: postgres
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres
-      KC_DB_URL_HOST: postgres
-      KC_DB_URL_PORT: 5432
-      KC_DB_URL_DATABASE: keycloak
-
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       # Hostname config
       KC_HOSTNAME: auth.logineko.edu.vn
       KC_PROXY: edge
       KC_HOSTNAME_STRICT_HTTPS: true
       KC_HTTP_ENABLED: true
-
       # Connection pool settings
       KC_DB_POOL_INITIAL_SIZE: 10
       KC_DB_POOL_MIN_SIZE: 5
       KC_DB_POOL_MAX_SIZE: 20
-      KC_DB_POOL_MAX_LIFETIME: 600000
-
       # Performance optimizations
       KC_CACHE: ispn
       KC_CACHE_STACK: tcp
-
-      # Session and token optimizations
-      KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_SUCCESS_LEVEL: info
-      KC_SPI_EVENTS_LISTENER_JBOSS_LOGGING_ERROR_LEVEL: warn
-
     restart: unless-stopped
     networks:
       - logineko_network
