@@ -90,12 +90,11 @@ jobs:
         run: |
           echo "🚀 Starting deployment on Windows..."
           
-          echo "🐳 Pulling latest image from Docker Hub..."
-          # Lệnh pull sẽ tự động kéo image được định nghĩa trong docker-compose.yml
-          docker compose pull
+          echo "🐳 Pulling latest images..."
+          docker compose pull logineko-be
           
           echo "🏗️ Recreating containers with the new image..."
           # Lệnh up sẽ chỉ tạo lại các service có image mới
-          docker compose up -d --force-recreate
+          docker compose up -d --no-deps --force-recreate logineko-be keycloak cloudflared
           
           echo "✅ Deployment completed!"
