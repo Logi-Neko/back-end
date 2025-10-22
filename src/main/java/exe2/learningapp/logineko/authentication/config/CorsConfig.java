@@ -30,6 +30,7 @@ public class CorsConfig {
         config.addAllowedOrigin("https://api.logineko.edu.vn");
         config.addAllowedOrigin("https://logineko.edu.vn");
         config.addAllowedOrigin("https://www.logineko.edu.vn");
+        config.addAllowedOrigin("https://logineko-admin.vercel.app");
         // --- Mạng LAN test ---
         config.addAllowedOriginPattern("http://192.168.*.*:*");
         config.addAllowedOriginPattern("http://10.*.*.*:*");
