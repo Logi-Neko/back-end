@@ -221,8 +221,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             if (subscription != null) {
                 subscription.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
                 subscriptionRepository.save(subscription);
-
-                Account account = currentUserProvider.getCurrentUser();
+                Account account = subscription.getAccount();
                 account.setPremium(true);
                 account.setPremiumUntil(subscription.getEndDate());
                 accountRepository.save(account);
