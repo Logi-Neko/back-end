@@ -1,5 +1,5 @@
 # Dockerfile
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # copy bất kỳ jar nào trong target thành app.jar
