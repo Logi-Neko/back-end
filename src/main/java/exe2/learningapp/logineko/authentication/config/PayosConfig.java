@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import vn.payos.PayOS;
+import vn.payos.core.ClientOptions;
 
 @Configuration
 public class PayosConfig {
@@ -18,6 +19,13 @@ public class PayosConfig {
 
     @Bean
     public PayOS payOS() {
-        return new PayOS(clientId, apiKey, checksumKey);
+        ClientOptions options =
+                ClientOptions.builder()
+                        .clientId(clientId)
+                        .apiKey(apiKey)
+                        .checksumKey(checksumKey)
+//                        .logLevel(ClientOptions.LogLevel.valueOf(logLevel.toUpperCase()))
+                        .build();
+        return new PayOS(options);
     }
 }

@@ -89,6 +89,9 @@ payos:
   client-id: ${PAYOS_CLIENT_ID}
   api-key: ${PAYOS_API_KEY}
   checksum-key: ${PAYOS_CHECKSUM_KEY}
+#  client-id: 8ea4f43e-77ee-4483-a378-eaf31fac45b4
+#  api-key: 3013c426-64e2-43ee-8f12-133e2fd86a6f
+#  checksum-key: 7ce7659fd96debcec7c6042b37eddecece6388cc71f98ae226ede17f9c62f4ab
   base-url: ${PAYOS_BASE_URL}
   success-page: ${PAYOS_SUCCESS_PAGE}
   failure-page: ${PAYOS_FAILURE_PAGE}

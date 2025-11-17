@@ -17,8 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.payos.PayOS;
-import vn.payos.type.Webhook;
-import vn.payos.type.WebhookData;
+import vn.payos.model.webhooks.*;
+//import vn.payos.type.Webhook;
+//import vn.payos.type.WebhookData;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -213,7 +214,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     @Transactional
     public Boolean handleSuccessfulPayment(Webhook webhook) throws Exception {
-        WebhookData webhookData = payOS.verifyPaymentWebhookData(webhook);
+        WebhookData webhookData = payOS.webhooks().verify(webhook);
 
         if ("00".equals(webhookData.getCode()) || "success".equals(webhookData.getDesc())) {
             Subscription subscription = subscriptionRepository.findById(webhookData.getOrderCode())

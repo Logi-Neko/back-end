@@ -8,7 +8,8 @@ import exe2.learningapp.logineko.authentication.entity.enums.SubscriptionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
-import vn.payos.type.Webhook;
+//import vn.payos.model.*;
+import vn.payos.model.webhooks.Webhook;
 
 import java.time.LocalDate;
 import java.util.List;

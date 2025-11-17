@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.payos.PayOS;
-import vn.payos.type.CheckoutResponseData;
-import vn.payos.type.PaymentData;
+//import vn.payos.type.CreatePaymentLinkRequest;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
+import vn.payos.model.v2.paymentRequests.PaymentLinkItem;
 
 
 @Service
@@ -23,15 +25,20 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public String createPaymentLink(long orderCode, int amount, String description) throws Exception {
-        PaymentData paymentData = PaymentData.builder()
+        CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
                 .orderCode(orderCode)
-                .amount(amount)
+                .amount((long) amount)
                 .description(description)
                 .returnUrl(successPage)
                 .cancelUrl(failurePage)
+                .item(PaymentLinkItem.builder()
+                        .name(description)
+                        .price((long) amount)
+                        .quantity(1)
+                        .build())
                 .build();
 
-        CheckoutResponseData data = payOS.createPaymentLink(paymentData);
+        CreatePaymentLinkResponse data = payOS.paymentRequests().create(paymentData);
 
         return data.getCheckoutUrl();
     }
