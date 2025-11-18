@@ -796,6 +796,7 @@ public class AccountServiceImpl implements AccountService , UserDetailsService {
                         .lastName(firstName+" "+lastName)
                         .username(email)
                         .userId(userId)
+                        .premium(false)
                         .roles(Collections.singleton(Role.USER))
                         .active(true)
                         .build();
