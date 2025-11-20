@@ -9,8 +9,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -18,21 +19,49 @@ import java.io.IOException;
 public class FileUtil {
 
     public long getDurationMp4(MultipartFile file) throws IOException {
+        // Validate file type
         if (!"video/mp4".equalsIgnoreCase(file.getContentType())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File không phải là video MP4");
         }
 
-        File tempFile = File.createTempFile("video", ".mp4");
-        file.transferTo(tempFile);
+        // Validate file is not empty
+        if (file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File video không được rỗng");
+        }
 
-        IsoFile isoFile = new IsoFile(tempFile.getAbsolutePath());
-        double lengthInSeconds =
-                (double) isoFile.getMovieBox().getMovieHeaderBox().getDuration() /
-                        isoFile.getMovieBox().getMovieHeaderBox().getTimescale();
+        IsoFile isoFile = null;
+        ReadableByteChannel channel = null;
 
-        isoFile.close();
-        tempFile.delete();
+        try {
+            // Convert InputStream to ReadableByteChannel
+            channel = Channels.newChannel(file.getInputStream());
+            isoFile = new IsoFile(channel);
 
-        return (long) lengthInSeconds;
+            double lengthInSeconds =
+                    (double) isoFile.getMovieBox().getMovieHeaderBox().getDuration() /
+                            isoFile.getMovieBox().getMovieHeaderBox().getTimescale();
+
+            return (long) lengthInSeconds;
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Không thể đọc thông tin video MP4: " + e.getMessage()
+            );
+        } finally {
+            // Ensure resources are properly closed
+            if (isoFile != null) {
+                try {
+                    isoFile.close();
+                } catch (Exception ignored) {
+                }
+            }
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 }
